@@ -1,0 +1,17 @@
+$-webkit-scrollbar-size: 10px;
+%-webkit-scrollbar-border-radius {
+  border-radius: $-webkit-scrollbar-size / 2;
+}
+::-webkit-scrollbar {
+  width: $-webkit-scrollbar-size;
+  height: $-webkit-scrollbar-size;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+  box-shadow: inset 0 0 $-webkit-scrollbar-size / 2 rgba(0,0,0,0.3);
+  @extend %-webkit-scrollbar-border-radius;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba($gray-dark, 0.5);
+  @extend %-webkit-scrollbar-border-radius;
+}

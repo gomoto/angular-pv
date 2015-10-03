@@ -35,8 +35,7 @@ $sv-pose-ruler-space-bottom: 1px;
   top: 0;
   left: 100%;
   background: $white;
-  border: 1px solid darken($gray-light, 10%);
-  box-shadow: 0 2px 2px $gray-light;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
   padding: 4px 0;
   & > li {
     display: block;
@@ -64,8 +63,9 @@ $sv-pose-ruler-space-bottom: 1px;
 
 
 .sv {
+  z-index: 1;//create stacking context for sequence viewer
   position: relative;
-  border: 1px solid $gray;
+  background: rgba($white, 0.8);
   padding: $sv-padding;
 }
 .sv-scrollport {
@@ -77,10 +77,10 @@ $sv-pose-ruler-space-bottom: 1px;
 
 
 .sv-header {
+  z-index: 4;//stacking context: .sv
   position: absolute;
   top: 2 * $sv-space;
   left: 2 * $sv-space;
-  z-index: 3;
 }
 .sv-header-icon {
   cursor: pointer;
@@ -138,10 +138,10 @@ $sv-pose-ruler-space-bottom: 1px;
   white-space: nowrap;
 }
 .sv-pose-header {
+  z-index: 3;//stacking context: .sv
   position: absolute;
   left: $sv-padding;
   width: $sv-fixed-column-width;
-  z-index: 2;
 }
 .sv-pose-name {
   float: right;
@@ -185,21 +185,20 @@ $sv-pose-ruler-space-bottom: 1px;
   vertical-align: top;
   cursor: pointer;
   font-size: 9px;
-  color: $gray-dark;
+  color: $white;
   position: relative;
   &:before {
     content: "";
+    z-index: -1;//stacking context: .sv
     position: absolute;
     left: ( 2 * $sv-residue-width - .9 * $sv-residue-width ) / 2;
     top: ( $sv-residue-height - .9 * $sv-residue-width ) / 2;
-    z-index: -1;
     height: .9 * $sv-residue-width;//sic.
     width: .9 * $sv-residue-width;
     border-radius: 50%;
-    background: $gray-light;
+    background: $gray;
   }
   &.picked {
-    color: $white;
     font-weight: 500;
     &:before {
       background: $gray-dark;
@@ -218,7 +217,7 @@ $sv-pose-ruler-space-bottom: 1px;
   font-family: 'Roboto Mono';
   box-shadow: 0 0 0 0px rgba(0,0,0,0);
   border-radius: 0;
-  z-index: 0;
+  z-index: 1;//stacking context: .sv
   position: relative;
   @include transition(
     box-shadow $sv-residue-transition,
@@ -228,7 +227,7 @@ $sv-pose-ruler-space-bottom: 1px;
   .sv-residue:hover:not(.picked) & {
     box-shadow: 0 0 0 $sv-hover-border-width $black;
     border-radius: 1px;
-    z-index: 1;
+    z-index: 2;//stacking context: .sv
   }
   .sv-residue.picked & {
     color: $white;

@@ -9,14 +9,13 @@ $white: #fdfdfd;
 
 body {
   @include user-select(none);
-  margin: 22px;
-
   font-size: 14px;
   font-family: Roboto, sans-serif;
   font-weight: 400;
   color: $black;
 }
 
+@import '-webkit-scrollbar';
 @import 'palette';
 @import 'protein-viewer';
 @import 'sequence-viewer';
