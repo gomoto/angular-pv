@@ -3,8 +3,9 @@ angular.module('CyDirectives')
   return {
     scope: {
       poses: '=',
-      togglePick: '&',
+      picks: '=',
       clearPicks: '&',
+      togglePick: '&',
       hover: '='
     },
     link: function(scope, element) {
@@ -70,7 +71,7 @@ angular.module('CyDirectives')
               viewer.autoZoom();
             } else {
               //async
-              pv.io.fetchPdb('pdb/' + newPose.pdb + '.pdb', function(structure) {
+              pv.io.fetchPdb(newPose.pdb + '.pdb', function(structure) {
                 structures[newPose.pdb] = structure;
                 viewer.renderAs(
                   newPose.id,
@@ -84,39 +85,61 @@ angular.module('CyDirectives')
           } else if (newPose.color !== oldPose.color) {
             viewer.get(newPose.id).colorBy(pv.color.uniform(newPose.color));
             viewer.requestRedraw();
-          } else if (!_.isEqual(newPose.picks, oldPose.picks)) {
-            //update the selection of this pose's rendering
-            var rendering = viewer.get(newPose.id);
-            var structure = rendering.structure();
-            //create empty selection (pv.mol.MolView)
-            var selection = structure.createEmptyView();
-            //collect picked residues
-            var residues = [];
-            structure.chains().forEach(function(chain) {
-              var chainName = chain.name();
-              if (typeof newPose.picks[chainName] === 'undefined') {
-                return;
-              }
-              chain.residues().forEach(function(residue) {
-                if (!residue.isAminoacid()) {
-                  return;
-                }
-                var residuePosition = residue.num();
-                if (typeof newPose.picks[chainName][residuePosition] === 'undefined') {
-                  return;
-                }
-                residues.push(residue);
-              });
-            });
-            selection.addResidues(residues);
-            rendering.setSelection(selection);
-
-            //once new selections are set, redraw
-            viewer.requestRedraw();
           }
         });
         //doesn't work correctly with async fetchPdb
         //console.log('# of viewering renderings', viewer.all().length);
+      }, true);
+
+      scope.$watch('picks', function(newPicks, oldPicks) {
+        var toBeRemoved = _.difference(_.keys(oldPicks), _.keys(newPicks));
+        var toBeUpdated = _.keys(newPicks);
+
+        toBeRemoved.forEach(function(poseId) {
+          var rendering = viewer.get(poseId);
+          if (rendering === null) {
+            //don't need to clear rendering selection if rendering was removed
+            return;
+          }
+          //create empty selection (pv.mol.MolView)
+          var selection = rendering.structure().createEmptyView();
+          rendering.setSelection(selection);
+        });
+
+        toBeUpdated.forEach(function(poseId) {
+          if (_.isEqual(newPicks[poseId], oldPicks[poseId])) {
+            //no change in this pose's picks
+            return;
+          }
+          //update the selection of this pose's rendering
+          var rendering = viewer.get(poseId);
+          var structure = rendering.structure();
+          //create empty selection (pv.mol.MolView)
+          var selection = structure.createEmptyView();
+          //collect picked residues
+          var residues = [];
+          structure.chains().forEach(function(chain) {
+            var chainName = chain.name();
+            if (typeof newPicks[poseId][chainName] === 'undefined') {
+              return;
+            }
+            chain.residues().forEach(function(residue) {
+              if (!residue.isAminoacid()) {
+                return;
+              }
+              var residuePosition = residue.num();
+              if (typeof newPicks[poseId][chainName][residuePosition] === 'undefined') {
+                return;
+              }
+              residues.push(residue);
+            });
+          });
+          selection.addResidues(residues);
+          rendering.setSelection(selection);
+        });
+
+        viewer.requestRedraw();
+
       }, true);
 
       viewer.on('click', function(picked, event) {
@@ -126,7 +149,6 @@ angular.module('CyDirectives')
           }
           var extendSelection = event.ctrlKey;
           if (!extendSelection) {
-            //clear picks of all poses
             scope.clearPicks();
           }
           var rendering = picked.object().geom;
@@ -192,6 +214,10 @@ angular.module('CyDirectives')
       var oldColor = [0,0,0,0];//pv needs to save color in an array
       function colorResidue(residue, color, saveOldColor) {
         var rendering = viewer.get(residue.pose);
+        if (rendering === null) {
+          //don't need to recolor rendering if rendering was removed
+          return;
+        }
         var structure = rendering.structure();
         var selection = structure.createEmptyView();
         var atom = structure

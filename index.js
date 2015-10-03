@@ -33,6 +33,10 @@ angular.module('cyViewer', ['CyDirectives'])
   var poseColors = ['#42A5F5', '#EF5350', '#AEEA00'];
   var renderModes = ['sline', 'lines', 'trace', 'lineTrace', 'cartoon', 'tube', 'spheres', 'ballsAndSticks'];//viewer.RENDER_MODES
 
+  //coordinate with $scope.poses:
+  //if a pose is removed, remove associated picks
+  $scope.picks = {};
+
   //single source of truth
   $scope.poses = [];
 
@@ -61,7 +65,6 @@ angular.module('cyViewer', ['CyDirectives'])
         name: name,
         color: color || poseColors[0],
         renderMode: renderMode || renderModes[4],
-        picks: {},
         chains: chains
       });
     });
@@ -70,40 +73,48 @@ angular.module('cyViewer', ['CyDirectives'])
     $scope.poses = _.filter($scope.poses, function(pose) {
       return pose.id !== poseId;
     });
+    delete $scope.picks[poseId];
   };
-  //define how to manipulate picks
-  $scope.clearPicks = function() {
-    $scope.poses.forEach(function(pose) {
-      pose.picks = {};
-    });
-  };
-  function addPick(pose, chainName, residuePosition) {
-    if (typeof pose.picks[chainName] === 'undefined') {
-      pose.picks[chainName] = {};
+  function addPick(poseId, chainName, residuePosition) {
+    if (typeof $scope.picks[poseId] === 'undefined') {
+      $scope.picks[poseId] = {};
     }
-    pose.picks[chainName][residuePosition] = true;
+    if (typeof $scope.picks[poseId][chainName] === 'undefined') {
+      $scope.picks[poseId][chainName] = {};
+    }
+    $scope.picks[poseId][chainName][residuePosition] = true;
   }
-  function removePick(pose, chainName, residuePosition) {
-    if (typeof pose.picks[chainName] === 'undefined') {
+  function removePick(poseId, chainName, residuePosition) {
+    if (
+      typeof $scope.picks[poseId] === 'undefined' ||
+      typeof $scope.picks[poseId][chainName] === 'undefined'
+    ) {
       return;
     }
-    delete pose.picks[chainName][residuePosition];
+    delete $scope.picks[poseId][chainName][residuePosition];
     //remove chain object if empty
-    if (_.isEqual(pose.picks[chainName], {})) {
-      delete pose.picks[chainName];
+    if (_.isEqual($scope.picks[poseId][chainName], {})) {
+      delete $scope.picks[poseId][chainName];
+    }
+    if (_.isEqual($scope.picks[poseId], {})) {
+      delete $scope.picks[poseId];
     }
   }
+  $scope.clearPicks = function() {
+    $scope.picks = {};
+  };
   $scope.togglePick = function(poseId, chainName, residuePosition) {
-    var pose = _.find($scope.poses, {id: poseId});
-    var isPicked = pose.picks[chainName] && pose.picks[chainName][residuePosition];
+    var isPicked = (
+      $scope.picks[poseId] &&
+      $scope.picks[poseId][chainName] &&
+      $scope.picks[poseId][chainName][residuePosition]
+    );
     if (isPicked) {
-      removePick(pose, chainName, residuePosition);
+      removePick(poseId, chainName, residuePosition);
     } else {
-      addPick(pose, chainName, residuePosition);
+      addPick(poseId, chainName, residuePosition);
     }
   };
-
-
 
   //visual test: simulate adding and removing poses
   $timeout(function() {
@@ -120,6 +131,6 @@ angular.module('cyViewer', ['CyDirectives'])
   //viewer(pv, sequence)-agnostic representation of hovered residue
   $scope.hover = null;
 
-  $scope.picks = {};
-  
+
+
 }]);

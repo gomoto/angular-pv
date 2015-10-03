@@ -17,8 +17,9 @@
 <body ng-controller="cyViewerCtrl">
   <cy-protein-viewer
     poses="poses"
-    toggle-pick="togglePick(poseId, chainName, residuePosition)"
+    picks="picks"
     clear-picks="clearPicks()"
+    toggle-pick="togglePick(poseId, chainName, residuePosition)"
     hover="hover">
   </cy-protein-viewer>
   <cy-sequence-viewer poses="poses" picks="picks"></cy-sequence-viewer>
