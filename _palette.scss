@@ -1,0 +1,51 @@
+//override inline styles (default pose color)
+.palette-clustal {
+  .A { background: #ccff00 !important }
+  .R { background: #1571f9 !important }//#0061ef,//#0000ff,
+  .N { background: #cc00ff !important }
+  .D { background: #ff0000 !important }
+  .C { background: #ffff00 !important }
+  .Q { background: #ff00cc !important }
+  .E { background: #ff0066 !important }
+  .G { background: #ff9900 !important }
+  .H { background: #5298ff !important }//#0066ff,
+  .I { background: #66ff00 !important }
+  .L { background: #33ff00 !important }
+  .K { background: #a269f5 !important }//#8433fb,//#761cfb,//#6600ff,
+  .M { background: #00ff00 !important }
+  .F { background: #00ff66 !important }
+  .P { background: #ffcc00 !important }
+  .S { background: #ff3300 !important }
+  .T { background: #ff6600 !important }
+  .W { background: #00ccff !important }
+  .Y { background: #00ffcc !important }
+  .V { background: #99ff00 !important }
+  .B { background: #ffffff !important }
+  .X { background: #ffffff !important }
+  .Z { background: #ffffff !important }
+}
+.palette-hydrophobicity {
+  .A { background: #EF5350 !important }//red
+  .B { background: #2196F3 !important }//blue
+  .C { background: #BA68C8 !important }//purple
+  .D { background: #2196F3 !important }
+  .E { background: #2196F3 !important }
+  .F { background: #EF5350 !important }
+  .G { background: #BA68C8 !important }
+  .H { background: #2196F3 !important }
+  .I { background: #EF5350 !important }
+  .K { background: #2196F3 !important }
+  .L { background: #EF5350 !important }
+  .M { background: #EF5350 !important }
+  .N { background: #2196F3 !important }
+  .P { background: #BA68C8 !important }
+  .Q { background: #2196F3 !important }
+  .R { background: #2196F3 !important }
+  .S { background: #BA68C8 !important }
+  .T { background: #BA68C8 !important }
+  .V { background: #EF5350 !important }
+  .W { background: #BA68C8 !important }
+  .X { background: #BA68C8 !important }
+  .Y { background: #BA68C8 !important }
+  .Z { background: #2196F3 !important }
+}

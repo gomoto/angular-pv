@@ -1,0 +1,22 @@
+@import 'compass';
+@import 'compass/reset';
+
+$black: #222;//Material 87%
+$gray-dark: #505050;//#767676;//Material 54%
+$gray: #9f9f9f;//Material 38%
+$gray-light: #dfdfdf;//Material 12%
+$white: #fdfdfd;
+
+body {
+  @include user-select(none);
+  margin: 22px;
+
+  font-size: 14px;
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  color: $black;
+}
+
+@import 'palette';
+@import 'protein-viewer';
+@import 'sequence-viewer';

@@ -1,0 +1,250 @@
+$sv-space: 4px;
+$sv-padding: 4 * $sv-space;
+$sv-residue-height: 20px;
+$sv-residue-width: 16px;
+$sv-residue-transition: .2s linear;
+$sv-menu-item-height: $sv-residue-height + 2 * $sv-space;
+$sv-fixed-column-width: 90px;
+$sv-hover-border-width: 2px;
+$sv-header-height: 40px;
+$sv-arrow-size: 4px;
+$sv-pose-ruler-height: 8px;
+$sv-pose-ruler-space-top: 2 * $sv-space;
+$sv-pose-ruler-space-bottom: 1px;
+
+%sv-cell {
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 400;
+  width: $sv-residue-width;
+}
+%sv-numbering {
+  display: inline-block;
+  height: $sv-pose-ruler-height;
+  line-height: $sv-pose-ruler-height;
+  font-size: $sv-pose-ruler-height;
+  letter-spacing: -0.1em;//font-family-dependent!
+  color: $gray;
+}
+%sv-menu {
+  //Extenders must display the menu!
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background: $white;
+  border: 1px solid darken($gray-light, 10%);
+  box-shadow: 0 2px 2px $gray-light;
+  padding: 4px 0;
+  & > li {
+    display: block;
+    height: $sv-menu-item-height;
+    line-height: $sv-menu-item-height;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding-left: 3 * $sv-space;
+    //make room for arrow:
+    padding-right: 3 * $sv-space + ($sv-arrow-size + 4 * $sv-space);
+    font-size: 14px;
+    white-space: nowrap;
+    position: relative;
+    &:hover {
+      background: $gray-light;
+    }
+  }
+}
+//fill space when ruler is showing:
+.sv-with-ruler {
+  margin-top: $sv-pose-ruler-height + $sv-pose-ruler-space-top + $sv-pose-ruler-space-bottom;
+}
+
+
+
+.sv {
+  position: relative;
+  border: 1px solid $gray;
+  padding: $sv-padding;
+}
+.sv-scrollport {
+  overflow-x: auto;
+  overflow-y: visible;
+  margin-left: $sv-fixed-column-width + $sv-padding;
+}
+
+
+
+.sv-header {
+  position: absolute;
+  top: 2 * $sv-space;
+  left: 2 * $sv-space;
+  z-index: 3;
+}
+.sv-header-icon {
+  cursor: pointer;
+  width: 5 * $sv-space;
+}
+.sv-header-menu {
+  @extend %sv-menu;
+  .sv-header--with-menu & {
+    display: block;
+  }
+}
+.sv-palettes {
+  @extend %sv-menu;
+  .sv-header-menu > li:hover & {
+    display: block;
+  }
+}
+.sv-info {
+  @extend %sv-menu;
+  .sv-header-menu > li:hover & {
+    display: block;
+  }
+  padding: 2 * $sv-space;
+  line-height: 1.5;
+  cursor: auto;
+}
+.sv-arrow-right {
+  position: absolute;
+  right: 2 * $sv-space;
+  top: ( $sv-menu-item-height - 2 * $sv-arrow-size ) / 2;
+  width: 0;
+  height: 0;
+  border-top: $sv-arrow-size solid transparent;
+  border-bottom: $sv-arrow-size solid transparent;
+  border-left: $sv-arrow-size solid $gray;
+}
+
+
+
+.sv-columns {
+  margin-left: 2 * $sv-residue-width;
+  white-space: nowrap;
+}
+.sv-column-number {
+  @extend %sv-cell;
+  @extend %sv-numbering;
+  height: 4 * $sv-space;
+  line-height: 4 * $sv-space;
+  padding-bottom: $sv-space;
+}
+
+
+
+.sv-pose {
+  white-space: nowrap;
+}
+.sv-pose-header {
+  position: absolute;
+  left: $sv-padding;
+  width: $sv-fixed-column-width;
+  z-index: 2;
+}
+.sv-pose-name {
+  float: right;
+  max-width: $sv-fixed-column-width;
+  height: $sv-residue-height;
+  line-height: $sv-residue-height;
+  cursor: pointer;
+  color: $gray;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  &.picked {
+    color: $black;
+  }
+}
+.sv-pose-menu {
+  @extend %sv-menu;
+  .sv-pose--with-menu & {
+    display: block;
+  }
+}
+
+
+
+.sv-chain {
+  display: inline-block;
+  //tricks to show sv-residue:hover box-shadows edges of scrollport:
+  .sv-pose:last-child & {
+    border-bottom: $sv-hover-border-width solid transparent;
+  }
+  &:last-child {
+    border-right: $sv-hover-border-width solid transparent;
+  }
+}
+.sv-chain-name {
+  display: inline-block;
+  height: $sv-residue-height;
+  line-height: $sv-residue-height;
+  width: 2 * $sv-residue-width;
+  text-align: center;
+  vertical-align: top;
+  cursor: pointer;
+  font-size: 9px;
+  color: $gray-dark;
+  position: relative;
+  &:before {
+    content: "";
+    position: absolute;
+    left: ( 2 * $sv-residue-width - .9 * $sv-residue-width ) / 2;
+    top: ( $sv-residue-height - .9 * $sv-residue-width ) / 2;
+    z-index: -1;
+    height: .9 * $sv-residue-width;//sic.
+    width: .9 * $sv-residue-width;
+    border-radius: 50%;
+    background: $gray-light;
+  }
+  &.picked {
+    color: $white;
+    font-weight: 500;
+    &:before {
+      background: $gray-dark;
+    }
+  }
+}
+
+
+
+.sv-residue {
+  @extend %sv-cell;
+}
+.sv-residue-code {
+  height: $sv-residue-height;
+  line-height: $sv-residue-height;
+  font-family: 'Roboto Mono';
+  box-shadow: 0 0 0 0px rgba(0,0,0,0);
+  border-radius: 0;
+  z-index: 0;
+  position: relative;
+  @include transition(
+    box-shadow $sv-residue-transition,
+    border-radius $sv-residue-transition,
+    z-index $sv-residue-transition
+  );
+  .sv-residue:hover:not(.picked) & {
+    box-shadow: 0 0 0 $sv-hover-border-width $black;
+    border-radius: 1px;
+    z-index: 1;
+  }
+  .sv-residue.picked & {
+    color: $white;
+    background: $gray-dark !important; //override inline style
+  }
+  .sv-residue.anchor & {
+    font-weight: 500;
+    background: $black !important; //override inline style and .picked style
+  }
+}
+.sv-residue-position {
+  @extend %sv-numbering;
+  padding-top: $sv-pose-ruler-space-top;
+  padding-bottom: $sv-pose-ruler-space-bottom;
+  .sv-residue.picked & {
+    color: $black;
+    font-weight: 500;
+  }
+}
