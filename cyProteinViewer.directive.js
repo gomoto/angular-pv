@@ -71,7 +71,7 @@ angular.module('CyDirectives')
               viewer.autoZoom();
             } else {
               //async
-              pv.io.fetchPdb(newPose.pdb + '.pdb', function(structure) {
+              pv.io.fetchPdb('pdb/' + newPose.pdb + '.pdb', function(structure) {
                 structures[newPose.pdb] = structure;
                 viewer.renderAs(
                   newPose.id,
