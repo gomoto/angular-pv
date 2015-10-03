@@ -1,0 +1,526 @@
+/* line 5, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+
+/* line 22, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+html {
+  line-height: 1;
+}
+
+/* line 24, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+ol, ul {
+  list-style: none;
+}
+
+/* line 26, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* line 28, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+caption, th, td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* line 30, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+q, blockquote {
+  quotes: none;
+}
+/* line 103, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+q:before, q:after, blockquote:before, blockquote:after {
+  content: "";
+  content: none;
+}
+
+/* line 32, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+a img {
+  border: none;
+}
+
+/* line 116, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+  display: block;
+}
+
+/* line 10, index.scss */
+body {
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  margin: 22px;
+  font-size: 14px;
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  color: #222;
+}
+
+/* line 3, _palette.scss */
+.palette-clustal .A {
+  background: #ccff00 !important;
+}
+/* line 4, _palette.scss */
+.palette-clustal .R {
+  background: #1571f9 !important;
+}
+/* line 5, _palette.scss */
+.palette-clustal .N {
+  background: #cc00ff !important;
+}
+/* line 6, _palette.scss */
+.palette-clustal .D {
+  background: #ff0000 !important;
+}
+/* line 7, _palette.scss */
+.palette-clustal .C {
+  background: #ffff00 !important;
+}
+/* line 8, _palette.scss */
+.palette-clustal .Q {
+  background: #ff00cc !important;
+}
+/* line 9, _palette.scss */
+.palette-clustal .E {
+  background: #ff0066 !important;
+}
+/* line 10, _palette.scss */
+.palette-clustal .G {
+  background: #ff9900 !important;
+}
+/* line 11, _palette.scss */
+.palette-clustal .H {
+  background: #5298ff !important;
+}
+/* line 12, _palette.scss */
+.palette-clustal .I {
+  background: #66ff00 !important;
+}
+/* line 13, _palette.scss */
+.palette-clustal .L {
+  background: #33ff00 !important;
+}
+/* line 14, _palette.scss */
+.palette-clustal .K {
+  background: #a269f5 !important;
+}
+/* line 15, _palette.scss */
+.palette-clustal .M {
+  background: #00ff00 !important;
+}
+/* line 16, _palette.scss */
+.palette-clustal .F {
+  background: #00ff66 !important;
+}
+/* line 17, _palette.scss */
+.palette-clustal .P {
+  background: #ffcc00 !important;
+}
+/* line 18, _palette.scss */
+.palette-clustal .S {
+  background: #ff3300 !important;
+}
+/* line 19, _palette.scss */
+.palette-clustal .T {
+  background: #ff6600 !important;
+}
+/* line 20, _palette.scss */
+.palette-clustal .W {
+  background: #00ccff !important;
+}
+/* line 21, _palette.scss */
+.palette-clustal .Y {
+  background: #00ffcc !important;
+}
+/* line 22, _palette.scss */
+.palette-clustal .V {
+  background: #99ff00 !important;
+}
+/* line 23, _palette.scss */
+.palette-clustal .B {
+  background: #ffffff !important;
+}
+/* line 24, _palette.scss */
+.palette-clustal .X {
+  background: #ffffff !important;
+}
+/* line 25, _palette.scss */
+.palette-clustal .Z {
+  background: #ffffff !important;
+}
+
+/* line 28, _palette.scss */
+.palette-hydrophobicity .A {
+  background: #EF5350 !important;
+}
+/* line 29, _palette.scss */
+.palette-hydrophobicity .B {
+  background: #2196F3 !important;
+}
+/* line 30, _palette.scss */
+.palette-hydrophobicity .C {
+  background: #BA68C8 !important;
+}
+/* line 31, _palette.scss */
+.palette-hydrophobicity .D {
+  background: #2196F3 !important;
+}
+/* line 32, _palette.scss */
+.palette-hydrophobicity .E {
+  background: #2196F3 !important;
+}
+/* line 33, _palette.scss */
+.palette-hydrophobicity .F {
+  background: #EF5350 !important;
+}
+/* line 34, _palette.scss */
+.palette-hydrophobicity .G {
+  background: #BA68C8 !important;
+}
+/* line 35, _palette.scss */
+.palette-hydrophobicity .H {
+  background: #2196F3 !important;
+}
+/* line 36, _palette.scss */
+.palette-hydrophobicity .I {
+  background: #EF5350 !important;
+}
+/* line 37, _palette.scss */
+.palette-hydrophobicity .K {
+  background: #2196F3 !important;
+}
+/* line 38, _palette.scss */
+.palette-hydrophobicity .L {
+  background: #EF5350 !important;
+}
+/* line 39, _palette.scss */
+.palette-hydrophobicity .M {
+  background: #EF5350 !important;
+}
+/* line 40, _palette.scss */
+.palette-hydrophobicity .N {
+  background: #2196F3 !important;
+}
+/* line 41, _palette.scss */
+.palette-hydrophobicity .P {
+  background: #BA68C8 !important;
+}
+/* line 42, _palette.scss */
+.palette-hydrophobicity .Q {
+  background: #2196F3 !important;
+}
+/* line 43, _palette.scss */
+.palette-hydrophobicity .R {
+  background: #2196F3 !important;
+}
+/* line 44, _palette.scss */
+.palette-hydrophobicity .S {
+  background: #BA68C8 !important;
+}
+/* line 45, _palette.scss */
+.palette-hydrophobicity .T {
+  background: #BA68C8 !important;
+}
+/* line 46, _palette.scss */
+.palette-hydrophobicity .V {
+  background: #EF5350 !important;
+}
+/* line 47, _palette.scss */
+.palette-hydrophobicity .W {
+  background: #BA68C8 !important;
+}
+/* line 48, _palette.scss */
+.palette-hydrophobicity .X {
+  background: #BA68C8 !important;
+}
+/* line 49, _palette.scss */
+.palette-hydrophobicity .Y {
+  background: #BA68C8 !important;
+}
+/* line 50, _palette.scss */
+.palette-hydrophobicity .Z {
+  background: #2196F3 !important;
+}
+
+/* line 1, _protein-viewer.scss */
+cy-protein-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* line 15, _sequence-viewer.scss */
+.sv-column-number, .sv-residue {
+  display: inline-block;
+  vertical-align: top;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 400;
+  width: 16px;
+}
+
+/* line 23, _sequence-viewer.scss */
+.sv-column-number, .sv-residue-position {
+  display: inline-block;
+  height: 8px;
+  line-height: 8px;
+  font-size: 8px;
+  letter-spacing: -0.1em;
+  color: #9f9f9f;
+}
+
+/* line 31, _sequence-viewer.scss */
+.sv-header-menu, .sv-palettes, .sv-info, .sv-pose-menu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background: #fdfdfd;
+  border: 1px solid #c6c6c6;
+  box-shadow: 0 2px 2px #dfdfdf;
+  padding: 4px 0;
+}
+/* line 41, _sequence-viewer.scss */
+.sv-header-menu > li, .sv-palettes > li, .sv-info > li, .sv-pose-menu > li {
+  display: block;
+  height: 28px;
+  line-height: 28px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding-left: 12px;
+  padding-right: 32px;
+  font-size: 14px;
+  white-space: nowrap;
+  position: relative;
+}
+/* line 54, _sequence-viewer.scss */
+.sv-header-menu > li:hover, .sv-palettes > li:hover, .sv-info > li:hover, .sv-pose-menu > li:hover {
+  background: #dfdfdf;
+}
+
+/* line 60, _sequence-viewer.scss */
+.sv-with-ruler {
+  margin-top: 17px;
+}
+
+/* line 66, _sequence-viewer.scss */
+.sv {
+  position: relative;
+  border: 1px solid #9f9f9f;
+  padding: 16px;
+}
+
+/* line 71, _sequence-viewer.scss */
+.sv-scrollport {
+  overflow-x: auto;
+  overflow-y: visible;
+  margin-left: 106px;
+}
+
+/* line 79, _sequence-viewer.scss */
+.sv-header {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 3;
+}
+
+/* line 85, _sequence-viewer.scss */
+.sv-header-icon {
+  cursor: pointer;
+  width: 20px;
+}
+
+/* line 91, _sequence-viewer.scss */
+.sv-header--with-menu .sv-header-menu {
+  display: block;
+}
+
+/* line 97, _sequence-viewer.scss */
+.sv-header-menu > li:hover .sv-palettes {
+  display: block;
+}
+
+/* line 101, _sequence-viewer.scss */
+.sv-info {
+  padding: 8px;
+  line-height: 1.5;
+  cursor: auto;
+}
+/* line 103, _sequence-viewer.scss */
+.sv-header-menu > li:hover .sv-info {
+  display: block;
+}
+
+/* line 110, _sequence-viewer.scss */
+.sv-arrow-right {
+  position: absolute;
+  right: 8px;
+  top: 10px;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 4px solid #9f9f9f;
+}
+
+/* line 123, _sequence-viewer.scss */
+.sv-columns {
+  margin-left: 32px;
+  white-space: nowrap;
+}
+
+/* line 127, _sequence-viewer.scss */
+.sv-column-number {
+  height: 16px;
+  line-height: 16px;
+  padding-bottom: 4px;
+}
+
+/* line 137, _sequence-viewer.scss */
+.sv-pose {
+  white-space: nowrap;
+}
+
+/* line 140, _sequence-viewer.scss */
+.sv-pose-header {
+  position: absolute;
+  left: 16px;
+  width: 90px;
+  z-index: 2;
+}
+
+/* line 146, _sequence-viewer.scss */
+.sv-pose-name {
+  float: right;
+  max-width: 90px;
+  height: 20px;
+  line-height: 20px;
+  cursor: pointer;
+  color: #9f9f9f;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* line 156, _sequence-viewer.scss */
+.sv-pose-name.picked {
+  color: #222;
+}
+
+/* line 162, _sequence-viewer.scss */
+.sv-pose--with-menu .sv-pose-menu {
+  display: block;
+}
+
+/* line 169, _sequence-viewer.scss */
+.sv-chain {
+  display: inline-block;
+}
+/* line 172, _sequence-viewer.scss */
+.sv-pose:last-child .sv-chain {
+  border-bottom: 2px solid transparent;
+}
+/* line 175, _sequence-viewer.scss */
+.sv-chain:last-child {
+  border-right: 2px solid transparent;
+}
+
+/* line 179, _sequence-viewer.scss */
+.sv-chain-name {
+  display: inline-block;
+  height: 20px;
+  line-height: 20px;
+  width: 32px;
+  text-align: center;
+  vertical-align: top;
+  cursor: pointer;
+  font-size: 9px;
+  color: #505050;
+  position: relative;
+}
+/* line 190, _sequence-viewer.scss */
+.sv-chain-name:before {
+  content: "";
+  position: absolute;
+  left: 8.8px;
+  top: 2.8px;
+  z-index: -1;
+  height: 14.4px;
+  width: 14.4px;
+  border-radius: 50%;
+  background: #dfdfdf;
+}
+/* line 201, _sequence-viewer.scss */
+.sv-chain-name.picked {
+  color: #fdfdfd;
+  font-weight: 500;
+}
+/* line 204, _sequence-viewer.scss */
+.sv-chain-name.picked:before {
+  background: #505050;
+}
+
+/* line 215, _sequence-viewer.scss */
+.sv-residue-code {
+  height: 20px;
+  line-height: 20px;
+  font-family: 'Roboto Mono';
+  box-shadow: 0 0 0 0px transparent;
+  border-radius: 0;
+  z-index: 0;
+  position: relative;
+  -moz-transition: box-shadow 0.2s linear, border-radius 0.2s linear, z-index 0.2s linear;
+  -o-transition: box-shadow 0.2s linear, border-radius 0.2s linear, z-index 0.2s linear;
+  -webkit-transition: box-shadow 0.2s linear, border-radius 0.2s linear, z-index 0.2s linear;
+  transition: box-shadow 0.2s linear, border-radius 0.2s linear, z-index 0.2s linear;
+}
+/* line 228, _sequence-viewer.scss */
+.sv-residue:hover:not(.picked) .sv-residue-code {
+  box-shadow: 0 0 0 2px #222;
+  border-radius: 1px;
+  z-index: 1;
+}
+/* line 233, _sequence-viewer.scss */
+.sv-residue.picked .sv-residue-code {
+  color: #fdfdfd;
+  background: #505050 !important;
+}
+/* line 237, _sequence-viewer.scss */
+.sv-residue.anchor .sv-residue-code {
+  font-weight: 500;
+  background: #222 !important;
+}
+
+/* line 242, _sequence-viewer.scss */
+.sv-residue-position {
+  padding-top: 8px;
+  padding-bottom: 1px;
+}
+/* line 246, _sequence-viewer.scss */
+.sv-residue.picked .sv-residue-position {
+  color: #222;
+  font-weight: 500;
+}
