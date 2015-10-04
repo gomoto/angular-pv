@@ -55,7 +55,7 @@ angular.module('cyViewer', ['CyDirectives'])
 
   //define how to add and remove poses:
   $scope.addPose = function (poseId, pdbId, name, color, renderMode) {
-    pv.io.fetchPdb('pdb/' + pdbId + '.pdb', function(structure) {
+    pv.io.fetchPdb('//www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb', function(structure) {
       //cache pdb structure
       $scope.pdbStructures[pdbId] = structure;
       //extract chains and residues
@@ -148,11 +148,11 @@ angular.module('cyViewer', ['CyDirectives'])
   //visual test: simulate adding and removing poses
   $timeout(function() {
     $scope.addPose('B49239482', '4ins', 'insulin');
-  }, 500)
+  }, 50)
   .then(function() {
     return $timeout(function() {
       $scope.addPose('R52635777', '2kpo', 'poseWithReallyLongName', poseColors[1]);
-    }, 500);
+    }, 50);
   });
 
 }]);

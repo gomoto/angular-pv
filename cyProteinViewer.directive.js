@@ -70,7 +70,7 @@ angular.module('CyDirectives')
               );
               viewer.autoZoom();
             } else {
-              pv.io.fetchPdb('pdb/' + newPose.pdb + '.pdb', function(structure) {
+              pv.io.fetchPdb('//www.rcsb.org/pdb/files/' + newPose.pdb.toUpperCase() + '.pdb', function(structure) {
                 viewer.renderAs(
                   newPose.id,
                   structure,
