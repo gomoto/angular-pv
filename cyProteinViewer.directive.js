@@ -165,12 +165,6 @@ angular.module('CyDirectives')
             chainName: chainName,
             residuePosition: residuePosition
           });
-          //set anchor
-          scope.anchor = {
-            pose: poseId,
-            chain: chainName,
-            residue: residuePosition
-          };
         });
 
         //for now, bundle picks into a single selection

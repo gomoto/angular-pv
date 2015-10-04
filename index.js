@@ -121,8 +121,16 @@ angular.module('cyViewer', ['CyDirectives'])
     );
     if (isPicked) {
       removePick(poseId, chainName, residuePosition);
+      //unset anchor
+      $scope.anchor = null;
     } else {
       addPick(poseId, chainName, residuePosition);
+      //set anchor
+      $scope.anchor = {
+        pose: poseId,
+        chain: chainName,
+        residue: residuePosition
+      };
     }
   };
 
