@@ -6,7 +6,8 @@ angular.module('CyDirectives')
       picks: '=',
       clearPicks: '&',
       togglePick: '&',
-      hover: '='
+      hover: '=',
+      anchor: '='
     },
     link: function(scope, element) {
 
@@ -163,6 +164,13 @@ angular.module('CyDirectives')
             chainName: chainName,
             residuePosition: residuePosition
           });
+
+          //set anchor
+          scope.anchor = {
+            pose: poseId,
+            chain: chainName,
+            residue: residuePosition
+          };
         });
       });
 

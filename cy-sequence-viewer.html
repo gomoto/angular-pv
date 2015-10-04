@@ -82,7 +82,7 @@
      --><div class="sv-residue" ng-repeat="residue in chain.residues track by $index" ng-init="residueIndex=$index"
              ng-class="{'picked': isResiduePicked(pose.id, chain.name, residue.position),
                         'sv-hover': isResidueHover(pose.id, chain.name, residue.position),
-                        'anchor': isResidueAnchor(poseIndex, chainIndex, residueIndex)}"
+                        'anchor': isResidueAnchor(pose.id, chain.name, residue.position)}"
              ng-mousedown="onResidueMousedown($event, poseIndex, chainIndex, residueIndex)"
              ng-mouseenter="onResidueMouseenter($event, poseIndex, chainIndex, residueIndex)"
              ng-mouseleave="onResidueMouseleave($event)">

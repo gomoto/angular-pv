@@ -126,12 +126,9 @@ angular.module('cyViewer', ['CyDirectives'])
     }, 500);
   });
 
-
-
-  //viewer(pv, sequence)-agnostic representation of hovered residue
+  //viewer(pv, sequence)-agnostic representation of residues:
   //properties: residue, chain, pose
   $scope.hover = null;
-
-
+  $scope.anchor = null;
 
 }]);
