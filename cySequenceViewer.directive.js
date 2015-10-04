@@ -37,6 +37,7 @@ angular.module('CyDirectives')
     scope: {
       poses: '&',
       picks: '=',
+      selections: '=',
       hover: '=',
       anchor: '='
     },
@@ -150,11 +151,6 @@ angular.module('CyDirectives')
         };
       }
 
-      //internal representation of $scope.picks
-      //separates picks into multiple selections
-      //each selection has same format as $scope.picks
-      var selections = [];
-
       function addSelection() {
         //pick all residues between the anchor and target
         var selection = {};
@@ -185,7 +181,7 @@ angular.module('CyDirectives')
             }
           }
         }
-        selections.push(selection);
+        $scope.selections.push(selection);
       }
       function addChainSelection(chainIndex) {
         //pick all residues in all chains between anchor and target
@@ -212,7 +208,7 @@ angular.module('CyDirectives')
             selection[pose.id][chain.name][residue.position] = true;
           }
         }
-        selections.push(selection);
+        $scope.selections.push(selection);
       }
       function addPoseSelection() {
         //pick all residues in all chains in poses between anchor and target
@@ -237,10 +233,10 @@ angular.module('CyDirectives')
             }
           }
         }
-        selections.push(selection);
+        $scope.selections.push(selection);
       }
       function updatePicks() {
-        $scope.picks = _.merge.apply(this, [{}].concat(selections));
+        $scope.picks = _.merge.apply(this, [{}].concat($scope.selections));
         $log.info($scope.picks);
       }
 
@@ -357,15 +353,15 @@ angular.module('CyDirectives')
             return;
           }
           if (event.ctrlKey) {
-            selections.pop();//replace last
+            $scope.selections.pop();//replace last
           } else {
-            selections.length = 0;//replace all
+            $scope.selections.length = 0;//replace all
           }
           setTarget(poseIndex, chainIndex, residueIndex);
           addSelection();
         } else {
           if (!event.ctrlKey) {
-            selections.length = 0;
+            $scope.selections.length = 0;
           }
           //new 1x1 selection
           //set as anchor
@@ -383,7 +379,7 @@ angular.module('CyDirectives')
             return;
           }
           //update last selection, based on anchor residue
-          selections.pop();
+          $scope.selections.pop();
           setTarget(poseIndex, chainIndex, residueIndex);
           addSelection();
           updatePicks();
@@ -416,7 +412,7 @@ angular.module('CyDirectives')
           return;
         }
         if (!event.ctrlKey) {
-          selections.length = 0;
+          $scope.selections.length = 0;
         }
         //set anchor to first residue in this chain
         //new 1xN selection
@@ -437,15 +433,15 @@ angular.module('CyDirectives')
             return;
           }
           if (event.ctrlKey) {
-            selections.pop();//replace last
+            $scope.selections.pop();//replace last
           } else {
-            selections.length = 0;//replace all
+            $scope.selections.length = 0;//replace all
           }
           setTarget(poseIndex, 0, 0);
           addPoseSelection();
         } else {
           if (!event.ctrlKey) {
-            selections.length = 0;
+            $scope.selections.length = 0;
           }
           //set anchor to first residue in first chain of this pose
           //new 1xN selection
@@ -472,15 +468,15 @@ angular.module('CyDirectives')
             return;
           }
           if (event.ctrlKey) {
-            selections.pop();//replace last
+            $scope.selections.pop();//replace last
           } else {
-            selections.length = 0;//replace all
+            $scope.selections.length = 0;//replace all
           }
           setTarget(target);
           addSelection();
         } else {
           if (!event.ctrlKey) {
-            selections.length = 0;
+            $scope.selections.length = 0;
           }
           //set anchor to first residue in column
           //new 1xN selection
@@ -499,7 +495,7 @@ angular.module('CyDirectives')
         //unset anchor residue
         unsetAnchor();
         //erase picks
-        selections.length = 0;
+        $scope.selections.length = 0;
         updatePicks();
       };
 
@@ -528,8 +524,8 @@ angular.module('CyDirectives')
             }
           }
         }
-        selections.length = 0;
-        selections.push($scope.picks);
+        $scope.selections.length = 0;
+        $scope.selections.push($scope.picks);
         updatePicks();
         hideMenus();
       };
@@ -564,8 +560,8 @@ angular.module('CyDirectives')
             });
           });
         });
-        selections.length = 0;
-        selections.push(inversion);
+        $scope.selections.length = 0;
+        $scope.selections.push(inversion);
         updatePicks();
       };
 
@@ -606,8 +602,8 @@ angular.module('CyDirectives')
             });
           });
         });
-        selections.length = 0;
-        selections.push(inversion);
+        $scope.selections.length = 0;
+        $scope.selections.push(inversion);
         updatePicks();
         hideMenus();
       };

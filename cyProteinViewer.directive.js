@@ -4,6 +4,7 @@ angular.module('CyDirectives')
     scope: {
       poses: '=',
       picks: '=',
+      selections: '=',
       clearPicks: '&',
       togglePick: '&',
       hover: '=',
@@ -144,27 +145,26 @@ angular.module('CyDirectives')
       }, true);
 
       viewer.on('click', function(picked, event) {
+        if (picked === null || picked.target() === null) {
+          return;
+        }
+        var extendSelection = event.ctrlKey;
+        if (!extendSelection) {
+          scope.clearPicks();
+        }
+        var rendering = picked.object().geom;
+        var atom = picked.object().atom;
+
+        var residuePosition = atom.residue().num();
+        var chainName = atom.residue().chain().name();
+        var poseId = rendering.name();
+
         scope.$apply(function() {
-          if (picked === null || picked.target() === null) {
-            return;
-          }
-          var extendSelection = event.ctrlKey;
-          if (!extendSelection) {
-            scope.clearPicks();
-          }
-          var rendering = picked.object().geom;
-          var atom = picked.object().atom;
-
-          var residuePosition = atom.residue().num();
-          var chainName = atom.residue().chain().name();
-          var poseId = rendering.name();
-
           scope.togglePick({
             poseId: poseId,
             chainName: chainName,
             residuePosition: residuePosition
           });
-
           //set anchor
           scope.anchor = {
             pose: poseId,
@@ -172,6 +172,14 @@ angular.module('CyDirectives')
             residue: residuePosition
           };
         });
+
+        //for now, bundle picks into a single selection
+        //need to $apply scope.picks before reading it
+        scope.$apply(function() {
+          scope.selections.length = 0;
+          scope.selections.push(scope.picks);
+        });
+
       });
 
       //Don't wrap entire listener in $apply;
