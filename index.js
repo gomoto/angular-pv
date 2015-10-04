@@ -74,23 +74,27 @@ angular.module('cyViewer', ['CyDirectives'])
           residues: residues
         };
       });
-      $scope.poses.push({
-        id: poseId,
-        pdb: pdbId,
-        name: name,
-        color: color || poseColors[0],
-        renderMode: renderMode || renderModes[4],
-        chains: chains
+      $scope.$apply(function() {
+        $scope.poses.push({
+          id: poseId,
+          pdb: pdbId,
+          name: name,
+          color: color || poseColors[0],
+          renderMode: renderMode || renderModes[4],
+          chains: chains
+        });
       });
     });
   };
   $scope.removePose = function(poseId) {
-    $scope.poses = _.filter($scope.poses, function(pose) {
-      return pose.id !== poseId;
+    $scope.apply(function() {
+      $scope.poses = _.filter($scope.poses, function(pose) {
+        return pose.id !== poseId;
+      });
+      delete $scope.picks[poseId];
+      //when are pdb structures removed from cache?
+      //delete $scope.pdbStructures[poseId];
     });
-    delete $scope.picks[poseId];
-    //when are pdb structures removed from cache?
-    //delete $scope.pdbStructures[poseId];
   };
   function addPick(poseId, chainName, residuePosition) {
     if (typeof $scope.picks[poseId] === 'undefined') {
