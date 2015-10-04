@@ -47,13 +47,18 @@ angular.module('cyViewer', ['CyDirectives'])
   $scope.hover = null;
   $scope.anchor = null;
 
+  //cache pdb structures processed by pv
+  $scope.pdbStructures = {};
+
   //single source of truth
   $scope.poses = [];
 
   //define how to add and remove poses:
   $scope.addPose = function (poseId, pdbId, name, color, renderMode) {
-    //get pdb data, then add new pose
     pv.io.fetchPdb('pdb/' + pdbId + '.pdb', function(structure) {
+      //cache pdb structure
+      $scope.pdbStructures[pdbId] = structure;
+      //extract chains and residues
       var chains = structure.chains().map(function(chain) {
         var residues = [];
         chain.residues().forEach(function(residue) {
@@ -84,6 +89,8 @@ angular.module('cyViewer', ['CyDirectives'])
       return pose.id !== poseId;
     });
     delete $scope.picks[poseId];
+    //when are pdb structures removed from cache?
+    //delete $scope.pdbStructures[poseId];
   };
   function addPick(poseId, chainName, residuePosition) {
     if (typeof $scope.picks[poseId] === 'undefined') {
