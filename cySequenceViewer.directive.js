@@ -36,7 +36,8 @@ angular.module('CyDirectives')
     templateUrl: 'cy-sequence-viewer.html',
     scope: {
       poses: '&',
-      picks: '='
+      picks: '=',
+      hover: '='
     },
     link: function(scope, element) {
       element.on('contextmenu', contextmenuListener);
@@ -290,6 +291,18 @@ angular.module('CyDirectives')
         return typeof $scope.picks[poseId] !== 'undefined';
       };
 
+      $scope.isResidueHover = function(poseId, chainId, residueId) {
+        //Returns true if residue is the hover residue
+        if ($scope.hover === null) {
+          return false;
+        }
+        return (
+          $scope.hover.pose === poseId &&
+          $scope.hover.chain === chainId &&
+          $scope.hover.residue === residueId
+        );
+      };
+
       $scope.isResidueAnchor = function(poseIndex, chainIndex, residueIndex) {
         //Returns true if residue is the anchor residue
         var residue = transformIndexes(poseIndex, chainIndex, residueIndex);
@@ -340,7 +353,24 @@ angular.module('CyDirectives')
           setTarget(poseIndex, chainIndex, residueIndex);
           addSelection();
           updatePicks();
+        } else {
+          //set hover residue
+          angular.element(event.currentTarget).addClass('sv-hover');
+          var pose = $scope.poses[poseIndex];
+          var chain = pose.chains[chainIndex];
+          var residue = chain.residues[residueIndex];
+          $scope.hover = {
+            pose: pose.id,
+            chain: chain.name,
+            residue: residue.position
+          };
         }
+      };
+
+      $scope.onResidueMouseleave = function(event) {
+        //unset hover residue
+        angular.element(event.currentTarget).removeClass('sv-hover');
+        $scope.hover = null;
       };
 
       $scope.onChainMousedown = function(event, poseIndex, chainIndex) {

@@ -129,6 +129,7 @@ angular.module('cyViewer', ['CyDirectives'])
 
 
   //viewer(pv, sequence)-agnostic representation of hovered residue
+  //properties: residue, chain, pose
   $scope.hover = null;
 
 

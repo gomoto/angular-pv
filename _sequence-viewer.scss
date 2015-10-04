@@ -224,7 +224,7 @@ $sv-pose-ruler-space-bottom: 1px;
     border-radius $sv-residue-transition,
     z-index $sv-residue-transition
   );
-  .sv-residue:hover:not(.picked) & {
+  .sv-hover:not(.picked) & {
     box-shadow: 0 0 0 $sv-hover-border-width $black;
     border-radius: 1px;
     z-index: 2;//stacking context: .sv
