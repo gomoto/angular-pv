@@ -18,10 +18,18 @@
   <cy-protein-viewer
     poses="poses"
     picks="picks"
+    selections="selections"
     clear-picks="clearPicks()"
     toggle-pick="togglePick(poseId, chainName, residuePosition)"
-    hover="hover">
+    hover="hover"
+    anchor="anchor">
   </cy-protein-viewer>
-  <cy-sequence-viewer poses="poses" picks="picks"></cy-sequence-viewer>
+  <cy-sequence-viewer
+    poses="poses"
+    picks="picks"
+    selections="selections"
+    hover="hover"
+    anchor="anchor">
+  </cy-sequence-viewer>
 </body>
 </html>

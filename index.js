@@ -37,6 +37,16 @@ angular.module('cyViewer', ['CyDirectives'])
   //if a pose is removed, remove associated picks
   $scope.picks = {};
 
+  //intermediate representation of $scope.picks
+  //separates picks into multiple selections
+  //each selection has same format as $scope.picks
+  $scope.selections = [];
+
+  //viewer(pv, sequence)-agnostic representation of residues:
+  //properties: residue, chain, pose
+  $scope.hover = null;
+  $scope.anchor = null;
+
   //single source of truth
   $scope.poses = [];
 
@@ -125,12 +135,5 @@ angular.module('cyViewer', ['CyDirectives'])
       $scope.addPose('R52635777', '2kpo', 'poseWithReallyLongName', poseColors[1]);
     }, 500);
   });
-
-
-
-  //viewer(pv, sequence)-agnostic representation of hovered residue
-  $scope.hover = null;
-
-
 
 }]);
