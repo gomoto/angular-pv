@@ -4,25 +4,7 @@
 //Element.classList not supported < IE9
 
 angular.module('CyDirectives')
-.directive('cySequenceViewer', ['$log', function($log) {
-  /**
-   * Search for a specified className on an element and its ancestors.
-   * Once found, return the element. If not found, return null.
-   *
-   * @param {Element} element The element from which to start searching
-   * @param {String} className The class name for which to search
-   * @return {Element | null} The element with the className
-   */
-  function findElementWithClassName(element, className) {
-    while (element) {
-      if ( element.classList && element.classList.contains(className) ) {
-        return element;
-      }
-      element = element.parentNode;
-    }
-    return null;
-  }
-
+.directive('cySequenceViewer', ['$document', '$log', function($document, $log) {
   function hideMenus() {
     //hide all pose menus
     var poses = document.querySelectorAll('.sv-pose');
@@ -30,7 +12,6 @@ angular.module('CyDirectives')
       poses[i].classList.remove('sv-pose--with-menu');
     }
   }
-
   return {
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
@@ -42,9 +23,15 @@ angular.module('CyDirectives')
       anchor: '='
     },
     link: function(scope, element) {
+      var domElement = element[0];
+
       element.on('contextmenu', contextmenuListener);
+      $document.on('mousedown', hidePoseMenus);
+      $document.on('mousedown', hideSequenceViewerMenu);
       scope.$on('$destroy', function() {
         element.off('contextmenu', contextmenuListener);
+        $document.off('mousedown', hidePoseMenus);
+        $document.off('mousedown', hideSequenceViewerMenu);
       });
       function contextmenuListener(event) {
         //prevent default context menu anywhere in this component
@@ -58,6 +45,40 @@ angular.module('CyDirectives')
           poseElement.classList.add('sv-pose--with-menu');
         }
       }
+      function hidePoseMenus(event) {
+        //if event originated from within pose-menu, don't hide
+        if (findElementWithClassName(event.target, 'sv-pose-menu')) {
+          return;
+        }
+        hideMenus();
+      }
+      function hideSequenceViewerMenu (event) {
+        //if event originated from within sv-header, don't hide
+        if (findElementWithClassName(event.target, 'sv-header')) {
+          return;
+        }
+        var sequenceViewerMenu = event.currentTarget.querySelector('.sv-header');
+        angular.element(sequenceViewerMenu).removeClass('sv-header--with-menu');
+      }
+
+      /**
+       * Search for a specified className on an element and its ancestors.
+       * Once found, return the element. If not found, return null.
+       *
+       * @param {Element} element The element from which to start searching
+       * @param {String} className The class name for which to search
+       * @return {Element | null} The element with the className
+       */
+      function findElementWithClassName(element, className) {
+        while (element) {
+          if ( element.classList && element.classList.contains(className) ) {
+            return element;
+          }
+          element = element.parentNode;
+        }
+        return null;
+      }
+
     },
     controller: function($scope) {
       var chainLabelWidth = 2;
@@ -606,23 +627,6 @@ angular.module('CyDirectives')
         $scope.selections.push(inversion);
         updatePicks();
         hideMenus();
-      };
-
-      $scope.hidePoseMenus = function(event) {
-        //if event originated from within pose-menu, don't hide
-        if (findElementWithClassName(event.target, 'sv-pose-menu')) {
-          return;
-        }
-        hideMenus();
-      };
-
-      $scope.hideSequenceViewerMenu = function(event) {
-        //if event originated from within sv-header, don't hide
-        if (findElementWithClassName(event.target, 'sv-header')) {
-          return;
-        }
-        var sequenceViewerMenu = event.currentTarget.querySelector('.sv-header');
-        angular.element(sequenceViewerMenu).removeClass('sv-header--with-menu');
       };
 
       $scope.openSequenceViewerMenu = function(event) {
