@@ -285,6 +285,7 @@ body {
 
 /* line 1, _protein-viewer.scss */
 cy-protein-viewer {
+  z-index: 1;
   position: fixed;
   top: 0;
   left: 0;
@@ -348,20 +349,21 @@ cy-protein-viewer {
 
 /* line 65, _sequence-viewer.scss */
 .sv {
-  z-index: 1;
+  z-index: 3;
   position: relative;
   background: rgba(253, 253, 253, 0.8);
   padding: 16px;
+  min-height: 4px;
 }
 
-/* line 71, _sequence-viewer.scss */
+/* line 72, _sequence-viewer.scss */
 .sv-scrollport {
   overflow-x: auto;
   overflow-y: visible;
   margin-left: 106px;
 }
 
-/* line 79, _sequence-viewer.scss */
+/* line 80, _sequence-viewer.scss */
 .sv-header {
   z-index: 4;
   position: absolute;
@@ -369,34 +371,34 @@ cy-protein-viewer {
   left: 8px;
 }
 
-/* line 85, _sequence-viewer.scss */
+/* line 86, _sequence-viewer.scss */
 .sv-header-icon {
   cursor: pointer;
   width: 20px;
 }
 
-/* line 91, _sequence-viewer.scss */
+/* line 92, _sequence-viewer.scss */
 .sv-header--with-menu .sv-header-menu {
   display: block;
 }
 
-/* line 97, _sequence-viewer.scss */
+/* line 98, _sequence-viewer.scss */
 .sv-header-menu > li:hover .sv-palettes {
   display: block;
 }
 
-/* line 101, _sequence-viewer.scss */
+/* line 102, _sequence-viewer.scss */
 .sv-info {
   padding: 8px;
   line-height: 1.5;
   cursor: auto;
 }
-/* line 103, _sequence-viewer.scss */
+/* line 104, _sequence-viewer.scss */
 .sv-header-menu > li:hover .sv-info {
   display: block;
 }
 
-/* line 110, _sequence-viewer.scss */
+/* line 111, _sequence-viewer.scss */
 .sv-arrow-right {
   position: absolute;
   right: 8px;
@@ -408,25 +410,25 @@ cy-protein-viewer {
   border-left: 4px solid #9f9f9f;
 }
 
-/* line 123, _sequence-viewer.scss */
+/* line 124, _sequence-viewer.scss */
 .sv-columns {
   margin-left: 32px;
   white-space: nowrap;
 }
 
-/* line 127, _sequence-viewer.scss */
+/* line 128, _sequence-viewer.scss */
 .sv-column-number {
   height: 16px;
   line-height: 16px;
   padding-bottom: 4px;
 }
 
-/* line 137, _sequence-viewer.scss */
+/* line 138, _sequence-viewer.scss */
 .sv-pose {
   white-space: nowrap;
 }
 
-/* line 140, _sequence-viewer.scss */
+/* line 141, _sequence-viewer.scss */
 .sv-pose-header {
   z-index: 3;
   position: absolute;
@@ -434,7 +436,7 @@ cy-protein-viewer {
   width: 90px;
 }
 
-/* line 146, _sequence-viewer.scss */
+/* line 147, _sequence-viewer.scss */
 .sv-pose-name {
   float: right;
   max-width: 90px;
@@ -446,30 +448,30 @@ cy-protein-viewer {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-/* line 156, _sequence-viewer.scss */
+/* line 157, _sequence-viewer.scss */
 .sv-pose-name.picked {
   color: #222;
 }
 
-/* line 162, _sequence-viewer.scss */
+/* line 163, _sequence-viewer.scss */
 .sv-pose--with-menu .sv-pose-menu {
   display: block;
 }
 
-/* line 169, _sequence-viewer.scss */
+/* line 170, _sequence-viewer.scss */
 .sv-chain {
   display: inline-block;
 }
-/* line 172, _sequence-viewer.scss */
+/* line 173, _sequence-viewer.scss */
 .sv-pose:last-child .sv-chain {
   border-bottom: 2px solid transparent;
 }
-/* line 175, _sequence-viewer.scss */
+/* line 176, _sequence-viewer.scss */
 .sv-chain:last-child {
   border-right: 2px solid transparent;
 }
 
-/* line 179, _sequence-viewer.scss */
+/* line 180, _sequence-viewer.scss */
 .sv-chain-name {
   display: inline-block;
   height: 20px;
@@ -482,7 +484,7 @@ cy-protein-viewer {
   color: #fdfdfd;
   position: relative;
 }
-/* line 190, _sequence-viewer.scss */
+/* line 191, _sequence-viewer.scss */
 .sv-chain-name:before {
   content: "";
   z-index: -1;
@@ -494,16 +496,16 @@ cy-protein-viewer {
   border-radius: 50%;
   background: #9f9f9f;
 }
-/* line 201, _sequence-viewer.scss */
+/* line 202, _sequence-viewer.scss */
 .sv-chain-name.picked {
   font-weight: 500;
 }
-/* line 203, _sequence-viewer.scss */
+/* line 204, _sequence-viewer.scss */
 .sv-chain-name.picked:before {
   background: #505050;
 }
 
-/* line 214, _sequence-viewer.scss */
+/* line 215, _sequence-viewer.scss */
 .sv-residue-code {
   height: 20px;
   line-height: 20px;
@@ -517,30 +519,130 @@ cy-protein-viewer {
   -webkit-transition: box-shadow 0.2s linear, border-radius 0.2s linear, z-index 0.2s linear;
   transition: box-shadow 0.2s linear, border-radius 0.2s linear, z-index 0.2s linear;
 }
-/* line 227, _sequence-viewer.scss */
+/* line 228, _sequence-viewer.scss */
 .sv-hover:not(.picked) .sv-residue-code {
   box-shadow: 0 0 0 2px #222;
   border-radius: 1px;
   z-index: 2;
 }
-/* line 232, _sequence-viewer.scss */
+/* line 233, _sequence-viewer.scss */
 .sv-residue.picked .sv-residue-code {
   color: #fdfdfd;
   background: #505050 !important;
 }
-/* line 236, _sequence-viewer.scss */
+/* line 237, _sequence-viewer.scss */
 .sv-residue.anchor .sv-residue-code {
   font-weight: 500;
   background: #222 !important;
 }
 
-/* line 241, _sequence-viewer.scss */
+/* line 242, _sequence-viewer.scss */
 .sv-residue-position {
   padding-top: 8px;
   padding-bottom: 1px;
 }
-/* line 245, _sequence-viewer.scss */
+/* line 246, _sequence-viewer.scss */
 .sv-residue.picked .sv-residue-position {
   color: #222;
   font-weight: 500;
+}
+
+/* line 27, index.scss */
+.pose-creator {
+  z-index: 2;
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  background: rgba(253, 253, 253, 0.8);
+  overflow: hidden;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
+}
+/* line 38, index.scss */
+.pose-creator.pose-creator--open {
+  width: 180px;
+  height: 132px;
+  border-radius: 2px;
+}
+
+/* line 45, index.scss */
+.pose-creator-close {
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  right: 0;
+  text-align: center;
+  color: #505050;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 28px;
+  transform: rotate(135deg);
+  transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, transform 0.4s ease;
+}
+/* line 59, index.scss */
+.pose-creator--open .pose-creator-close {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 20px;
+  transform: rotate(0deg);
+}
+
+/* line 70, index.scss */
+.pose-creator-input {
+  background: transparent;
+  color: #505050;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  border: 0;
+  border-bottom: 2px solid #9f9f9f;
+  margin-bottom: 16px;
+  padding: 4px 0;
+  width: 100%;
+}
+/* line 61, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+.pose-creator-input:-moz-placeholder {
+  color: #9f9f9f;
+  font-style: italic;
+}
+/* line 64, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+.pose-creator-input::-moz-placeholder {
+  color: #9f9f9f;
+  font-style: italic;
+}
+/* line 67, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+.pose-creator-input:-ms-input-placeholder {
+  color: #9f9f9f;
+  font-style: italic;
+}
+/* line 56, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
+.pose-creator-input::-webkit-input-placeholder {
+  color: #9f9f9f;
+  font-style: italic;
+}
+/* line 84, index.scss */
+.pose-creator-input:focus {
+  outline: 0;
+  border-bottom-color: #505050;
+}
+
+/* line 89, index.scss */
+.pose-creator-content {
+  padding: 32px 24px;
+  opacity: 0;
+  transition: opacity .1s ease .1s;
+}
+/* line 94, index.scss */
+.pose-creator--open .pose-creator-content {
+  opacity: 1;
+  transition: opacity .05s ease;
+}
+
+/* line 99, index.scss */
+.pose-creator-submit {
+  display: none;
 }
