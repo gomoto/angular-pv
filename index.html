@@ -15,6 +15,7 @@
   <title>Protein + Sequence Viewer</title>
 </head>
 <body ng-controller="cyViewerCtrl">
+
   <cy-protein-viewer
     poses="poses"
     picks="picks"
@@ -25,6 +26,7 @@
     hover="hover"
     anchor="anchor">
   </cy-protein-viewer>
+
   <cy-sequence-viewer
     poses="poses"
     picks="picks"
@@ -32,5 +34,19 @@
     hover="hover"
     anchor="anchor">
   </cy-sequence-viewer>
+
+  <form
+    class="pose-creator"
+    ng-class="{'pose-creator--open': isPoseCreatorOpen}"
+    ng-submit="createPose(newPose.pdb, newPose.name); isPoseCreatorOpen=false">
+    <span class="pose-creator-close" ng-click="isPoseCreatorOpen=!isPoseCreatorOpen">&#215;</span>
+    <div class="pose-creator-content">
+      <input type="text" class="pose-creator-input" ng-model="newPose.pdb" placeholder="PDB ID" required>
+      <input type="text" class="pose-creator-input" ng-model="newPose.name" placeholder="Name">
+      <input type="submit" class="pose-creator-submit">
+    </div>
+  </form>
+
+  </div>
 </body>
 </html>

@@ -145,14 +145,17 @@ angular.module('cyViewer', ['CyDirectives'])
     }
   };
 
-  //visual test: simulate adding and removing poses
-  $timeout(function() {
-    $scope.addPose('B49239482', '4ins', 'insulin');
-  }, 50)
-  .then(function() {
-    return $timeout(function() {
-      $scope.addPose('R52635777', '2kpo', 'poseWithReallyLongName', poseColors[1]);
-    }, 50);
-  });
+  $scope.newPose = {};
+  $scope.isPoseCreatorOpen = false;
+  $scope.createPose = function(pdbId, name) {
+    //clear newPose model
+    $scope.newPose = {};
+    //stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+    var poseId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+    name = name || 'Pose ' + ($scope.poses.length + 1);
+    var color = poseColors[$scope.poses.length % poseColors.length];
+    var renderMode = renderModes[4];
+    $scope.addPose(poseId, pdbId, name, color, renderMode);
+  };
 
 }]);
