@@ -1,7 +1,7 @@
 <div class="sv" ng-class="[palette.class]">
   <div class="sv-header" ng-click="openSequenceViewerMenu($event)">
     <img class="sv-header-icon" src="cyrus-icon.svg" alt="Sequence Viewer">
-    <ul class="sv-header-menu">
+    <ul class="sv-header-menu" ng-show="poses.length > 0">
       <li>
         <span>Color scheme</span>
         <span class="sv-arrow-right"></span>
@@ -14,13 +14,13 @@
         </ul>
       </li>
       <li ng-click="invertPicks()">
-          Invert all
+        Invert all
       </li>
       <li ng-click="erasePicks()">
-          Clear all
+        Clear all
       </li>
       <li ng-click="showAllPoseRulers()">
-          Show all rulers
+        Show all rulers
       </li>
       <li ng-click="hideAllPoseRulers()">
         Hide all rulers
@@ -52,22 +52,22 @@
         <div class="sv-pose-name"
              ng-class="{'picked': isPosePicked(pose.id)}"
              ng-mousedown="onPoseMousedown($event, poseIndex)">
-             {{pose.name}}
+          {{pose.name}}
         </div>
         <ul class="sv-pose-menu">
           <li ng-click="showPoseRuler(pose.id)"
               ng-hide="isPoseRulerShowing(pose.id)">
-              Show ruler
+            Show ruler
           </li>
           <li ng-click="hidePoseRuler(pose.id)"
               ng-show="isPoseRulerShowing(pose.id)">
             Hide ruler
           </li>
           <li ng-click="invertPosePicks(pose.id)">
-              Invert {{pose.name}}
+            Invert {{pose.name}}
           </li>
           <li ng-click="erasePosePicks(pose.id)">
-              Clear {{pose.name}}
+            Clear {{pose.name}}
           </li>
         </ul>
       </div>
