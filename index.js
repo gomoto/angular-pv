@@ -47,13 +47,18 @@ angular.module('cyViewer', ['CyDirectives'])
   $scope.hover = null;
   $scope.anchor = null;
 
+  //cache pdb structures processed by pv
+  $scope.pdbStructures = {};
+
   //single source of truth
   $scope.poses = [];
 
   //define how to add and remove poses:
   $scope.addPose = function (poseId, pdbId, name, color, renderMode) {
-    //get pdb data, then add new pose
-    pv.io.fetchPdb('pdb/' + pdbId + '.pdb', function(structure) {
+    pv.io.fetchPdb('//www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb', function(structure) {
+      //cache pdb structure
+      $scope.pdbStructures[pdbId] = structure;
+      //extract chains and residues
       var chains = structure.chains().map(function(chain) {
         var residues = [];
         chain.residues().forEach(function(residue) {
@@ -69,21 +74,27 @@ angular.module('cyViewer', ['CyDirectives'])
           residues: residues
         };
       });
-      $scope.poses.push({
-        id: poseId,
-        pdb: pdbId,
-        name: name,
-        color: color || poseColors[0],
-        renderMode: renderMode || renderModes[4],
-        chains: chains
+      $scope.$apply(function() {
+        $scope.poses.push({
+          id: poseId,
+          pdb: pdbId,
+          name: name,
+          color: color || poseColors[0],
+          renderMode: renderMode || renderModes[4],
+          chains: chains
+        });
       });
     });
   };
   $scope.removePose = function(poseId) {
-    $scope.poses = _.filter($scope.poses, function(pose) {
-      return pose.id !== poseId;
+    $scope.apply(function() {
+      $scope.poses = _.filter($scope.poses, function(pose) {
+        return pose.id !== poseId;
+      });
+      delete $scope.picks[poseId];
+      //when are pdb structures removed from cache?
+      //delete $scope.pdbStructures[poseId];
     });
-    delete $scope.picks[poseId];
   };
   function addPick(poseId, chainName, residuePosition) {
     if (typeof $scope.picks[poseId] === 'undefined') {
@@ -121,19 +132,30 @@ angular.module('cyViewer', ['CyDirectives'])
     );
     if (isPicked) {
       removePick(poseId, chainName, residuePosition);
+      //unset anchor
+      $scope.anchor = null;
     } else {
       addPick(poseId, chainName, residuePosition);
+      //set anchor
+      $scope.anchor = {
+        pose: poseId,
+        chain: chainName,
+        residue: residuePosition
+      };
     }
   };
 
-  //visual test: simulate adding and removing poses
-  $timeout(function() {
-    $scope.addPose('B49239482', '4ins', 'insulin');
-  }, 500)
-  .then(function() {
-    return $timeout(function() {
-      $scope.addPose('R52635777', '2kpo', 'poseWithReallyLongName', poseColors[1]);
-    }, 500);
-  });
+  $scope.newPose = {};
+  $scope.isPoseCreatorOpen = false;
+  $scope.createPose = function(pdbId, name) {
+    //clear newPose model
+    $scope.newPose = {};
+    //stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+    var poseId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+    name = name || 'Pose ' + ($scope.poses.length + 1);
+    var color = poseColors[$scope.poses.length % poseColors.length];
+    var renderMode = renderModes[4];
+    $scope.addPose(poseId, pdbId, name, color, renderMode);
+  };
 
 }]);

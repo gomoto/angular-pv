@@ -5,6 +5,7 @@ angular.module('CyDirectives')
       poses: '=',
       picks: '=',
       selections: '=',
+      pdbStructures: '=',
       clearPicks: '&',
       togglePick: '&',
       hover: '=',
@@ -13,10 +14,6 @@ angular.module('CyDirectives')
     link: function(scope, element) {
 
       var domElement = element[0];
-
-      //structure object is too large to watch
-      //right now, structures never deleted
-      var structures = {};
 
       var viewer = pv.Viewer(domElement, {
         width: 'auto',
@@ -63,18 +60,17 @@ angular.module('CyDirectives')
         newPoses.forEach(function(newPose) {
           var oldPose = indexedOldPoses[newPose.id];
           if (!oldPose || newPose.renderMode !== oldPose.renderMode) {
-            if (structures[newPose.pdb]) {
+            var structure = scope.pdbStructures[newPose.pdb];
+            if (structure) {
               viewer.renderAs(
                 newPose.id,
-                structures[newPose.id],
+                structure,
                 newPose.renderMode,
                 { color: pv.color.uniform(newPose.color) }
               );
               viewer.autoZoom();
             } else {
-              //async
-              pv.io.fetchPdb('pdb/' + newPose.pdb + '.pdb', function(structure) {
-                structures[newPose.pdb] = structure;
+              pv.io.fetchPdb('//www.rcsb.org/pdb/files/' + newPose.pdb.toUpperCase() + '.pdb', function(structure) {
                 viewer.renderAs(
                   newPose.id,
                   structure,
@@ -165,12 +161,6 @@ angular.module('CyDirectives')
             chainName: chainName,
             residuePosition: residuePosition
           });
-          //set anchor
-          scope.anchor = {
-            pose: poseId,
-            chain: chainName,
-            residue: residuePosition
-          };
         });
 
         //for now, bundle picks into a single selection

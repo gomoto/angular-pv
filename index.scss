@@ -19,3 +19,83 @@ body {
 @import 'palette';
 @import 'protein-viewer';
 @import 'sequence-viewer';
+
+$pose-creator-size: 40px;
+$transition: .2s ease;
+$transition-long: .4s ease;
+
+.pose-creator {
+  z-index: 2;
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  background: rgba($white, 0.8);
+  overflow: hidden;
+
+  width: $pose-creator-size;
+  height: $pose-creator-size;
+  border-radius: $pose-creator-size / 2;
+  &.pose-creator--open {
+    width: 180px;
+    height: 132px;
+    border-radius: 2px;
+  }
+  transition: width $transition, height $transition, border-radius $transition;
+}
+.pose-creator-close {
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  right: 0;
+  text-align: center;
+  color: $gray-dark;
+  cursor: pointer;
+
+  width: $pose-creator-size;
+  height: $pose-creator-size;
+  line-height: $pose-creator-size;
+  font-size: 28px;
+  transform: rotate(135deg);
+  .pose-creator--open & {
+    width: $pose-creator-size * .8;
+    height: $pose-creator-size * .8;
+    line-height: $pose-creator-size * .8;
+    font-size: 20px;
+    transform: rotate(0deg);
+  }
+  transition:
+    width $transition, height $transition, line-height $transition,
+    font-size $transition-long, transform $transition-long;
+}
+.pose-creator-input {
+  background: transparent;
+  color: $gray-dark;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  border: 0;
+  border-bottom: 2px solid $gray;
+  margin-bottom: 16px;
+  padding: 4px 0;
+  width: 100%;
+  @include input-placeholder {
+    color: $gray;
+    font-style: italic;
+  }
+  &:focus {
+    outline: 0;
+    border-bottom-color: $gray-dark;
+  }
+}
+.pose-creator-content {
+  padding: 32px 24px;
+
+  opacity: 0;
+  transition: opacity .1s ease .1s;
+  .pose-creator--open & {
+    opacity: 1;
+    transition: opacity .05s ease;
+  }
+}
+.pose-creator-submit {
+  display: none;
+}
