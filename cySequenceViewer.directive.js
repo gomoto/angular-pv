@@ -4,19 +4,21 @@
 //Element.classList not supported < IE9
 
 angular.module('CyDirectives')
-.directive('cySequenceViewer', ['$document', '$log', function($document, $log) {
+.directive('cySequenceViewer', ['$document', function($document) {
   return {
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
     scope: {
       poses: '=sequences',
-      picks: '=',
-      selections: '=',
+      picks: '=',//make this read-only? passed &-methods not working as expected
+      frozenPicks: '=',
+      fluidPicks: '=',
       hover: '=',
       anchor: '='
     },
     link: function(scope, element) {
       var domElement = element[0];
+      var chainLabelWidth = 2;
 
       element.on('contextmenu', contextmenuListener);
       $document.on('mousedown', hidePoseMenus);
@@ -78,8 +80,6 @@ angular.module('CyDirectives')
         }
         return null;
       }
-
-      var chainLabelWidth = 2;
 
       scope.target = null;
 
@@ -170,7 +170,7 @@ angular.module('CyDirectives')
         };
       }
 
-      function addSelection() {
+      function makeSelection() {
         //pick all residues between the anchor and target
         var selection = {};
         var anchor = transformResidue(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
@@ -200,9 +200,9 @@ angular.module('CyDirectives')
             }
           }
         }
-        scope.selections.push(selection);
+        return selection;
       }
-      function addChainSelection(chainIndex) {
+      function makeChainSelection(chainIndex) {
         //pick all residues in all chains between anchor and target
         //right now: anchor and target should have the same rowIndex
         var selection = {};
@@ -227,9 +227,9 @@ angular.module('CyDirectives')
             selection[pose.id][chain.name][residue.position] = true;
           }
         }
-        scope.selections.push(selection);
+        return selection;
       }
-      function addPoseSelection() {
+      function makePoseSelection() {
         //pick all residues in all chains in poses between anchor and target
         var selection = {};
         var anchor = transformResidue(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
@@ -252,11 +252,11 @@ angular.module('CyDirectives')
             }
           }
         }
-        scope.selections.push(selection);
+        return selection;
       }
-      function updatePicks() {
-        scope.picks = _.merge.apply(this, [{}].concat(scope.selections));
-        $log.info(scope.picks);
+
+      function freezePicks() {
+        return _.merge({}, scope.frozenPicks, scope.fluidPicks);
       }
 
       //Internal scope
@@ -368,24 +368,25 @@ angular.module('CyDirectives')
             //can't make a selection without an anchor
             return;
           }
-          if (event.ctrlKey) {
-            scope.selections.pop();//replace last
-          } else {
-            scope.selections.length = 0;//replace all
-          }
-          setTarget(poseIndex, chainIndex, residueIndex);
-          addSelection();
-        } else {
           if (!event.ctrlKey) {
-            scope.selections.length = 0;
+            scope.frozenPicks = {};//replace all
+          }
+          //replace last
+          setTarget(poseIndex, chainIndex, residueIndex);
+          scope.fluidPicks = makeSelection();
+        } else {
+          if (event.ctrlKey) {
+            scope.frozenPicks = freezePicks();
+          } else {
+            scope.frozenPicks = {};//replace all
           }
           //new 1x1 selection
           //set as anchor
           setAnchor(poseIndex, chainIndex, residueIndex);
           setTarget(poseIndex, chainIndex, residueIndex);
-          addSelection();
+          scope.fluidPicks = makeSelection();
         }
-        updatePicks();
+        scope.picks = freezePicks();
       };
 
       scope.onResidueMouseenter = function(event, poseIndex, chainIndex, residueIndex) {
@@ -395,10 +396,9 @@ angular.module('CyDirectives')
             return;
           }
           //update last selection, based on anchor residue
-          scope.selections.pop();
           setTarget(poseIndex, chainIndex, residueIndex);
-          addSelection();
-          updatePicks();
+          scope.fluidPicks = makeSelection();
+          scope.picks = freezePicks();
         } else {
           //set hover residue
           angular.element(event.currentTarget).addClass('sv-hover');
@@ -427,15 +427,17 @@ angular.module('CyDirectives')
         if (event.shiftKey) {
           return;
         }
-        if (!event.ctrlKey) {
-          scope.selections.length = 0;
+        if (event.ctrlKey) {
+          scope.frozenPicks = freezePicks();
+        } else {
+          scope.frozenPicks = {};//replace all
         }
         //set anchor to first residue in this chain
         //new 1xN selection
         setAnchor(poseIndex, chainIndex, 0);
         setTarget(poseIndex, chainIndex, 0);
-        addChainSelection(chainIndex);
-        updatePicks();
+        scope.fluidPicks = makeChainSelection(chainIndex);
+        scope.picks = freezePicks();
       };
 
       scope.onPoseMousedown = function(event, poseIndex) {
@@ -448,24 +450,25 @@ angular.module('CyDirectives')
             //can't make a selection without an anchor
             return;
           }
-          if (event.ctrlKey) {
-            scope.selections.pop();//replace last
-          } else {
-            scope.selections.length = 0;//replace all
-          }
-          setTarget(poseIndex, 0, 0);
-          addPoseSelection();
-        } else {
           if (!event.ctrlKey) {
-            scope.selections.length = 0;
+            scope.frozenPicks = {};//replace all
+          }
+          //replace last
+          setTarget(poseIndex, 0, 0);
+          scope.fluidPicks = makePoseSelection();
+        } else {
+          if (event.ctrlKey) {
+            scope.frozenPicks = freezePicks();
+          } else {
+            scope.frozenPicks = {};//replace all
           }
           //set anchor to first residue in first chain of this pose
           //new 1xN selection
           setAnchor(poseIndex, 0, 0);
           setTarget(poseIndex, 0, 0);
-          addPoseSelection();
+          scope.fluidPicks = makePoseSelection();
         }
-        updatePicks();
+        scope.picks = freezePicks();
       };
 
       /* scope.poses[0] may not have a residue at columnIndex
@@ -483,16 +486,16 @@ angular.module('CyDirectives')
             //can't make a selection without an anchor
             return;
           }
-          if (event.ctrlKey) {
-            scope.selections.pop();//replace last
-          } else {
-            scope.selections.length = 0;//replace all
-          }
-          setTarget(target);
-          addSelection();
-        } else {
           if (!event.ctrlKey) {
-            scope.selections.length = 0;
+            scope.frozenPicks = {};//replace all
+          } //else replace last
+          setTarget(target);
+          scope.fluidPicks = makeSelection();
+        } else {
+          if (event.ctrlKey) {
+            scope.frozenPicks = freezePicks();
+          } else {
+            scope.frozenPicks = {};//replace all
           }
           //set anchor to first residue in column
           //new 1xN selection
@@ -501,9 +504,9 @@ angular.module('CyDirectives')
             columnIndex: columnIndex + chainLabelWidth
           });
           setTarget(target);
-          addSelection();
+          scope.fluidPicks = makeSelection();
         }
-        updatePicks();
+        scope.picks = freezePicks();
       };
       */
 
@@ -511,8 +514,9 @@ angular.module('CyDirectives')
         //unset anchor residue
         unsetAnchor();
         //erase picks
-        scope.selections.length = 0;
-        updatePicks();
+        scope.frozenPicks = {};
+        scope.fluidPicks = {};
+        scope.picks = freezePicks();
       };
 
       scope.erasePosePicks = function(poseId) {
@@ -540,9 +544,9 @@ angular.module('CyDirectives')
             }
           }
         }
-        scope.selections.length = 0;
-        scope.selections.push(scope.picks);
-        updatePicks();
+        scope.frozenPicks = {};
+        scope.fluidPicks = scope.picks;
+        scope.picks = freezePicks();
         hideMenus();
       };
 
@@ -576,9 +580,9 @@ angular.module('CyDirectives')
             });
           });
         });
-        scope.selections.length = 0;
-        scope.selections.push(inversion);
-        updatePicks();
+        scope.frozenPicks = {};
+        scope.fluidPicks = inversion;
+        scope.picks = freezePicks();
       };
 
       scope.invertPosePicks = function(poseId) {
@@ -618,9 +622,9 @@ angular.module('CyDirectives')
             });
           });
         });
-        scope.selections.length = 0;
-        scope.selections.push(inversion);
-        updatePicks();
+        scope.frozenPicks = {};
+        scope.fluidPicks = inversion;
+        scope.picks = freezePicks();
         hideMenus();
       };
 

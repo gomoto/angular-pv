@@ -4,7 +4,8 @@ angular.module('CyDirectives')
     scope: {
       poses: '=',
       picks: '=',
-      selections: '=',
+      frozenPicks: '=',
+      fluidPicks: '=',
       pdbData: '&',
       sequences: '=',
       clearPicks: '&',
@@ -108,6 +109,8 @@ angular.module('CyDirectives')
       }, true);
 
       scope.$watch('picks', function(newPicks, oldPicks) {
+        console.log(scope.picks);
+
         var toBeRemoved = _.difference(_.keys(oldPicks), _.keys(newPicks));
         var toBeUpdated = _.keys(newPicks);
 
@@ -184,8 +187,8 @@ angular.module('CyDirectives')
         //for now, bundle picks into a single selection
         //need to $apply scope.picks before reading it
         scope.$apply(function() {
-          scope.selections.length = 0;
-          scope.selections.push(scope.picks);
+          scope.frozenPicks = {};
+          scope.fluidPicks = scope.picks;
         });
 
       });

@@ -34,9 +34,10 @@ angular.module('cyViewer', ['CyDirectives'])
   var renderModes = ['sline', 'lines', 'trace', 'lineTrace', 'cartoon', 'tube', 'spheres', 'ballsAndSticks'];//viewer.RENDER_MODES
 
   //intermediate representation of $scope.picks
-  //separates picks into multiple selections
-  //each selection has same format as $scope.picks
-  $scope.selections = [];
+  //frozen picks do not change with each shift+click
+  //fluid picks change with each shift+click
+  $scope.frozenPicks = {};
+  $scope.fluidPicks = {};
 
   //viewer(pv, sequence)-agnostic representation of residues:
   //properties: residue, chain, pose
