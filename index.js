@@ -27,15 +27,11 @@ angular.module('CyDirectives', []);
 
 angular.module('cyViewer', ['CyDirectives'])
 
-.controller('cyViewerCtrl', ['$scope', '$timeout', function($scope, $timeout) {
+.controller('cyViewerCtrl', ['$scope', '$timeout', '$http', function($scope, $timeout, $http) {
   //simulate session scope
 
   var poseColors = ['#42A5F5', '#EF5350', '#AEEA00'];
   var renderModes = ['sline', 'lines', 'trace', 'lineTrace', 'cartoon', 'tube', 'spheres', 'ballsAndSticks'];//viewer.RENDER_MODES
-
-  //coordinate with $scope.poses:
-  //if a pose is removed, remove associated picks
-  $scope.picks = {};
 
   //intermediate representation of $scope.picks
   //separates picks into multiple selections
@@ -47,53 +43,41 @@ angular.module('cyViewer', ['CyDirectives'])
   $scope.hover = null;
   $scope.anchor = null;
 
-  //cache pdb structures processed by pv
-  $scope.pdbStructures = {};
-
-  //single source of truth
   $scope.poses = [];
+
+  //these are keyed by pose id
+  $scope.picks = {};
+  $scope.pdbData = {};
+
+  //poses, chains, residues
+  $scope.sequences = [];
 
   //define how to add and remove poses:
   $scope.addPose = function (poseId, pdbId, name, color, renderMode) {
-    pv.io.fetchPdb('//www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb', function(structure) {
-      //cache pdb structure
-      $scope.pdbStructures[pdbId] = structure;
-      //extract chains and residues
-      var chains = structure.chains().map(function(chain) {
-        var residues = [];
-        chain.residues().forEach(function(residue) {
-          if (residue.isAminoacid()) {
-            residues.push({
-              position: residue.num(),
-              code: residueCodeMap[residue.name()]
-            });
-          }
-        });
-        return {
-          name: chain.name(),
-          residues: residues
-        };
-      });
-      $scope.$apply(function() {
+    var pdbUrl = '//www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb';
+    $http.get(pdbUrl) //note: $http callbacks are wrapped in $apply
+    .then(
+      function resolve(response) {
         $scope.poses.push({
           id: poseId,
-          pdb: pdbId,
           name: name,
           color: color || poseColors[0],
-          renderMode: renderMode || renderModes[4],
-          chains: chains
+          renderMode: renderMode || renderModes[4]
         });
-      });
-    });
+        $scope.pdbData[poseId] = response.data;
+      },
+      function reject() {
+        console.log(pdbUrl + ' not found');
+      }
+    );
   };
   $scope.removePose = function(poseId) {
     $scope.apply(function() {
       $scope.poses = _.filter($scope.poses, function(pose) {
         return pose.id !== poseId;
       });
+      //if a pose is removed, remove associated picks
       delete $scope.picks[poseId];
-      //when are pdb structures removed from cache?
-      //delete $scope.pdbStructures[poseId];
     });
   };
   function addPick(poseId, chainName, residuePosition) {

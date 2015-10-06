@@ -5,7 +5,8 @@ angular.module('CyDirectives')
       poses: '=',
       picks: '=',
       selections: '=',
-      pdbStructures: '=',
+      pdbData: '&',
+      sequences: '=',
       clearPicks: '&',
       togglePick: '&',
       hover: '=',
@@ -60,33 +61,50 @@ angular.module('CyDirectives')
         newPoses.forEach(function(newPose) {
           var oldPose = indexedOldPoses[newPose.id];
           if (!oldPose || newPose.renderMode !== oldPose.renderMode) {
-            var structure = scope.pdbStructures[newPose.pdb];
-            if (structure) {
-              viewer.renderAs(
-                newPose.id,
-                structure,
-                newPose.renderMode,
-                { color: pv.color.uniform(newPose.color) }
-              );
-              viewer.autoZoom();
-            } else {
-              pv.io.fetchPdb('//www.rcsb.org/pdb/files/' + newPose.pdb.toUpperCase() + '.pdb', function(structure) {
-                viewer.renderAs(
-                  newPose.id,
-                  structure,
-                  newPose.renderMode,
-                  { color: pv.color.uniform(newPose.color) }
-                );
-                viewer.autoZoom();
+            //if pose changes or render mode changes
+            var pdbData = scope.pdbData()[newPose.id];
+            var structure = pv.io.pdb(pdbData);
+            //process pdbData, if not done before
+            if (!oldPose) {
+              //extract chains and residues
+              var chains = structure.chains().map(function(chain) {
+                var residues = [];
+                chain.residues().forEach(function(residue) {
+                  if (residue.isAminoacid()) {
+                    residues.push({
+                      position: residue.num(),
+                      code: residueCodeMap[residue.name()]
+                    });
+                  }
+                });
+                return {
+                  name: chain.name(),
+                  residues: residues
+                };
               });
+              //share this with parent scope
+              scope.sequences = scope.sequences.concat([{
+                id: newPose.id,
+                chains: chains,
+                name: newPose.name,
+                color: newPose.color
+              }]);
             }
+            //render pdb structure
+            viewer.renderAs(
+              newPose.id,
+              structure,
+              newPose.renderMode,
+              { color: pv.color.uniform(newPose.color) }
+            );
+            viewer.autoZoom();
           } else if (newPose.color !== oldPose.color) {
+            //if color changes
             viewer.get(newPose.id).colorBy(pv.color.uniform(newPose.color));
             viewer.requestRedraw();
           }
         });
-        //doesn't work correctly with async fetchPdb
-        //console.log('# of viewering renderings', viewer.all().length);
+        //console.log('# of viewer renderings', viewer.all().length);
       }, true);
 
       scope.$watch('picks', function(newPicks, oldPicks) {
