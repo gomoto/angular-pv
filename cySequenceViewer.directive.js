@@ -9,7 +9,7 @@ angular.module('CyDirectives')
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
     scope: {
-      poses: '&',
+      poses: '=sequences',
       picks: '=',
       selections: '=',
       hover: '=',
@@ -260,9 +260,6 @@ angular.module('CyDirectives')
       }
 
       //Internal scope
-
-      //so we don't have to call poses() every time
-      scope.poses = scope.poses();
 
       scope.getColumns = function(poses) {
         var maxColumns = 0;

@@ -40,7 +40,11 @@ $transition-long: .4s ease;
     height: 132px;
     border-radius: 2px;
   }
-  transition: width $transition, height $transition, border-radius $transition;
+  @include transition(
+    width $transition,
+    height $transition,
+    border-radius $transition
+  );
 }
 .pose-creator-close {
   z-index: 2;
@@ -55,17 +59,21 @@ $transition-long: .4s ease;
   height: $pose-creator-size;
   line-height: $pose-creator-size;
   font-size: 28px;
-  transform: rotate(135deg);
+  @include transform(rotate(135deg));
   .pose-creator--open & {
     width: $pose-creator-size * .8;
     height: $pose-creator-size * .8;
     line-height: $pose-creator-size * .8;
     font-size: 20px;
-    transform: rotate(0deg);
+    @include transform(rotate(0deg));
   }
-  transition:
-    width $transition, height $transition, line-height $transition,
-    font-size $transition-long, transform $transition-long;
+  @include transition(
+    width $transition,
+    height $transition,
+    line-height $transition,
+    font-size $transition-long,
+    transform $transition-long
+  );
 }
 .pose-creator-input {
   background: transparent;
@@ -90,10 +98,10 @@ $transition-long: .4s ease;
   padding: 32px 24px;
 
   opacity: 0;
-  transition: opacity .1s ease .1s;
+  @include transition(opacity .1s ease .1s);
   .pose-creator--open & {
     opacity: 1;
-    transition: opacity .05s ease;
+    @include transition(opacity .05s ease);
   }
 }
 .pose-creator-submit {
