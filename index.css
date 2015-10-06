@@ -558,6 +558,9 @@ cy-protein-viewer {
   width: 40px;
   height: 40px;
   border-radius: 20px;
+  -moz-transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
+  -o-transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
+  -webkit-transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
   transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
 }
 /* line 38, index.scss */
@@ -567,7 +570,7 @@ cy-protein-viewer {
   border-radius: 2px;
 }
 
-/* line 45, index.scss */
+/* line 49, index.scss */
 .pose-creator-close {
   z-index: 2;
   position: absolute;
@@ -580,19 +583,28 @@ cy-protein-viewer {
   height: 40px;
   line-height: 40px;
   font-size: 28px;
+  -moz-transform: rotate(135deg);
+  -ms-transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
   transform: rotate(135deg);
+  -moz-transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, -moz-transform 0.4s ease;
+  -o-transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, -o-transform 0.4s ease;
+  -webkit-transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, -webkit-transform 0.4s ease;
   transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, transform 0.4s ease;
 }
-/* line 59, index.scss */
+/* line 63, index.scss */
 .pose-creator--open .pose-creator-close {
   width: 32px;
   height: 32px;
   line-height: 32px;
   font-size: 20px;
+  -moz-transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  -webkit-transform: rotate(0deg);
   transform: rotate(0deg);
 }
 
-/* line 70, index.scss */
+/* line 78, index.scss */
 .pose-creator-input {
   background: transparent;
   color: #505050;
@@ -624,25 +636,32 @@ cy-protein-viewer {
   color: #9f9f9f;
   font-style: italic;
 }
-/* line 84, index.scss */
+/* line 92, index.scss */
 .pose-creator-input:focus {
   outline: 0;
   border-bottom-color: #505050;
 }
 
-/* line 89, index.scss */
+/* line 97, index.scss */
 .pose-creator-content {
   padding: 32px 24px;
   opacity: 0;
-  transition: opacity .1s ease .1s;
+  -moz-transition: opacity 0.1s ease 0.1s;
+  -o-transition: opacity 0.1s ease 0.1s;
+  -webkit-transition: opacity 0.1s ease;
+  -webkit-transition-delay: 0.1s;
+  transition: opacity 0.1s ease 0.1s;
 }
-/* line 94, index.scss */
+/* line 102, index.scss */
 .pose-creator--open .pose-creator-content {
   opacity: 1;
-  transition: opacity .05s ease;
+  -moz-transition: opacity 0.05s ease;
+  -o-transition: opacity 0.05s ease;
+  -webkit-transition: opacity 0.05s ease;
+  transition: opacity 0.05s ease;
 }
 
-/* line 99, index.scss */
+/* line 107, index.scss */
 .pose-creator-submit {
   display: none;
 }
