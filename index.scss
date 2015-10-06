@@ -105,5 +105,8 @@ $transition-long: .4s ease;
   }
 }
 .pose-creator-submit {
-  display: none;
+  //hide submit button without using 'display: none' or 'visibility: hidden'
+  position: absolute;
+  top: 100%;
+  right: 100%;
 }
