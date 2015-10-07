@@ -8,7 +8,6 @@ angular.module('CyDirectives')
       fluidPicks: '=',
       pdbData: '&',
       sequences: '=',
-      clearPicks: '&',
       togglePick: '&',
       hover: '=',
       anchor: '='
@@ -162,12 +161,25 @@ angular.module('CyDirectives')
       }, true);
 
       viewer.on('click', function(picked, event) {
-        if (picked === null || picked.target() === null) {
+        if (picked === null) {
+          //clicking on background erases all picks
+          //unless control key is down
+          if (!event.ctrlKey) {
+            scope.$apply(function() {
+              scope.frozenPicks = {};
+              scope.fluidPicks = {};
+              scope.picks = {};
+              scope.anchor = null;
+            });
+          }
           return;
         }
         var extendSelection = event.ctrlKey;
         if (!extendSelection) {
-          scope.clearPicks();
+          //clear all picks
+          scope.$apply(function() {
+            scope.picks = {};
+          });
         }
         var rendering = picked.object().geom;
         var atom = picked.object().atom;

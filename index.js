@@ -106,9 +106,6 @@ angular.module('cyViewer', ['CyDirectives'])
       delete $scope.picks[poseId];
     }
   }
-  $scope.clearPicks = function() {
-    $scope.picks = {};
-  };
   $scope.togglePick = function(poseId, chainName, residuePosition) {
     var isPicked = (
       $scope.picks[poseId] &&

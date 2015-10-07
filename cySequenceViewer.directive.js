@@ -510,15 +510,6 @@ angular.module('CyDirectives')
       };
       */
 
-      scope.erasePicks = function() {
-        //unset anchor residue
-        unsetAnchor();
-        //erase picks
-        scope.frozenPicks = {};
-        scope.fluidPicks = {};
-        scope.picks = freezePicks();
-      };
-
       scope.erasePosePicks = function(poseId) {
         //erase picks for the pose
         delete scope.picks[poseId];
