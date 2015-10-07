@@ -315,7 +315,9 @@ angular.module('CyDirectives')
           //require left-click mousedown
           return;
         }
+
         setTarget(poseIndex, chainIndex, residueIndex);
+
         if (event.shiftKey) {
           if (scope.anchor === null) {
             //can't make a selection without an anchor
@@ -327,15 +329,37 @@ angular.module('CyDirectives')
           //replace last
           scope.fluidPicks = makeSelection();
         } else {
-          //set target as anchor
-          setAnchor(poseIndex, chainIndex, residueIndex);
           if (event.ctrlKey) {
-            scope.frozenPicks = freezePicks();
+            //if target is already picked, unpick it
+            var pose = scope.poses[scope.target.pose];
+            var chain = pose.chains[scope.target.chain];
+            var residue = chain.residues[scope.target.residue];
+            if (
+              scope.picks[pose.id] &&
+              scope.picks[pose.id][chain.name] &&
+              scope.picks[pose.id][chain.name][residue.position]
+            ) {
+              unsetAnchor();
+              scope.frozenPicks = freezePicks();
+              delete scope.frozenPicks[pose.id][chain.name][residue.position];
+              //also delete empty objects
+              if (_.isEqual(scope.frozenPicks[pose.id][chain.name], {})) {
+                delete scope.frozenPicks[pose.id][chain.name];
+              }
+              if (_.isEqual(scope.frozenPicks[pose.id], {})) {
+                delete scope.frozenPicks[pose.id];
+              }
+              scope.fluidPicks = {};
+            } else {
+              setAnchor(poseIndex, chainIndex, residueIndex); //set target as anchor
+              scope.frozenPicks = freezePicks();
+              scope.fluidPicks = makeSelection(); //new 1x1 selection
+            }
           } else {
+            setAnchor(poseIndex, chainIndex, residueIndex); //set target as anchor
             scope.frozenPicks = {};//replace all
+            scope.fluidPicks = makeSelection(); //new 1x1 selection
           }
-          //new 1x1 selection
-          scope.fluidPicks = makeSelection();
         }
         scope.picks = freezePicks();
       };
