@@ -24,6 +24,13 @@ $pose-creator-size: 40px;
 $transition: .2s ease;
 $transition-long: .4s ease;
 
+$pose-creator-padding-top: 32px;
+$pose-creator-padding-bottom: 16px;
+
+$pose-creator-input-height: 24px;
+$pose-creator-input-border-width: 2px;
+$pose-creator-input-margin-bottom: 16px;
+
 .pose-creator {
   z-index: 2;
   position: absolute;
@@ -37,7 +44,12 @@ $transition-long: .4s ease;
   border-radius: $pose-creator-size / 2;
   &.pose-creator--open {
     width: 180px;
-    height: 132px;
+    //need to get exact height for animation
+    height: $pose-creator-padding-top + $pose-creator-padding-bottom + 2 * (
+      $pose-creator-input-height +
+      $pose-creator-input-border-width +
+      $pose-creator-input-margin-bottom
+    );
     border-radius: 2px;
   }
   @include transition(
@@ -80,10 +92,12 @@ $transition-long: .4s ease;
   color: $gray-dark;
   font-family: Roboto, sans-serif;
   font-weight: 500;
+  padding: 0;
+  height: $pose-creator-input-height;
+  line-height: $pose-creator-input-height;
   border: 0;
-  border-bottom: 2px solid $gray;
-  margin-bottom: 16px;
-  padding: 4px 0;
+  border-bottom: $pose-creator-input-border-width solid $gray;
+  margin-bottom: $pose-creator-input-margin-bottom;
   width: 100%;
   @include input-placeholder {
     color: $gray;
@@ -95,11 +109,14 @@ $transition-long: .4s ease;
   }
 }
 .pose-creator-content {
-  padding: 32px 24px;
+  display: none;
+  padding: $pose-creator-padding-top 24px $pose-creator-padding-bottom;
 
   opacity: 0;
   @include transition(opacity .1s ease .1s);
   .pose-creator--open & {
+    display: block;
+
     opacity: 1;
     @include transition(opacity .05s ease);
   }
