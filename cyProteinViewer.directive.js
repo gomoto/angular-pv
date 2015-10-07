@@ -160,41 +160,112 @@ angular.module('CyDirectives')
 
       }, true);
 
+      scope.target = null;
+      function setAnchor(poseIndex, chainIndex, residueIndex) {
+        scope.anchor = {
+          pose: poseIndex,
+          chain: chainIndex,
+          residue: residueIndex
+        };
+      }
+      function setTarget(poseIndex, chainIndex, residueIndex) {
+        scope.target = {
+          pose: poseIndex,
+          chain: chainIndex,
+          residue: residueIndex
+        };
+      }
+      function makeSelection() {
+        //pick all residues between the anchor and target
+        var selection = {};
+        if (scope.anchor.pose !== scope.target.pose) {
+          //selection between poses does not make sense here
+          return selection;
+        }
+        var pose = scope.sequences[scope.target.pose];
+        var chainIndexMin = Math.min(scope.anchor.chain, scope.target.chain);
+        var chainIndexMax = Math.max(scope.anchor.chain, scope.target.chain);
+        var residueIndexMin = Math.min(scope.anchor.residue, scope.target.residue);
+        var residueIndexMax = Math.max(scope.anchor.residue, scope.target.residue);
+        for (var chainCursor = chainIndexMin; chainCursor <= chainIndexMax; chainCursor++) {
+          var chain = pose.chains[chainCursor];
+          for (var residueCursor = residueIndexMin; residueCursor <= residueIndexMax; residueCursor++) {
+            var residue = chain.residues[residueCursor];
+            //add residue to selection
+            if (typeof selection[pose.id] === 'undefined') {
+              selection[pose.id] = {};
+            }
+            if (typeof selection[pose.id][chain.name] === 'undefined') {
+              selection[pose.id][chain.name] = {};
+            }
+            selection[pose.id][chain.name][residue.position] = true;
+          }
+        }
+        return selection;
+      }
+      function freezePicks() {
+        return _.merge({}, scope.frozenPicks, scope.fluidPicks);
+      }
+
       viewer.on('click', function(picked, event) {
-        if (picked === null) {
-          //clicking on background erases all picks
-          //unless control key is down
-          if (!event.ctrlKey) {
-            scope.$apply(function() {
+        scope.$apply(function() {
+          if (picked === null) {
+            //Clicking on background erases all picks
+            //unless control key or shift key is down.
+            //This prevents the selection from clearing
+            //while user is trying to extend it.
+            if (!event.ctrlKey && !event.shiftKey) {
               scope.frozenPicks = {};
               scope.fluidPicks = {};
               scope.picks = {};
               scope.anchor = null;
-            });
+            }
+            return;
           }
-          return;
-        }
-        var extendSelection = event.ctrlKey;
-        if (!extendSelection) {
-          //clear all picks
-          scope.$apply(function() {
-            scope.picks = {};
-          });
-        }
-        var rendering = picked.object().geom;
-        var atom = picked.object().atom;
 
-        var residuePosition = atom.residue().num();
-        var chainName = atom.residue().chain().name();
-        var poseId = rendering.name();
+          var rendering = picked.object().geom;
+          var atom = picked.object().atom;
 
-        //for now, bundle picks into a single selection
-        //need to $apply scope.picks before reading it
-        scope.$apply(function() {
-          scope.frozenPicks = {};
-          scope.fluidPicks = scope.picks;
+          var residuePosition = atom.residue().num();
+          var chainName = atom.residue().chain().name();
+          var poseId = rendering.name();
+
+          //find indexes
+          var poseIndex = _.findIndex(scope.sequences, {id: poseId});
+          var chainIndex = _.findIndex(scope.sequences[poseIndex].chains, {name: chainName});
+          var residueIndex = _.findIndex(scope.sequences[poseIndex].chains[chainIndex].residues, {position: residuePosition});
+
+          setTarget(poseIndex, chainIndex, residueIndex);
+
+          //make selections like in sequence viewer onResidueMousedown
+          //only difference: cannot select across multiple poses here
+          if (event.shiftKey) {
+            if (scope.anchor === null) {
+              //can't make a selection without an anchor
+              return;
+            }
+            if (scope.anchor.pose !== scope.target.pose) {
+              //can't extend a selection across poses
+              return;
+            }
+            if (!event.ctrlKey) {
+              scope.frozenPicks = {};//replace all
+            }
+            //replace last
+            scope.fluidPicks = makeSelection();
+          } else {
+            //set target as anchor
+            setAnchor(poseIndex, chainIndex, residueIndex);
+            if (event.ctrlKey) {
+              scope.frozenPicks = freezePicks();
+            } else {
+              scope.frozenPicks = {};//replace all
+            }
+            //new 1x1 selection
+            scope.fluidPicks = makeSelection();
+          }
+          scope.picks = freezePicks();
         });
-
       });
 
       //Don't wrap entire listener in $apply;

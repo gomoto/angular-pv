@@ -138,13 +138,14 @@ angular.module('CyDirectives')
             columnCursor += chainLabelWidth;
             for (var residueCursor = 0; residueCursor < chain.residues.length && columnCursor <= columnIndexMax; residueCursor++) {
               if (columnCursor >= columnIndexMin) {
+                //add residue to selection
+                var residue = chain.residues[residueCursor];
                 if (typeof selection[pose.id] === 'undefined') {
                   selection[pose.id] = {};
                 }
                 if (typeof selection[pose.id][chain.name] === 'undefined') {
                   selection[pose.id][chain.name] = {};
                 }
-                var residue = chain.residues[residueCursor];
                 selection[pose.id][chain.name][residue.position] = true;
               }
               columnCursor += 1;
@@ -314,6 +315,7 @@ angular.module('CyDirectives')
           //require left-click mousedown
           return;
         }
+        setTarget(poseIndex, chainIndex, residueIndex);
         if (event.shiftKey) {
           if (scope.anchor === null) {
             //can't make a selection without an anchor
@@ -323,18 +325,16 @@ angular.module('CyDirectives')
             scope.frozenPicks = {};//replace all
           }
           //replace last
-          setTarget(poseIndex, chainIndex, residueIndex);
           scope.fluidPicks = makeSelection();
         } else {
+          //set target as anchor
+          setAnchor(poseIndex, chainIndex, residueIndex);
           if (event.ctrlKey) {
             scope.frozenPicks = freezePicks();
           } else {
             scope.frozenPicks = {};//replace all
           }
           //new 1x1 selection
-          //set as anchor
-          setAnchor(poseIndex, chainIndex, residueIndex);
-          setTarget(poseIndex, chainIndex, residueIndex);
           scope.fluidPicks = makeSelection();
         }
         scope.picks = freezePicks();
