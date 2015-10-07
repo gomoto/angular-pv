@@ -8,7 +8,7 @@ angular.module('CyDirectives')
       fluidPicks: '=',
       pdbData: '&',
       sequences: '=',
-      togglePick: '&',
+      //togglePick: '&',
       hover: '=',
       anchor: '='
     },
@@ -187,14 +187,6 @@ angular.module('CyDirectives')
         var residuePosition = atom.residue().num();
         var chainName = atom.residue().chain().name();
         var poseId = rendering.name();
-
-        scope.$apply(function() {
-          scope.togglePick({
-            poseId: poseId,
-            chainName: chainName,
-            residuePosition: residuePosition
-          });
-        });
 
         //for now, bundle picks into a single selection
         //need to $apply scope.picks before reading it

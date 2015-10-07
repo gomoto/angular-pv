@@ -106,6 +106,7 @@ angular.module('cyViewer', ['CyDirectives'])
       delete $scope.picks[poseId];
     }
   }
+  /*
   $scope.togglePick = function(poseId, chainName, residuePosition) {
     var isPicked = (
       $scope.picks[poseId] &&
@@ -126,6 +127,7 @@ angular.module('cyViewer', ['CyDirectives'])
       };
     }
   };
+  */
 
   $scope.newPose = {};
   $scope.isPoseCreatorOpen = false;

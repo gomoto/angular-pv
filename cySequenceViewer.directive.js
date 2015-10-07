@@ -84,85 +84,36 @@ angular.module('CyDirectives')
       scope.target = null;
 
       function setAnchor(poseIndex, chainIndex, residueIndex) {
-        /*
-        if (typeof arguments[0] === 'object' &&
-            _.has(arguments[0], 'rowIndex') &&
-            _.has(arguments[0], 'columnIndex')) {
-          anchor = arguments[0];
-          return;
-        }
-        if (typeof residueIndex !== 'undefined') {
-          anchor = transformResidue(poseIndex, chainIndex, residueIndex);
-        } else if (typeof chainIndex !== 'undefined') {
-          anchor = transformResidue(poseIndex, chainIndex, 0);
-        } else if (typeof poseIndex !== 'undefined') {
-          anchor = transformResidue(poseIndex, 0, 0);
-        } else {
-          anchor = transformResidue(0, 0, 0);
-        }
-        */
-        var pose = scope.poses[poseIndex];
-        var chain = pose.chains[chainIndex];
-        var residue = chain.residues[residueIndex];
         scope.anchor = {
-          pose: pose.id,
-          chain: chain.name,
-          residue: residue.position
+          pose: poseIndex,
+          chain: chainIndex,
+          residue: residueIndex
         };
       }
       function setTarget(poseIndex, chainIndex, residueIndex) {
-        /*
-        if (typeof arguments[0] === 'object' &&
-            _.has(arguments[0], 'rowIndex') &&
-            _.has(arguments[0], 'columnIndex')) {
-          target = arguments[0];
-          return;
-        }
-        if (typeof residueIndex !== 'undefined') {
-          target = transformResidue(poseIndex, chainIndex, residueIndex);
-        } else if (typeof chainIndex !== 'undefined') {
-          target = transformResidue(poseIndex, chainIndex, 0);
-        } else if (typeof poseIndex !== 'undefined') {
-          target = transformResidue(poseIndex, 0, 0);
-        } else {
-          target = transformResidue(0, 0, 0);
-        }
-        */
-        var pose = scope.poses[poseIndex];
-        var chain = pose.chains[chainIndex];
-        var residue = chain.residues[residueIndex];
         scope.target = {
-          pose: pose.id,
-          chain: chain.name,
-          residue: residue.position
+          pose: poseIndex,
+          chain: chainIndex,
+          residue: residueIndex
         };
       }
       function unsetAnchor() {
         scope.anchor = null;
       }
-      function transformResidue(poseId, chainId, residueId) {
-        //calculate row and column indexes
-        //from pose, chain, and residue
+      function transformIndexes(poseIndex, chainIndex, residueIndex) {
+        //calculate row and column indexes from pose, chain, and residue indexes
+        //count columns; one per residue plus one or more per chain label
         var columns = 0;
-        var poseIndex = _.findIndex(scope.poses, {id: poseId});
         var chains = scope.poses[poseIndex].chains;
-        var chain;
-        for (var chainCursor = 0; chainCursor < chains.length; chainCursor++) {
+        //stop before the chain at chainIndex
+        for (var chainCursor = 0; chainCursor < chainIndex; chainCursor++) {
           chain = chains[chainCursor];
-          if (chain.name === chainId) {
-            //stop before the chain with chainId
-            break;
-          }
           columns += chainLabelWidth;
           columns += chain.residues.length;
         }
         columns += chainLabelWidth;
-        var residues = chain.residues;
-        for (var residueCursor = 0; residueCursor < residues.length; residueCursor++) {
+        for (var residueCursor = 0; residueCursor <= residueIndex; residueCursor++) {
           columns += 1;
-          if (residues[residueCursor].position === residueId) {
-            break;
-          }
         }
         return {
           rowIndex: poseIndex,
@@ -173,8 +124,8 @@ angular.module('CyDirectives')
       function makeSelection() {
         //pick all residues between the anchor and target
         var selection = {};
-        var anchor = transformResidue(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
-        var target = transformResidue(scope.target.pose, scope.target.chain, scope.target.residue);
+        var anchor = transformIndexes(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
+        var target = transformIndexes(scope.target.pose, scope.target.chain, scope.target.residue);
         var rowIndexMin = Math.min(anchor.rowIndex, target.rowIndex);
         var rowIndexMax = Math.max(anchor.rowIndex, target.rowIndex);
         var columnIndexMin = Math.min(anchor.columnIndex, target.columnIndex);
@@ -206,8 +157,8 @@ angular.module('CyDirectives')
         //pick all residues in all chains between anchor and target
         //right now: anchor and target should have the same rowIndex
         var selection = {};
-        var anchor = transformResidue(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
-        var target = transformResidue(scope.target.pose, scope.target.chain, scope.target.residue);
+        var anchor = transformIndexes(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
+        var target = transformIndexes(scope.target.pose, scope.target.chain, scope.target.residue);
         var rowIndexMin = Math.min(anchor.rowIndex, target.rowIndex);
         var rowIndexMax = Math.max(anchor.rowIndex, target.rowIndex);
         for (var rowIndex = rowIndexMin; rowIndex <= rowIndexMax; rowIndex++) {
@@ -232,8 +183,8 @@ angular.module('CyDirectives')
       function makePoseSelection() {
         //pick all residues in all chains in poses between anchor and target
         var selection = {};
-        var anchor = transformResidue(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
-        var target = transformResidue(scope.target.pose, scope.target.chain, scope.target.residue);
+        var anchor = transformIndexes(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
+        var target = transformIndexes(scope.target.pose, scope.target.chain, scope.target.residue);
         var rowIndexMin = Math.min(anchor.rowIndex, target.rowIndex);
         var rowIndexMax = Math.max(anchor.rowIndex, target.rowIndex);
         for (var rowIndex = rowIndexMin; rowIndex <= rowIndexMax; rowIndex++) {
@@ -346,15 +297,15 @@ angular.module('CyDirectives')
         );
       };
 
-      scope.isResidueAnchor = function(poseId, chainId, residueId) {
+      scope.isResidueAnchor = function(poseIndex, chainIndex, residueIndex) {
         //Returns true if residue is the anchor residue
         if (scope.anchor === null) {
           return false;
         }
         return (
-          scope.anchor.pose === poseId &&
-          scope.anchor.chain === chainId &&
-          scope.anchor.residue === residueId
+          scope.anchor.pose === poseIndex &&
+          scope.anchor.chain === chainIndex &&
+          scope.anchor.residue === residueIndex
         );
       };
 
