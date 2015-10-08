@@ -19,7 +19,7 @@
   <form
     class="pose-creator"
     ng-class="{'pose-creator--open': isPoseCreatorOpen}"
-    ng-submit="createPose(newPose.pdb, newPose.name); isPoseCreatorOpen=false">
+    ng-submit="addPose(newPose.pdb, newPose.name); isPoseCreatorOpen=false">
     <span class="pose-creator-close" ng-click="isPoseCreatorOpen=!isPoseCreatorOpen">&#215;</span>
     <div class="pose-creator-content">
       <input type="text" class="pose-creator-input" ng-model="newPose.pdb" placeholder="PDB ID" required>
@@ -29,9 +29,10 @@
   </form>
 
   <cy-protein-viewer
-    poses="poses"
-    picks="picks"
     pdb-data="pdbData"
+    colors="colors"
+    render-modes="renderModes"
+    picks="picks"
     sequences="sequences"
     hover="hover"
     on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
@@ -39,6 +40,8 @@
   </cy-protein-viewer>
 
   <cy-sequence-viewer
+    display-names="displayNames"
+    colors="colors"
     picks="picks"
     sequences="sequences"
     hover="hover"

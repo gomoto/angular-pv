@@ -33,9 +33,6 @@ angular.module('cyViewer', ['CyDirectives'])
   var poseColors = ['#42A5F5', '#EF5350', '#AEEA00'];
   var renderModes = ['sline', 'lines', 'trace', 'lineTrace', 'cartoon', 'tube', 'spheres', 'ballsAndSticks'];//viewer.RENDER_MODES
 
-  //poses, chains, residues
-  $scope.sequences = [];
-
   //intermediate representation of $scope.picks
   //frozen picks do not change with each shift+click
   //fluid picks change with each shift+click
@@ -269,52 +266,52 @@ angular.module('cyViewer', ['CyDirectives'])
     $scope.picks = freezePicks();
   };
 
-  $scope.poses = [];
-
   //these are keyed by pose id
-  $scope.picks = {};
+  //pose existence defined by having a pdbData entry
   $scope.pdbData = {};
+  $scope.displayNames = {};
+  $scope.colors = {};
+  $scope.renderModes = {};
+  $scope.picks = {};
+
+  //poses, chains, residues
+  //generated from pdbData
+  $scope.sequences = [];
+
+  //scope for the pose creator
+  $scope.newPose = {};
+  $scope.isPoseCreatorOpen = false;
 
   //define how to add and remove poses:
-  $scope.addPose = function (poseId, pdbId, name, color, renderMode) {
+  $scope.addPose = function (pdbId, name, color, renderMode) {
+    //Create unique pose ID
+    //stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+    var poseId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
     var pdbUrl = '//www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb';
     $http.get(pdbUrl) //note: $http callbacks are wrapped in $apply
     .then(
       function resolve(response) {
-        $scope.poses.push({
-          id: poseId,
-          name: name,
-          color: color || poseColors[0],
-          renderMode: renderMode || renderModes[4]
-        });
         $scope.pdbData[poseId] = response.data;
+        $scope.displayNames[poseId] = name || 'Pose ' + ( _.size($scope.displayNames) + 1 );
+        $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
+        $scope.renderModes[poseId] = renderMode || renderModes[4];
       },
       function reject() {
         console.log(pdbUrl + ' not found');
       }
     );
+    //clear newPose model
+    $scope.newPose = {};
   };
   $scope.removePose = function(poseId) {
     $scope.apply(function() {
-      $scope.poses = _.filter($scope.poses, function(pose) {
-        return pose.id !== poseId;
-      });
-      //if a pose is removed, remove associated picks
+      delete $scope.pdbData[poseId];
+      delete $scope.displayNames[poseId];
+      delete $scope.colors[poseId];
+      delete $scope.renderModes[poseId];
       delete $scope.picks[poseId];
+      $scope.sequences = _.reject( $scope.sequences, {'id': poseId} );
     });
-  };
-
-  $scope.newPose = {};
-  $scope.isPoseCreatorOpen = false;
-  $scope.createPose = function(pdbId, name) {
-    //clear newPose model
-    $scope.newPose = {};
-    //stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-    var poseId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
-    name = name || 'Pose ' + ($scope.poses.length + 1);
-    var color = poseColors[$scope.poses.length % poseColors.length];
-    var renderMode = renderModes[4];
-    $scope.addPose(poseId, pdbId, name, color, renderMode);
   };
 
 }]);

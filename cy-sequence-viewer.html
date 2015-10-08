@@ -49,7 +49,7 @@
         <div class="sv-pose-name"
              ng-class="{'picked': isPosePicked(pose.id)}"
              ng-mousedown="onPoseMousedown($event, poseIndex)">
-          {{pose.name}}
+          {{displayNames[pose.id]}}
         </div>
         <ul class="sv-pose-menu">
           <li ng-click="showPoseRuler(pose.id)"
@@ -61,10 +61,10 @@
             Hide ruler
           </li>
           <li ng-click="invertPosePicks(poseIndex)">
-            Invert {{pose.name}}
+            Invert {{displayNames[pose.id]}}
           </li>
           <li ng-click="erasePosePicks(poseIndex)">
-            Clear {{pose.name}}
+            Clear {{displayNames[pose.id]}}
           </li>
         </ul>
       </div>
@@ -94,7 +94,7 @@
           </div>
           <div class="sv-residue-code"
                ng-class="[residue.code]"
-               ng-style="{'background': pose.color}">
+               ng-style="{'background': colors[pose.id]}">
             {{residue.code}}
           </div>
         </div>

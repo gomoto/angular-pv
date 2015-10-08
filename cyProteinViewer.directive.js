@@ -2,9 +2,10 @@ angular.module('CyDirectives')
 .directive('cyProteinViewer', function() {
   return {
     scope: {
-      poses: '=',
+      pdbData: '=',
+      colors: '=',
+      renderModes: '=',
       picks: '=',
-      pdbData: '&',
       sequences: '=',
       hover: '=',
       onSelectResidue: '&',
@@ -39,70 +40,82 @@ angular.module('CyDirectives')
         viewer.fitParent();//eventually calls requestRedraw()
       });
 
-      //Sync viewer structures with scope.poses
-      //Selectively add/remove poses from viewer
-      scope.$watch('poses', function(newPoses, oldPoses) {
-        var indexedNewPoses = _.indexBy(newPoses, 'id');
-        var indexedOldPoses = _.indexBy(oldPoses, 'id');
-
-        //exiting and updated poses
-        oldPoses.forEach(function(oldPose) {
-          var newPose = indexedNewPoses[oldPose.id];
-          if (!newPose || newPose.renderMode !== oldPose.renderMode) {
-            viewer.rm(oldPose.id);
-            viewer.autoZoom();
-          }
+      //When poses change (pdbData changes), sync viewer renderings
+      scope.$watch('pdbData', function(newPdbData, oldPdbData) {
+        //remove old poses from viewer
+        var exiting = _.difference( _.keys(oldPdbData), _.keys(newPdbData) );
+        _.forEach(exiting, function(poseId) {
+          viewer.rm(poseId);
         });
 
-        //entering and updated poses
-        //right now, if/elseif/else assumes only one property changed
-        newPoses.forEach(function(newPose) {
-          var oldPose = indexedOldPoses[newPose.id];
-          if (!oldPose || newPose.renderMode !== oldPose.renderMode) {
-            //if pose changes or render mode changes
-            var pdbData = scope.pdbData()[newPose.id];
-            var structure = pv.io.pdb(pdbData);
-            //process pdbData, if not done before
-            if (!oldPose) {
-              //extract chains and residues
-              var chains = structure.chains().map(function(chain) {
-                var residues = [];
-                chain.residues().forEach(function(residue) {
-                  if (residue.isAminoacid()) {
-                    residues.push({
-                      position: residue.num(),
-                      code: residueCodeMap[residue.name()]
-                    });
-                  }
+        //render new poses in viewer
+        var entering = _.difference( _.keys(newPdbData), _.keys(oldPdbData) );
+        _.forEach(entering, function(poseId) {
+          var structure = pv.io.pdb( scope.pdbData[poseId] );
+
+          //extract sequence information and share with parent scope
+          var chains = structure.chains().map(function(chain) {
+            var residues = [];
+            chain.residues().forEach(function(residue) {
+              if (residue.isAminoacid()) {
+                residues.push({
+                  position: residue.num(),
+                  code: residueCodeMap[residue.name()]
                 });
-                return {
-                  name: chain.name(),
-                  residues: residues
-                };
-              });
-              //share this with parent scope
-              scope.sequences = scope.sequences.concat([{
-                id: newPose.id,
-                chains: chains,
-                name: newPose.name,
-                color: newPose.color
-              }]);
-            }
-            //render pdb structure
-            viewer.renderAs(
-              newPose.id,
-              structure,
-              newPose.renderMode,
-              { color: pv.color.uniform(newPose.color) }
-            );
-            viewer.autoZoom();
-          } else if (newPose.color !== oldPose.color) {
-            //if color changes
-            viewer.get(newPose.id).colorBy(pv.color.uniform(newPose.color));
-            viewer.requestRedraw();
-          }
+              }
+            });
+            return {
+              name: chain.name(),
+              residues: residues
+            };
+          });
+          scope.sequences = scope.sequences.concat([{
+            id: poseId,
+            chains: chains
+          }]);
+
+          viewer.renderAs(
+            poseId,
+            structure,
+            scope.renderModes[poseId],
+            { color: pv.color.uniform( scope.colors[poseId] ) }
+          );
         });
+        viewer.autoZoom();
         //console.log('# of viewer renderings', viewer.all().length);
+      }, true);
+
+      //When a pose changes its render mode, re-render
+      scope.$watch('renderModes', function(newRenderModes, oldRenderModes) {
+        //Loop over oldRenderModes so that during first load of a pose,
+        //viewer doesn't try to get a nonexistent rendering.
+        //Otherwise old and new should have the same keys (pose IDs).
+        _.forEach(oldRenderModes, function(renderMode, poseId) {
+          if (renderMode === newRenderModes[poseId]) return;
+          //Reuse structure
+          var structure = viewer.get(poseId).structure();
+          viewer.rm(poseId);
+          viewer.renderAs(
+            poseId,
+            structure,
+            renderMode,
+            { color: pv.color.uniform( scope.colors[poseId] ) }
+          );
+          viewer.requestRedraw();
+        });
+      }, true);
+
+      //When a pose changes its color, recolor rendering
+      scope.$watch('colors', function(newColors, oldColors) {
+        //Loop over oldColors so that during first load of a pose,
+        //viewer doesn't try to get a nonexistent rendering.
+        //Otherwise old and new should have the same keys (pose IDs).
+        _.forEach(oldColors, function(color, poseId) {
+          if (color === newColors[poseId]) return;
+          var rendering = viewer.get(poseId);
+          rendering.colorBy( pv.color.uniform(color) );
+          viewer.requestRedraw();
+        });
       }, true);
 
       scope.$watch('picks', function(newPicks, oldPicks) {

@@ -9,8 +9,10 @@ angular.module('CyDirectives')
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
     scope: {
-      poses: '=sequences',
+      displayNames: '=',
+      colors: '=',
       picks: '=',//make this read-only? passed &-methods not working as expected
+      poses: '=sequences',
       hover: '=',
       isResidueAnchor: '&',
       onSelectResidue: '&',
