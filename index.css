@@ -547,7 +547,7 @@ cy-protein-viewer {
   font-weight: 500;
 }
 
-/* line 27, index.scss */
+/* line 34, index.scss */
 .pose-creator {
   z-index: 2;
   position: absolute;
@@ -563,14 +563,14 @@ cy-protein-viewer {
   -webkit-transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
   transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
 }
-/* line 38, index.scss */
+/* line 45, index.scss */
 .pose-creator.pose-creator--open {
   width: 180px;
   height: 132px;
   border-radius: 2px;
 }
 
-/* line 49, index.scss */
+/* line 61, index.scss */
 .pose-creator-close {
   z-index: 2;
   position: absolute;
@@ -592,7 +592,7 @@ cy-protein-viewer {
   -webkit-transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, -webkit-transform 0.4s ease;
   transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, transform 0.4s ease;
 }
-/* line 63, index.scss */
+/* line 75, index.scss */
 .pose-creator--open .pose-creator-close {
   width: 32px;
   height: 32px;
@@ -604,16 +604,18 @@ cy-protein-viewer {
   transform: rotate(0deg);
 }
 
-/* line 78, index.scss */
+/* line 90, index.scss */
 .pose-creator-input {
   background: transparent;
   color: #505050;
   font-family: Roboto, sans-serif;
   font-weight: 500;
+  padding: 0;
+  height: 24px;
+  line-height: 24px;
   border: 0;
   border-bottom: 2px solid #9f9f9f;
   margin-bottom: 16px;
-  padding: 4px 0;
   width: 100%;
 }
 /* line 61, ../../../var/lib/gems/2.1.0/gems/compass-core-1.0.3/stylesheets/compass/css3/_user-interface.scss */
@@ -636,15 +638,16 @@ cy-protein-viewer {
   color: #9f9f9f;
   font-style: italic;
 }
-/* line 92, index.scss */
+/* line 106, index.scss */
 .pose-creator-input:focus {
   outline: 0;
   border-bottom-color: #505050;
 }
 
-/* line 97, index.scss */
+/* line 111, index.scss */
 .pose-creator-content {
-  padding: 32px 24px;
+  display: none;
+  padding: 32px 24px 16px;
   opacity: 0;
   -moz-transition: opacity 0.1s ease 0.1s;
   -o-transition: opacity 0.1s ease 0.1s;
@@ -652,8 +655,9 @@ cy-protein-viewer {
   -webkit-transition-delay: 0.1s;
   transition: opacity 0.1s ease 0.1s;
 }
-/* line 102, index.scss */
+/* line 117, index.scss */
 .pose-creator--open .pose-creator-content {
+  display: block;
   opacity: 1;
   -moz-transition: opacity 0.05s ease;
   -o-transition: opacity 0.05s ease;
@@ -661,7 +665,9 @@ cy-protein-viewer {
   transition: opacity 0.05s ease;
 }
 
-/* line 107, index.scss */
+/* line 124, index.scss */
 .pose-creator-submit {
-  display: none;
+  position: absolute;
+  top: 100%;
+  right: 100%;
 }
