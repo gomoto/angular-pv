@@ -5,41 +5,22 @@
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
   <script src="pv.min.js"></script>
   <script src="index.js"></script>
+  <script src="cyContextmenu.directive.js"></script>
   <script src="cyProteinViewer.directive.js"></script>
   <script src="cySequenceViewer.directive.js"></script>
-  <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
-  <link href='https://fonts.googleapis.com/css?family=Roboto+Mono:300,400,500' rel='stylesheet' type='text/css'>
-  <link href='index.css' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300,400,500" rel="stylesheet" type="text/css">
+  <link href="index.css" rel="stylesheet" type="text/css">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <title>Protein + Sequence Viewer</title>
 </head>
 <body ng-controller="cyViewerCtrl">
 
-  <cy-protein-viewer
-    poses="poses"
-    picks="picks"
-    selections="selections"
-    pdb-data="pdbData"
-    sequences="sequences"
-    clear-picks="clearPicks()"
-    toggle-pick="togglePick(poseId, chainName, residuePosition)"
-    hover="hover"
-    anchor="anchor">
-  </cy-protein-viewer>
-
-  <cy-sequence-viewer
-    picks="picks"
-    selections="selections"
-    sequences="sequences"
-    hover="hover"
-    anchor="anchor">
-  </cy-sequence-viewer>
-
   <form
     class="pose-creator"
     ng-class="{'pose-creator--open': isPoseCreatorOpen}"
-    ng-submit="createPose(newPose.pdb, newPose.name); isPoseCreatorOpen=false">
+    ng-submit="onAddPose(newPose.pdb, newPose.name); isPoseCreatorOpen=false">
     <span class="pose-creator-close" ng-click="isPoseCreatorOpen=!isPoseCreatorOpen">&#215;</span>
     <div class="pose-creator-content">
       <input type="text" class="pose-creator-input" ng-model="newPose.pdb" placeholder="PDB ID" required>
@@ -48,6 +29,33 @@
     </div>
   </form>
 
-  </div>
+  <cy-protein-viewer
+    pdb-data="pdbData"
+    colors="colors"
+    render-modes="renderModes"
+    picks="picks"
+    sequences="sequences"
+    hover="hover"
+    on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+    on-unselect-all="onUnselectAll(event)">
+  </cy-protein-viewer>
+
+  <cy-sequence-viewer
+    on-remove-pose="onRemovePose(poseId)"
+    display-names="displayNames"
+    colors="colors"
+    picks="picks"
+    sequences="sequences"
+    hover="hover"
+    is-residue-anchor="isResidueAnchor(poseIndex, chainIndex, residueIndex)"
+    on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+    on-extend-selection="onExtendSelection(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+    on-select-chain="onSelectChain(event, poseIndex, chainIndex, pickChains)"
+    on-select-pose="onSelectPose(event, poseIndex, pickPoses)"
+    on-unselect-pose="onUnselectPose(event, poseIndex)"
+    on-invert-pose="onInvertPose(event, poseIndex)"
+    on-invert-all="onInvertAll(event)">
+  </cy-sequence-viewer>
+
 </body>
 </html>

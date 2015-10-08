@@ -16,9 +16,6 @@
       <li ng-click="invertPicks()">
         Invert all
       </li>
-      <li ng-click="erasePicks()">
-        Clear all
-      </li>
       <li ng-click="showAllPoseRulers()">
         Show all rulers
       </li>
@@ -52,7 +49,7 @@
         <div class="sv-pose-name"
              ng-class="{'picked': isPosePicked(pose.id)}"
              ng-mousedown="onPoseMousedown($event, poseIndex)">
-          {{pose.name}}
+          {{displayNames[pose.id]}}
         </div>
         <ul class="sv-pose-menu">
           <li ng-click="showPoseRuler(pose.id)"
@@ -63,11 +60,14 @@
               ng-show="isPoseRulerShowing(pose.id)">
             Hide ruler
           </li>
-          <li ng-click="invertPosePicks(pose.id)">
-            Invert {{pose.name}}
+          <li ng-click="invertPosePicks(poseIndex)">
+            Invert {{displayNames[pose.id]}}
           </li>
-          <li ng-click="erasePosePicks(pose.id)">
-            Clear {{pose.name}}
+          <li ng-click="erasePosePicks(poseIndex)">
+            Clear {{displayNames[pose.id]}}
+          </li>
+          <li ng-click="onRemovePose({poseId: pose.id})">
+            Remove {{displayNames[pose.id]}}
           </li>
         </ul>
       </div>
@@ -79,9 +79,15 @@
         </div><!--
           ngRepeated elements seem not to put spaces between tags, which helps
      --><div class="sv-residue" ng-repeat="residue in chain.residues track by $index" ng-init="residueIndex=$index"
-             ng-class="{'picked': isResiduePicked(pose.id, chain.name, residue.position),
-                        'sv-hover': isResidueHover(pose.id, chain.name, residue.position),
-                        'anchor': isResidueAnchor(pose.id, chain.name, residue.position)}"
+             ng-class="{
+               'picked': isResiduePicked(pose.id, chain.name, residue.position),
+               'anchor': isResidueAnchor({
+                 poseIndex: poseIndex,
+                 chainIndex: chainIndex,
+                 residueIndex: residueIndex
+               }),
+               'sv-hover': isResidueHover(pose.id, chain.name, residue.position)
+             }"
              ng-mousedown="onResidueMousedown($event, poseIndex, chainIndex, residueIndex)"
              ng-mouseenter="onResidueMouseenter($event, poseIndex, chainIndex, residueIndex)"
              ng-mouseleave="onResidueMouseleave($event)">
@@ -91,7 +97,7 @@
           </div>
           <div class="sv-residue-code"
                ng-class="[residue.code]"
-               ng-style="{'background': pose.color}">
+               ng-style="{'background': colors[pose.id]}">
             {{residue.code}}
           </div>
         </div>
