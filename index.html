@@ -31,21 +31,25 @@
   <cy-protein-viewer
     poses="poses"
     picks="picks"
-    frozen-picks="frozenPicks"
-    fluid-picks="fluidPicks"
     pdb-data="pdbData"
     sequences="sequences"
     hover="hover"
-    anchor="anchor">
+    on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+    on-unselect-all="onUnselectAll(event)">
   </cy-protein-viewer>
 
   <cy-sequence-viewer
     picks="picks"
-    frozen-picks="frozenPicks"
-    fluid-picks="fluidPicks"
     sequences="sequences"
     hover="hover"
-    anchor="anchor">
+    is-residue-anchor="isResidueAnchor(poseIndex, chainIndex, residueIndex)"
+    on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+    on-extend-selection="onExtendSelection(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+    on-select-chain="onSelectChain(event, poseIndex, chainIndex, pickChains)"
+    on-select-pose="onSelectPose(event, poseIndex, pickPoses)"
+    on-unselect-pose="onUnselectPose(event, poseIndex)"
+    on-invert-pose="onInvertPose(event, poseIndex)"
+    on-invert-all="onInvertAll(event)">
   </cy-sequence-viewer>
 
 </body>

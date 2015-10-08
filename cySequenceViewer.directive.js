@@ -11,10 +11,15 @@ angular.module('CyDirectives')
     scope: {
       poses: '=sequences',
       picks: '=',//make this read-only? passed &-methods not working as expected
-      frozenPicks: '=',
-      fluidPicks: '=',
       hover: '=',
-      anchor: '='
+      isResidueAnchor: '&',
+      onSelectResidue: '&',
+      onExtendSelection: '&',
+      onSelectChain: '&',
+      onSelectPose: '&',
+      onUnselectPose: '&',
+      onInvertPose: '&',
+      onInvertAll: '&'
     },
     link: function(scope, element) {
       var domElement = element[0];
@@ -63,6 +68,16 @@ angular.module('CyDirectives')
         }
       }
 
+      scope.openSequenceViewerMenu = function(event) {
+        event.stopPropagation();
+        //close menu
+        angular.element(event.currentTarget).removeClass('sv-header--with-menu');
+        //if menu icon was clicked, open menu
+        if (angular.element(event.target).hasClass('sv-header-icon')) {
+          angular.element(event.currentTarget).addClass('sv-header--with-menu');
+        }
+      };
+
       /**
        * Search for a specified className on an element and its ancestors.
        * Once found, return the element. If not found, return null.
@@ -81,25 +96,6 @@ angular.module('CyDirectives')
         return null;
       }
 
-      scope.target = null;
-
-      function setAnchor(poseIndex, chainIndex, residueIndex) {
-        scope.anchor = {
-          pose: poseIndex,
-          chain: chainIndex,
-          residue: residueIndex
-        };
-      }
-      function setTarget(poseIndex, chainIndex, residueIndex) {
-        scope.target = {
-          pose: poseIndex,
-          chain: chainIndex,
-          residue: residueIndex
-        };
-      }
-      function unsetAnchor() {
-        scope.anchor = null;
-      }
       function transformIndexes(poseIndex, chainIndex, residueIndex) {
         //calculate row and column indexes from pose, chain, and residue indexes
         //count columns; one per residue plus one or more per chain label
@@ -121,15 +117,15 @@ angular.module('CyDirectives')
         };
       }
 
-      function makeSelection() {
+      function pickResidues(anchor, target) {
         //pick all residues between the anchor and target
         var selection = {};
-        var anchor = transformIndexes(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
-        var target = transformIndexes(scope.target.pose, scope.target.chain, scope.target.residue);
-        var rowIndexMin = Math.min(anchor.rowIndex, target.rowIndex);
-        var rowIndexMax = Math.max(anchor.rowIndex, target.rowIndex);
-        var columnIndexMin = Math.min(anchor.columnIndex, target.columnIndex);
-        var columnIndexMax = Math.max(anchor.columnIndex, target.columnIndex);
+        var transforedAnchor = transformIndexes(anchor.pose, anchor.chain, anchor.residue);
+        var transformedTarget = transformIndexes(target.pose, target.chain, target.residue);
+        var rowIndexMin = Math.min(transforedAnchor.rowIndex, transformedTarget.rowIndex);
+        var rowIndexMax = Math.max(transforedAnchor.rowIndex, transformedTarget.rowIndex);
+        var columnIndexMin = Math.min(transforedAnchor.columnIndex, transformedTarget.columnIndex);
+        var columnIndexMax = Math.max(transforedAnchor.columnIndex, transformedTarget.columnIndex);
         for (var rowIndex = rowIndexMin; rowIndex <= rowIndexMax; rowIndex++) {
           var pose = scope.poses[rowIndex];
           var columnCursor = 0;
@@ -154,64 +150,47 @@ angular.module('CyDirectives')
         }
         return selection;
       }
-      function makeChainSelection(chainIndex) {
-        //pick all residues in all chains between anchor and target
-        //right now: anchor and target should have the same rowIndex
+
+      function pickChains(anchor, target) {
+        //pick all residues in the anchor chain
         var selection = {};
-        var anchor = transformIndexes(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
-        var target = transformIndexes(scope.target.pose, scope.target.chain, scope.target.residue);
-        var rowIndexMin = Math.min(anchor.rowIndex, target.rowIndex);
-        var rowIndexMax = Math.max(anchor.rowIndex, target.rowIndex);
-        for (var rowIndex = rowIndexMin; rowIndex <= rowIndexMax; rowIndex++) {
-          var pose = scope.poses[rowIndex];
-          var chain = pose.chains[chainIndex];
-          if (typeof chain === 'undefined') {
-            return;
-          }
+        var pose = scope.poses[anchor.pose];
+        var chain = pose.chains[anchor.chain];
+        chain.residues.forEach(function(residue) {
+          //add all residues to selection
           if (typeof selection[pose.id] === 'undefined') {
             selection[pose.id] = {};
           }
           if (typeof selection[pose.id][chain.name] === 'undefined') {
             selection[pose.id][chain.name] = {};
           }
-          for (var residueCursor = 0; residueCursor < chain.residues.length; residueCursor++) {
-            var residue = chain.residues[residueCursor];
-            selection[pose.id][chain.name][residue.position] = true;
-          }
-        }
+          selection[pose.id][chain.name][residue.position] = true;
+        });
         return selection;
       }
-      function makePoseSelection() {
+
+      function pickPoses(anchor, target) {
         //pick all residues in all chains in poses between anchor and target
         var selection = {};
-        var anchor = transformIndexes(scope.anchor.pose, scope.anchor.chain, scope.anchor.residue);
-        var target = transformIndexes(scope.target.pose, scope.target.chain, scope.target.residue);
-        var rowIndexMin = Math.min(anchor.rowIndex, target.rowIndex);
-        var rowIndexMax = Math.max(anchor.rowIndex, target.rowIndex);
-        for (var rowIndex = rowIndexMin; rowIndex <= rowIndexMax; rowIndex++) {
-          var pose = scope.poses[rowIndex];
-          if (typeof selection[pose.id] === 'undefined') {
-            selection[pose.id] = {};
-          }
-          for (var chainCursor = 0; chainCursor < pose.chains.length; chainCursor++) {
-            var chain = pose.chains[chainCursor];
-            if (typeof selection[pose.id][chain.name] === 'undefined') {
-              selection[pose.id][chain.name] = {};
-            }
-            for (var residueCursor = 0; residueCursor < chain.residues.length; residueCursor++) {
-              var residue = chain.residues[residueCursor];
+        var poseIndexMin = Math.min(anchor.pose, target.pose);
+        var poseIndexMax = Math.max(anchor.pose, target.pose);
+        for (var poseCursor = poseIndexMin; poseCursor <= poseIndexMax; poseCursor++) {
+          var pose = scope.poses[poseCursor];
+          pose.chains.forEach(function(chain) {
+            chain.residues.forEach(function(residue) {
+              //add all residues to selection
+              if (typeof selection[pose.id] === 'undefined') {
+                selection[pose.id] = {};
+              }
+              if (typeof selection[pose.id][chain.name] === 'undefined') {
+                selection[pose.id][chain.name] = {};
+              }
               selection[pose.id][chain.name][residue.position] = true;
-            }
-          }
+            });
+          });
         }
         return selection;
       }
-
-      function freezePicks() {
-        return _.merge({}, scope.frozenPicks, scope.fluidPicks);
-      }
-
-      //Internal scope
 
       scope.getColumns = function(poses) {
         var maxColumns = 0;
@@ -261,7 +240,6 @@ angular.module('CyDirectives')
         rulers = {};
       };
 
-
       scope.isResiduePicked = function(poseId, chainId, residueId) {
         //Returns true if residue is one of the currently picked residues
         if (typeof scope.picks[poseId] === 'undefined') {
@@ -298,82 +276,29 @@ angular.module('CyDirectives')
         );
       };
 
-      scope.isResidueAnchor = function(poseIndex, chainIndex, residueIndex) {
-        //Returns true if residue is the anchor residue
-        if (scope.anchor === null) {
-          return false;
-        }
-        return (
-          scope.anchor.pose === poseIndex &&
-          scope.anchor.chain === chainIndex &&
-          scope.anchor.residue === residueIndex
-        );
-      };
-
       scope.onResidueMousedown = function(event, poseIndex, chainIndex, residueIndex) {
         if (event.buttons !== 1) {
           //require left-click mousedown
           return;
         }
-
-        setTarget(poseIndex, chainIndex, residueIndex);
-
-        if (event.shiftKey) {
-          if (scope.anchor === null) {
-            //can't make a selection without an anchor
-            return;
-          }
-          if (!event.ctrlKey) {
-            scope.frozenPicks = {};//replace all
-          }
-          //replace last
-          scope.fluidPicks = makeSelection();
-        } else {
-          if (event.ctrlKey) {
-            //if target is already picked, unpick it
-            var pose = scope.poses[scope.target.pose];
-            var chain = pose.chains[scope.target.chain];
-            var residue = chain.residues[scope.target.residue];
-            if (
-              scope.picks[pose.id] &&
-              scope.picks[pose.id][chain.name] &&
-              scope.picks[pose.id][chain.name][residue.position]
-            ) {
-              unsetAnchor();
-              scope.frozenPicks = freezePicks();
-              delete scope.frozenPicks[pose.id][chain.name][residue.position];
-              //also delete empty objects
-              if (_.isEqual(scope.frozenPicks[pose.id][chain.name], {})) {
-                delete scope.frozenPicks[pose.id][chain.name];
-              }
-              if (_.isEqual(scope.frozenPicks[pose.id], {})) {
-                delete scope.frozenPicks[pose.id];
-              }
-              scope.fluidPicks = {};
-            } else {
-              setAnchor(poseIndex, chainIndex, residueIndex); //set target as anchor
-              scope.frozenPicks = freezePicks();
-              scope.fluidPicks = makeSelection(); //new 1x1 selection
-            }
-          } else {
-            setAnchor(poseIndex, chainIndex, residueIndex); //set target as anchor
-            scope.frozenPicks = {};//replace all
-            scope.fluidPicks = makeSelection(); //new 1x1 selection
-          }
-        }
-        scope.picks = freezePicks();
+        scope.onSelectResidue({
+          event: event,
+          poseIndex: poseIndex,
+          chainIndex: chainIndex,
+          residueIndex: residueIndex,
+          pickResidues: pickResidues
+        });
       };
 
       scope.onResidueMouseenter = function(event, poseIndex, chainIndex, residueIndex) {
         if (event.buttons === 1) { //left-clicking
-          if (scope.anchor === null) {
-            //can't make a selection without an anchor
-            return;
-          }
-          //update last selection, based on anchor residue
-          setTarget(poseIndex, chainIndex, residueIndex);
-          scope.fluidPicks = makeSelection();
-          scope.picks = freezePicks();
+          scope.onExtendSelection({
+            event: event,
+            poseIndex: poseIndex,
+            chainIndex: chainIndex,
+            residueIndex: residueIndex,
+            pickResidues: pickResidues
+          });
         } else {
           //set hover residue
           angular.element(event.currentTarget).addClass('sv-hover');
@@ -399,20 +324,12 @@ angular.module('CyDirectives')
           //require left-click mousedown
           return;
         }
-        if (event.shiftKey) {
-          return;
-        }
-        if (event.ctrlKey) {
-          scope.frozenPicks = freezePicks();
-        } else {
-          scope.frozenPicks = {};//replace all
-        }
-        //set anchor to first residue in this chain
-        //new 1xN selection
-        setAnchor(poseIndex, chainIndex, 0);
-        setTarget(poseIndex, chainIndex, 0);
-        scope.fluidPicks = makeChainSelection(chainIndex);
-        scope.picks = freezePicks();
+        scope.onSelectChain({
+          event: event,
+          poseIndex: poseIndex,
+          chainIndex: chainIndex,
+          pickChains: pickChains
+        });
       };
 
       scope.onPoseMousedown = function(event, poseIndex) {
@@ -420,30 +337,11 @@ angular.module('CyDirectives')
           //require left-click mousedown
           return;
         }
-        if (event.shiftKey) {
-          if (scope.anchor === null) {
-            //can't make a selection without an anchor
-            return;
-          }
-          if (!event.ctrlKey) {
-            scope.frozenPicks = {};//replace all
-          }
-          //replace last
-          setTarget(poseIndex, 0, 0);
-          scope.fluidPicks = makePoseSelection();
-        } else {
-          if (event.ctrlKey) {
-            scope.frozenPicks = freezePicks();
-          } else {
-            scope.frozenPicks = {};//replace all
-          }
-          //set anchor to first residue in first chain of this pose
-          //new 1xN selection
-          setAnchor(poseIndex, 0, 0);
-          setTarget(poseIndex, 0, 0);
-          scope.fluidPicks = makePoseSelection();
-        }
-        scope.picks = freezePicks();
+        scope.onSelectPose({
+          event: event,
+          poseIndex: poseIndex,
+          pickPoses: pickPoses
+        });
       };
 
       /* scope.poses[0] may not have a residue at columnIndex
@@ -465,7 +363,7 @@ angular.module('CyDirectives')
             scope.frozenPicks = {};//replace all
           } //else replace last
           setTarget(target);
-          scope.fluidPicks = makeSelection();
+          scope.fluidPicks = pickResidues();
         } else {
           if (event.ctrlKey) {
             scope.frozenPicks = freezePicks();
@@ -479,129 +377,32 @@ angular.module('CyDirectives')
             columnIndex: columnIndex + chainLabelWidth
           });
           setTarget(target);
-          scope.fluidPicks = makeSelection();
+          scope.fluidPicks = pickResidues();
         }
         scope.picks = freezePicks();
       };
       */
 
-      scope.erasePosePicks = function(poseId) {
-        //erase picks for the pose
-        delete scope.picks[poseId];
+      scope.erasePosePicks = function(poseIndex) {
+        scope.onUnselectPose({
+          event: event,
+          poseIndex: poseIndex
+        });
+        hideMenus();
+      };
 
-        //put anchor on first available residue,
-        //or remove anchor if inversion has no residues
-        unsetAnchor();
-
-        //only need to go until anchor gets set
-        outerLoop:
-        for (var poseCursor = 0; poseCursor < scope.poses.length; poseCursor++) {
-          var pose = scope.poses[poseCursor];
-          for (var chainCursor = 0; chainCursor < pose.chains.length; chainCursor++) {
-            var chain = pose.chains[chainCursor];
-            for (var residueCursor = 0; residueCursor < chain.residues.length; residueCursor++) {
-              var residue = chain.residues[residueCursor];
-              if (scope.picks[pose.id] &&
-                  scope.picks[pose.id][chain.name] &&
-                  scope.picks[pose.id][chain.name][residue.position]) {
-                setAnchor(poseCursor, chainCursor, residueCursor);
-                break outerLoop;
-              }
-            }
-          }
-        }
-        scope.frozenPicks = {};
-        scope.fluidPicks = scope.picks;
-        scope.picks = freezePicks();
+      scope.invertPosePicks = function(poseIndex) {
+        scope.onInvertPose({
+          event: event,
+          poseIndex: poseIndex
+        });
         hideMenus();
       };
 
       scope.invertPicks = function() {
-        //put anchor on first available residue,
-        //or remove anchor if inversion has no residues
-        unsetAnchor();
-
-        //invert picks; put into a single selection
-        var inversion = {};
-        scope.poses.forEach(function(pose, poseIndex) {
-          pose.chains.forEach(function(chain, chainIndex) {
-            chain.residues.forEach(function(residue, residueIndex) {
-              if (scope.picks[pose.id] &&
-                  scope.picks[pose.id][chain.name] &&
-                  scope.picks[pose.id][chain.name][residue.position]) {
-                return;
-              }
-              //only pick non-picked residues
-              if (typeof inversion[pose.id] === 'undefined') {
-                inversion[pose.id] = {};
-              }
-              if (typeof inversion[pose.id][chain.name] === 'undefined') {
-                inversion[pose.id][chain.name] = {};
-              }
-              inversion[pose.id][chain.name][residue.position] = true;
-              //set anchor only once
-              if (scope.anchor === null) {
-                setAnchor(poseIndex, chainIndex, residueIndex);
-              }
-            });
-          });
+        scope.onInvertAll({
+          event: event
         });
-        scope.frozenPicks = {};
-        scope.fluidPicks = inversion;
-        scope.picks = freezePicks();
-      };
-
-      scope.invertPosePicks = function(poseId) {
-        //put anchor on first available residue,
-        //or remove anchor if inversion has no residues
-        unsetAnchor();
-
-        //invert only the specified pose; put into a single selection
-        var inversion = {};
-        scope.poses.forEach(function(pose, poseIndex) {
-          pose.chains.forEach(function(chain, chainIndex) {
-            chain.residues.forEach(function(residue, residueIndex) {
-              if (scope.picks[pose.id] &&
-                  scope.picks[pose.id][chain.name] &&
-                  scope.picks[pose.id][chain.name][residue.position]) {
-                if (poseId === pose.id) {
-                  return;
-                }
-              } else {
-                if (poseId !== pose.id) {
-                  return;
-                }
-              }
-              //only pick residues not in pose that are already picked
-              //and residues in pose that are not yet picked
-              if (typeof inversion[pose.id] === 'undefined') {
-                inversion[pose.id] = {};
-              }
-              if (typeof inversion[pose.id][chain.name] === 'undefined') {
-                inversion[pose.id][chain.name] = {};
-              }
-              inversion[pose.id][chain.name][residue.position] = true;
-              //set anchor only once
-              if (scope.anchor === null) {
-                setAnchor(poseIndex, chainIndex, residueIndex);
-              }
-            });
-          });
-        });
-        scope.frozenPicks = {};
-        scope.fluidPicks = inversion;
-        scope.picks = freezePicks();
-        hideMenus();
-      };
-
-      scope.openSequenceViewerMenu = function(event) {
-        event.stopPropagation();
-        //close menu
-        angular.element(event.currentTarget).removeClass('sv-header--with-menu');
-        //if menu icon was clicked, open menu
-        if (angular.element(event.target).hasClass('sv-header-icon')) {
-          angular.element(event.currentTarget).addClass('sv-header--with-menu');
-        }
       };
 
     }

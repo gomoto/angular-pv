@@ -4,13 +4,11 @@ angular.module('CyDirectives')
     scope: {
       poses: '=',
       picks: '=',
-      frozenPicks: '=',
-      fluidPicks: '=',
       pdbData: '&',
       sequences: '=',
-      //togglePick: '&',
       hover: '=',
-      anchor: '='
+      onSelectResidue: '&',
+      onUnselectAll: '&'
     },
     link: function(scope, element) {
 
@@ -160,36 +158,18 @@ angular.module('CyDirectives')
 
       }, true);
 
-      scope.target = null;
-      function setAnchor(poseIndex, chainIndex, residueIndex) {
-        scope.anchor = {
-          pose: poseIndex,
-          chain: chainIndex,
-          residue: residueIndex
-        };
-      }
-      function setTarget(poseIndex, chainIndex, residueIndex) {
-        scope.target = {
-          pose: poseIndex,
-          chain: chainIndex,
-          residue: residueIndex
-        };
-      }
-      function unsetAnchor() {
-        scope.anchor = null;
-      }
-      function makeSelection() {
+      function pickResidues(anchor, target) {
         //pick all residues between the anchor and target
         var selection = {};
-        if (scope.anchor.pose !== scope.target.pose) {
+        if (anchor.pose !== target.pose) {
           //selection between poses does not make sense here
           return selection;
         }
-        var pose = scope.sequences[scope.target.pose];
-        var chainIndexMin = Math.min(scope.anchor.chain, scope.target.chain);
-        var chainIndexMax = Math.max(scope.anchor.chain, scope.target.chain);
-        var residueIndexMin = Math.min(scope.anchor.residue, scope.target.residue);
-        var residueIndexMax = Math.max(scope.anchor.residue, scope.target.residue);
+        var pose = scope.sequences[target.pose];
+        var chainIndexMin = Math.min(anchor.chain, target.chain);
+        var chainIndexMax = Math.max(anchor.chain, target.chain);
+        var residueIndexMin = Math.min(anchor.residue, target.residue);
+        var residueIndexMax = Math.max(anchor.residue, target.residue);
         for (var chainCursor = chainIndexMin; chainCursor <= chainIndexMax; chainCursor++) {
           var chain = pose.chains[chainCursor];
           for (var residueCursor = residueIndexMin; residueCursor <= residueIndexMax; residueCursor++) {
@@ -206,9 +186,6 @@ angular.module('CyDirectives')
         }
         return selection;
       }
-      function freezePicks() {
-        return _.merge({}, scope.frozenPicks, scope.fluidPicks);
-      }
 
       viewer.on('click', function(picked, event) {
         scope.$apply(function() {
@@ -218,10 +195,7 @@ angular.module('CyDirectives')
             //This prevents the selection from clearing
             //while user is trying to extend it.
             if (!event.ctrlKey && !event.shiftKey) {
-              scope.frozenPicks = {};
-              scope.fluidPicks = {};
-              scope.picks = {};
-              scope.anchor = null;
+              scope.onUnselectAll(event);
             }
             return;
           }
@@ -238,58 +212,13 @@ angular.module('CyDirectives')
           var chainIndex = _.findIndex(scope.sequences[poseIndex].chains, {name: chainName});
           var residueIndex = _.findIndex(scope.sequences[poseIndex].chains[chainIndex].residues, {position: residuePosition});
 
-          setTarget(poseIndex, chainIndex, residueIndex);
-
-          //make selections like in sequence viewer onResidueMousedown
-          //only difference: cannot select across multiple poses here
-          if (event.shiftKey) {
-            if (scope.anchor === null) {
-              //can't make a selection without an anchor
-              return;
-            }
-            if (scope.anchor.pose !== scope.target.pose) {
-              //can't extend a selection across poses
-              return;
-            }
-            if (!event.ctrlKey) {
-              scope.frozenPicks = {};//replace all
-            }
-            //replace last
-            scope.fluidPicks = makeSelection();
-          } else {
-            if (event.ctrlKey) {
-              //if target is already picked, unpick it
-              var pose = scope.sequences[scope.target.pose];
-              var chain = pose.chains[scope.target.chain];
-              var residue = chain.residues[scope.target.residue];
-              if (
-                scope.picks[pose.id] &&
-                scope.picks[pose.id][chain.name] &&
-                scope.picks[pose.id][chain.name][residue.position]
-              ) {
-                unsetAnchor();
-                scope.frozenPicks = freezePicks();
-                delete scope.frozenPicks[pose.id][chain.name][residue.position];
-                //also delete empty objects
-                if (_.isEqual(scope.frozenPicks[pose.id][chain.name], {})) {
-                  delete scope.frozenPicks[pose.id][chain.name];
-                }
-                if (_.isEqual(scope.frozenPicks[pose.id], {})) {
-                  delete scope.frozenPicks[pose.id];
-                }
-                scope.fluidPicks = {};
-              } else {
-                setAnchor(poseIndex, chainIndex, residueIndex); //set target as anchor
-                scope.frozenPicks = freezePicks();
-                scope.fluidPicks = makeSelection(); //new 1x1 selection
-              }
-            } else {
-              setAnchor(poseIndex, chainIndex, residueIndex); //set target as anchor
-              scope.frozenPicks = {};//replace all
-              scope.fluidPicks = makeSelection(); //new 1x1 selection
-            }
-          }
-          scope.picks = freezePicks();
+          scope.onSelectResidue({
+            event: event,
+            poseIndex: poseIndex,
+            chainIndex: chainIndex,
+            residueIndex: residueIndex,
+            pickResidues: pickResidues
+          });
         });
       });
 
