@@ -185,7 +185,9 @@ angular.module('CyDirectives')
         var residueIndexMax = Math.max(anchor.residue, target.residue);
         for (var chainCursor = chainIndexMin; chainCursor <= chainIndexMax; chainCursor++) {
           var chain = pose.chains[chainCursor];
-          for (var residueCursor = residueIndexMin; residueCursor <= residueIndexMax; residueCursor++) {
+          var residueCursorMin = chainCursor === chainIndexMin ? residueIndexMin : 0;
+          var residueCursorMax = chainCursor === chainIndexMax ? residueIndexMax : chain.residues.length - 1;
+          for (var residueCursor = residueCursorMin; residueCursor <= residueCursorMax; residueCursor++) {
             var residue = chain.residues[residueCursor];
             //add residue to selection
             if (typeof selection[pose.id] === 'undefined') {
