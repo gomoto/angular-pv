@@ -283,7 +283,7 @@ angular.module('cyViewer', ['CyDirectives'])
   $scope.isPoseCreatorOpen = false;
 
   //define how to add and remove poses:
-  $scope.addPose = function (pdbId, name, color, renderMode) {
+  $scope.onAddPose = function (pdbId, name, color, renderMode) {
     //Create unique pose ID
     //stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     var poseId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
@@ -303,15 +303,16 @@ angular.module('cyViewer', ['CyDirectives'])
     //clear newPose model
     $scope.newPose = {};
   };
-  $scope.removePose = function(poseId) {
-    $scope.apply(function() {
-      delete $scope.pdbData[poseId];
-      delete $scope.displayNames[poseId];
-      delete $scope.colors[poseId];
-      delete $scope.renderModes[poseId];
-      delete $scope.picks[poseId];
-      $scope.sequences = _.reject( $scope.sequences, {'id': poseId} );
-    });
+  $scope.onRemovePose = function(poseId) {
+    delete $scope.pdbData[poseId];
+    delete $scope.displayNames[poseId];
+    delete $scope.colors[poseId];
+    delete $scope.renderModes[poseId];
+    delete $scope.picks[poseId];
+    delete $scope.frozenPicks[poseId];
+    delete $scope.fluidPicks[poseId];
+    unsetAnchor();
+    $scope.sequences = _.reject( $scope.sequences, {'id': poseId} );
   };
 
 }]);

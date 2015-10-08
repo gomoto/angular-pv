@@ -46,6 +46,8 @@ angular.module('CyDirectives')
         var exiting = _.difference( _.keys(oldPdbData), _.keys(newPdbData) );
         _.forEach(exiting, function(poseId) {
           viewer.rm(poseId);
+          //viewer.autoZoom doesn't redraw if viewer has no renderings
+          viewer.requestRedraw();
         });
 
         //render new poses in viewer
@@ -81,7 +83,9 @@ angular.module('CyDirectives')
             { color: pv.color.uniform( scope.colors[poseId] ) }
           );
         });
+
         viewer.autoZoom();
+
         //console.log('# of viewer renderings', viewer.all().length);
       }, true);
 
@@ -91,9 +95,11 @@ angular.module('CyDirectives')
         //viewer doesn't try to get a nonexistent rendering.
         //Otherwise old and new should have the same keys (pose IDs).
         _.forEach(oldRenderModes, function(renderMode, poseId) {
-          if (renderMode === newRenderModes[poseId]) return;
+          if (renderMode === newRenderModes[poseId]) return;//render mode didn't change
           //Reuse structure
-          var structure = viewer.get(poseId).structure();
+          var rendering = viewer.get(poseId);
+          if (rendering === null) return;//pose with poseId was removed
+          var structure = rendering.structure();
           viewer.rm(poseId);
           viewer.renderAs(
             poseId,
@@ -111,8 +117,9 @@ angular.module('CyDirectives')
         //viewer doesn't try to get a nonexistent rendering.
         //Otherwise old and new should have the same keys (pose IDs).
         _.forEach(oldColors, function(color, poseId) {
-          if (color === newColors[poseId]) return;
+          if (color === newColors[poseId]) return;//color didn't change
           var rendering = viewer.get(poseId);
+          if (rendering === null) return;//pose with poseId was removed
           rendering.colorBy( pv.color.uniform(color) );
           viewer.requestRedraw();
         });

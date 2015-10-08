@@ -66,6 +66,9 @@
           <li ng-click="erasePosePicks(poseIndex)">
             Clear {{displayNames[pose.id]}}
           </li>
+          <li ng-click="onRemovePose({poseId: pose.id})">
+            Remove {{displayNames[pose.id]}}
+          </li>
         </ul>
       </div>
       <div class="sv-chain" ng-repeat="chain in pose.chains track by $index" ng-init="chainIndex=$index">

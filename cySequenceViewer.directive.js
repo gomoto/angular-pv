@@ -9,6 +9,7 @@ angular.module('CyDirectives')
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
     scope: {
+      onRemovePose: '&',
       displayNames: '=',
       colors: '=',
       picks: '=',//make this read-only? passed &-methods not working as expected
