@@ -286,6 +286,12 @@ angular.module('CyDirectives')
       };
 
       scope.onPoseMousedown = function(event, poseIndex) {
+        //do nothing if trying to open context menu
+        var rightClick = event.buttons === 2 || event.which === 3;
+        var ctrlClick = event.ctrlKey || event.metaKey;
+        if (rightClick || ctrlClick) {
+          return;
+        }
         scope.onSelectPose({
           event: event,
           poseIndex: poseIndex,
