@@ -1,7 +1,12 @@
 <div class="sv" ng-class="[palette.class]">
-  <div class="sv-header" ng-click="openSequenceViewerMenu($event)">
-    <img class="sv-header-icon" src="cyrus-icon.svg" alt="Sequence Viewer">
-    <ul class="sv-header-menu" ng-show="poses.length > 0">
+  <div class="sv-header"
+       ng-class="{'sv-header--with-menu': isSequenceViewerMenuOpen}">
+    <img class="sv-header-icon" src="cyrus-icon.svg" alt="Sequence Viewer"
+         ng-click="isSequenceViewerMenuOpen=true">
+    <ul class="sv-header-menu"
+        ng-show="poses.length > 0"
+        ng-click="isSequenceViewerMenuOpen=false"
+        ng-mousedown="$event.stopPropagation()">
       <li>
         <span>Color scheme</span>
         <span class="sv-arrow-right"></span>
@@ -43,15 +48,21 @@
         {{column}}
       </span>
     </div>
-    <div class="sv-pose" ng-repeat="pose in poses track by $index" ng-init="poseIndex=$index">
+    <div class="sv-pose"
+         ng-class="{'sv-pose--with-menu': poseMenus[pose.id]}"
+         ng-repeat="pose in poses track by $index"
+         ng-init="poseIndex=$index">
       <div class="sv-pose-header"
            ng-class="{'sv-with-ruler': isPoseRulerShowing(pose.id)}">
         <div class="sv-pose-name"
              ng-class="{'picked': isPosePicked(pose.id)}"
-             ng-mousedown="onPoseMousedown($event, poseIndex)">
+             ng-mousedown="onPoseMousedown($event, poseIndex)"
+             cy-contextmenu="openPoseMenu($event, pose.id)">
           {{displayNames[pose.id]}}
         </div>
-        <ul class="sv-pose-menu">
+        <ul class="sv-pose-menu"
+            ng-click="hidePoseMenu(pose.id)"
+            ng-mousedown="$event.stopPropagation()">
           <li ng-click="showPoseRuler(pose.id)"
               ng-hide="isPoseRulerShowing(pose.id)">
             Show ruler
