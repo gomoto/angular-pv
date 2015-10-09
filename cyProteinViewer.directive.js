@@ -216,7 +216,7 @@ angular.module('CyDirectives')
             //unless control key or shift key is down.
             //This prevents the selection from clearing
             //while user is trying to extend it.
-            if (!event.ctrlKey && !event.shiftKey) {
+            if (!event.ctrlKey && !event.metaKey && !event.shiftKey) {
               scope.onUnselectAll(event);
             }
             return;

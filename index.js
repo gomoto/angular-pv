@@ -23,6 +23,10 @@ var residueCodeMap = {
   TYR: 'Y'
 };
 
+function normalizedCtrlKey(event) {
+  return event.ctrlKey || event.metaKey;
+}
+
 angular.module('CyDirectives', []);
 
 angular.module('cyViewer', ['CyDirectives'])
@@ -89,13 +93,13 @@ angular.module('cyViewer', ['CyDirectives'])
         //can't extend a selection across poses
         return;
       }
-      if (!event.ctrlKey) {
+      if (!normalizedCtrlKey(event)) {
         $scope.frozenPicks = {};//replace all
       }
       //replace last
       $scope.fluidPicks = pickResidues($scope.anchor, $scope.target);
     } else {
-      if (event.ctrlKey) {
+      if (normalizedCtrlKey(event)) {
         //if target is already picked, unpick it
         var pose = $scope.sequences[$scope.target.pose];
         var chain = pose.chains[$scope.target.chain];
@@ -143,7 +147,7 @@ angular.module('cyViewer', ['CyDirectives'])
     if (event.shiftKey) {
       return;
     }
-    if (event.ctrlKey) {
+    if (normalizedCtrlKey(event)) {
       $scope.frozenPicks = freezePicks();
     } else {
       $scope.frozenPicks = {};//replace all
@@ -161,14 +165,14 @@ angular.module('cyViewer', ['CyDirectives'])
         //can't make a selection without an anchor
         return;
       }
-      if (!event.ctrlKey) {
+      if (!normalizedCtrlKey(event)) {
         $scope.frozenPicks = {};//replace all
       }
       //replace last
       setTarget(poseIndex, 0, 0);
       $scope.fluidPicks = pickPoses($scope.anchor, $scope.target);
     } else {
-      if (event.ctrlKey) {
+      if (normalizedCtrlKey(event)) {
         $scope.frozenPicks = freezePicks();
       } else {
         $scope.frozenPicks = {};//replace all
