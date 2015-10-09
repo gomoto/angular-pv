@@ -236,6 +236,7 @@ $sv-pose-ruler-space-bottom: 1px;
   }
   .sv-residue.anchor & {
     font-weight: 500;
+    color: $white;
     background: $black !important; //override inline style and .picked style
   }
 }
