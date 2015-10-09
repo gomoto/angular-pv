@@ -533,15 +533,16 @@ cy-protein-viewer {
 /* line 237, _sequence-viewer.scss */
 .sv-residue.anchor .sv-residue-code {
   font-weight: 500;
+  color: #fdfdfd;
   background: #222 !important;
 }
 
-/* line 242, _sequence-viewer.scss */
+/* line 243, _sequence-viewer.scss */
 .sv-residue-position {
   padding-top: 8px;
   padding-bottom: 1px;
 }
-/* line 246, _sequence-viewer.scss */
+/* line 247, _sequence-viewer.scss */
 .sv-residue.picked .sv-residue-position {
   color: #222;
   font-weight: 500;
