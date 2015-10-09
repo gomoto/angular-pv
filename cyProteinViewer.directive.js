@@ -351,14 +351,12 @@ angular.module('CyDirectives')
         }
         var structure = rendering.structure();
         var selection = structure.createEmptyView();
-        var residue = structure
-        .chain(residue.chain)
-        .residueByRnum(residue.residue);
+        var coloredResidue = structure.chain(residue.chain).residueByRnum(residue.residue);
         var atom;
-        if (residue.isAminoacid()) {
-          atom = residue.atom('CA');//pv.mol.Atom instance
+        if (coloredResidue.isAminoacid()) {
+          atom = coloredResidue.atom('CA');//pv.mol.Atom instance
         } else {
-          atom = residue.atom('P');
+          atom = coloredResidue.atom('P');
           if (!atom) return; //not amino acid or nucleotide
         }
         selection.addAtom(atom);
