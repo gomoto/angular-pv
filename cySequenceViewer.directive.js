@@ -280,10 +280,6 @@ angular.module('CyDirectives')
       };
 
       scope.onResidueMousedown = function(event, poseIndex, chainIndex, residueIndex) {
-        if (event.buttons !== 1) {
-          //require left-click mousedown
-          return;
-        }
         scope.onSelectResidue({
           event: event,
           poseIndex: poseIndex,
@@ -294,7 +290,7 @@ angular.module('CyDirectives')
       };
 
       scope.onResidueMouseenter = function(event, poseIndex, chainIndex, residueIndex) {
-        if (event.buttons === 1) { //left-clicking
+        if (event.buttons === 1 || event.which === 1) { //left-clicking
           scope.onExtendSelection({
             event: event,
             poseIndex: poseIndex,
@@ -323,10 +319,6 @@ angular.module('CyDirectives')
       };
 
       scope.onChainMousedown = function(event, poseIndex, chainIndex) {
-        if (event.buttons !== 1) {
-          //require left-click mousedown
-          return;
-        }
         scope.onSelectChain({
           event: event,
           poseIndex: poseIndex,
@@ -336,10 +328,6 @@ angular.module('CyDirectives')
       };
 
       scope.onPoseMousedown = function(event, poseIndex) {
-        if (event.buttons !== 1) {
-          //require left-click mousedown
-          return;
-        }
         scope.onSelectPose({
           event: event,
           poseIndex: poseIndex,
@@ -349,10 +337,6 @@ angular.module('CyDirectives')
 
       /* scope.poses[0] may not have a residue at columnIndex
       scope.onColumnMousedown = function(event, columnIndex) {
-        if (event.buttons !== 1) {
-          //require left-click mousedown
-          return;
-        }
         var target = {
           rowIndex: scope.poses.length - 1,
           columnIndex: columnIndex + chainLabelWidth
