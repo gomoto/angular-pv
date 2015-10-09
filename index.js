@@ -102,8 +102,8 @@ angular.module('cyViewer', ['CyDirectives'])
       if (normalizedCtrlKey(event)) {
         //if target is already picked, unpick it
         var poseId = $scope.poses[$scope.target.pose];
-        var chains = $scope.chains[poseId];
-        var chain = chains[$scope.target.chain];
+        var sequence = $scope.sequences[poseId];
+        var chain = sequence.chains[$scope.target.chain];
         var residue = chain.residues[$scope.target.residue];
         if (
           $scope.picks[poseId] &&
@@ -208,8 +208,8 @@ angular.module('cyViewer', ['CyDirectives'])
     //invert picks
     var inversion = {};
     $scope.poses.forEach(function(poseId, poseIndex) {
-      var chains = $scope.chains[poseId];
-      chains.forEach(function(chain, chainIndex) {
+      var sequence = $scope.sequences[poseId];
+      sequence.chains.forEach(function(chain, chainIndex) {
         chain.residues.forEach(function(residue, residueIndex) {
           if (
             $scope.picks[poseId] &&
@@ -240,8 +240,8 @@ angular.module('cyViewer', ['CyDirectives'])
     var inversion = {};
     var invertedPoseId = $scope.poses[poseIndex];
     $scope.poses.forEach(function(poseId) {
-      var chains = $scope.chains[poseId];
-      chains.forEach(function(chain) {
+      var sequence = $scope.sequences[poseId];
+      sequence.chains.forEach(function(chain) {
         chain.residues.forEach(function(residue) {
           if (
             $scope.picks[poseId] &&
@@ -283,7 +283,7 @@ angular.module('cyViewer', ['CyDirectives'])
   $scope.colors = {};
   $scope.renderModes = {};
   $scope.picks = {};
-  $scope.chains = {};
+  $scope.sequences = {};
 
   //scope for the pose creator
   $scope.newPose = {};
@@ -303,6 +303,7 @@ angular.module('cyViewer', ['CyDirectives'])
         $scope.displayNames[poseId] = name || 'Pose ' + ( _.size($scope.displayNames) + 1 );
         $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
         $scope.renderModes[poseId] = renderMode || renderModes[4];
+        $scope.sequences[poseId] = {};
       },
       function reject() {
         console.log(pdbUrl + ' not found');
@@ -321,7 +322,7 @@ angular.module('cyViewer', ['CyDirectives'])
     delete $scope.frozenPicks[poseId];
     delete $scope.fluidPicks[poseId];
     unsetAnchor();
-    delete $scope.chains[poseId];
+    delete $scope.sequences[poseId];
   };
 
 }]);

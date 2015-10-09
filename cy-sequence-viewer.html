@@ -82,7 +82,7 @@
           </li>
         </ul>
       </div>
-      <div class="sv-chain" ng-repeat="chain in chains[poseId] track by $index" ng-init="chainIndex=$index">
+      <div class="sv-chain" ng-repeat="chain in sequences[poseId].chains track by $index" ng-init="chainIndex=$index">
         <div class="sv-chain-name"
              ng-class="{'picked': isChainPicked(poseId, chain.name), 'sv-with-ruler': isPoseRulerShowing(poseId)}"
              ng-mousedown="onChainMousedown($event, poseIndex, chainIndex)">

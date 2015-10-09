@@ -12,7 +12,7 @@ angular.module('CyDirectives')
       colors: '=',
       picks: '=',//make this read-only? passed &-methods not working as expected
       poses: '=',
-      chains: '=',
+      sequences: '=',
       hover: '=',
       isResidueAnchor: '&',
       onSelectResidue: '&',
@@ -65,10 +65,10 @@ angular.module('CyDirectives')
         //count columns; one per residue plus one or more per chain label
         var columns = 0;
         var poseId = scope.poses[poseIndex];
-        var chains = scope.chains[poseId];
+        var sequence = scope.sequences[poseId];
         //stop before the chain at chainIndex
         for (var chainCursor = 0; chainCursor < chainIndex; chainCursor++) {
-          chain = chains[chainCursor];
+          chain = sequence.chains[chainCursor];
           columns += chainLabelWidth;
           columns += chain.residues.length;
         }
@@ -93,10 +93,10 @@ angular.module('CyDirectives')
         var columnIndexMax = Math.max(transforedAnchor.columnIndex, transformedTarget.columnIndex);
         for (var rowIndex = rowIndexMin; rowIndex <= rowIndexMax; rowIndex++) {
           var poseId = scope.poses[rowIndex];
+          var sequence = scope.sequences[poseId];
           var columnCursor = 0;
-          var chains = scope.chains[poseId];
-          for (var chainCursor = 0; chainCursor < chains.length && columnCursor <= columnIndexMax; chainCursor++) {
-            var chain = chains[chainCursor];
+          for (var chainCursor = 0; chainCursor < sequence.chains.length && columnCursor <= columnIndexMax; chainCursor++) {
+            var chain = sequence.chains[chainCursor];
             columnCursor += chainLabelWidth;
             for (var residueCursor = 0; residueCursor < chain.residues.length && columnCursor <= columnIndexMax; residueCursor++) {
               if (columnCursor >= columnIndexMin) {
@@ -121,7 +121,8 @@ angular.module('CyDirectives')
         //pick all residues in the anchor chain
         var selection = {};
         var poseId = scope.poses[anchor.pose];
-        var chain = scope.chains[poseId][anchor.chain];
+        var sequence = scope.sequences[poseId];
+        var chain = sequence.chains[anchor.chain];
         chain.residues.forEach(function(residue) {
           //add all residues to selection
           if (typeof selection[poseId] === 'undefined') {
@@ -142,8 +143,8 @@ angular.module('CyDirectives')
         var poseIndexMax = Math.max(anchor.pose, target.pose);
         for (var poseCursor = poseIndexMin; poseCursor <= poseIndexMax; poseCursor++) {
           var poseId = scope.poses[poseCursor];
-          var chains = scope.chains[poseId];
-          chains.forEach(function(chain) {
+          var sequence = scope.sequences[poseId];
+          sequence.chains.forEach(function(chain) {
             chain.residues.forEach(function(residue) {
               //add all residues to selection
               if (typeof selection[poseId] === 'undefined') {
@@ -163,8 +164,8 @@ angular.module('CyDirectives')
         var maxColumns = 0;
         poses.forEach(function(poseId) {
           var columns = 0;
-          var chains = scope.chains[poseId];
-          chains.forEach(function(chain) {
+          var sequence = scope.sequences[poseId];
+          sequence.chains.forEach(function(chain) {
             columns += chainLabelWidth;
             columns += chain.residues.length;
           });
@@ -265,8 +266,8 @@ angular.module('CyDirectives')
           //set hover residue
           angular.element(event.currentTarget).addClass('sv-hover');
           var poseId = scope.poses[poseIndex];
-          var chains = scope.chains[poseId];
-          var chain = chains[chainIndex];
+          var sequence = scope.sequences[poseId];
+          var chain = sequence.chains[chainIndex];
           var residue = chain.residues[residueIndex];
           scope.hover = {
             pose: poseId,

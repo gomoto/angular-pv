@@ -7,7 +7,7 @@ angular.module('CyDirectives')
       renderModes: '=',
       picks: '=',
       poses: '=',
-      chains: '=',
+      sequences: '=',
       hover: '=',
       onSelectResidue: '&',
       onUnselectAll: '&'
@@ -57,7 +57,7 @@ angular.module('CyDirectives')
           var structure = pv.io.pdb( scope.pdbData[poseId] );
 
           //extract sequence information and share with parent scope
-          scope.chains[poseId] = structure.chains().map(function(chain) {
+          scope.sequences[poseId].chains = structure.chains().map(function(chain) {
             var residues = [];
             chain.residues().forEach(function(residue) {
               if (residue.isAminoacid()) {
@@ -183,13 +183,13 @@ angular.module('CyDirectives')
           return selection;
         }
         var poseId = scope.poses[target.pose];
-        var chains = scope.chains[poseId];
+        var sequence = scope.sequences[poseId];
         var chainIndexMin = Math.min(anchor.chain, target.chain);
         var chainIndexMax = Math.max(anchor.chain, target.chain);
         var residueIndexMin = Math.min(anchor.residue, target.residue);
         var residueIndexMax = Math.max(anchor.residue, target.residue);
         for (var chainCursor = chainIndexMin; chainCursor <= chainIndexMax; chainCursor++) {
-          var chain = chains[chainCursor];
+          var chain = sequence.chains[chainCursor];
           var residueCursorMin = chainCursor === chainIndexMin ? residueIndexMin : 0;
           var residueCursorMax = chainCursor === chainIndexMax ? residueIndexMax : chain.residues.length - 1;
           for (var residueCursor = residueCursorMin; residueCursor <= residueCursorMax; residueCursor++) {
@@ -229,8 +229,8 @@ angular.module('CyDirectives')
 
           //find indexes
           var poseIndex = _.indexOf(scope.poses, poseId);
-          var chainIndex = _.findIndex(scope.chains[poseId], {name: chainName});
-          var residueIndex = _.findIndex(scope.chains[poseId][chainIndex].residues, {position: residuePosition});
+          var chainIndex = _.findIndex(scope.sequences[poseId].chains, {name: chainName});
+          var residueIndex = _.findIndex(scope.sequences[poseId].chains[chainIndex].residues, {position: residuePosition});
 
           scope.onSelectResidue({
             event: event,
