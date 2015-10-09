@@ -1,8 +1,6 @@
 //Right now a chain requires a name: name is the id.
 //Will there ever be two chains both without names?
 
-//Element.classList not supported < IE9
-
 angular.module('CyDirectives')
 .directive('cySequenceViewer', ['$document', function($document) {
   return {
@@ -24,80 +22,42 @@ angular.module('CyDirectives')
       onInvertPose: '&',
       onInvertAll: '&'
     },
-    link: function(scope, element) {
-      var domElement = element[0];
+    link: function(scope) {
       var chainLabelWidth = 2;
 
-      element.on('contextmenu', contextmenuListener);
-      $document.on('mousedown', hidePoseMenus);
-      $document.on('mousedown', hideSequenceViewerMenu);
-      scope.$on('$destroy', function() {
-        element.off('contextmenu', contextmenuListener);
-        $document.off('mousedown', hidePoseMenus);
-        $document.off('mousedown', hideSequenceViewerMenu);
-      });
-      function contextmenuListener(event) {
-        //prevent default context menu anywhere in this component
-        event.preventDefault();
-        hideMenus();
-        //if target is or is in `.sv-pose-name`, open pose name menu
-        var poseNameElement = findElementWithClassName(event.target, 'sv-pose-name');
-        if (poseNameElement) {
-          //show menu for target pose
-          var poseElement = findElementWithClassName(poseNameElement, 'sv-pose');
-          poseElement.classList.add('sv-pose--with-menu');
-        }
-      }
-      function hidePoseMenus(event) {
-        //if event originated from within pose-menu, don't hide
-        if (findElementWithClassName(event.target, 'sv-pose-menu')) {
-          return;
-        }
-        hideMenus();
-      }
-      function hideSequenceViewerMenu (event) {
-        //if event originated from within sv-header, don't hide
-        if (findElementWithClassName(event.target, 'sv-header')) {
-          return;
-        }
-        var sequenceViewerMenu = event.currentTarget.querySelector('.sv-header');
-        angular.element(sequenceViewerMenu).removeClass('sv-header--with-menu');
-      }
-      function hideMenus() {
-        //hide all pose menus
-        var poses = domElement.querySelectorAll('.sv-pose');
-        for (var i = 0; i < poses.length; i++) {
-          poses[i].classList.remove('sv-pose--with-menu');
-        }
+      //track open menus
+      scope.poseMenus = {};
+      scope.isSequenceViewerMenuOpen = false;
+
+      function onClosePoseMenus() {
+        scope.$apply(function() {
+          scope.poseMenus = {};
+        });
       }
 
-      scope.openSequenceViewerMenu = function(event) {
-        event.stopPropagation();
-        //close menu
-        angular.element(event.currentTarget).removeClass('sv-header--with-menu');
-        //if menu icon was clicked, open menu
-        if (angular.element(event.target).hasClass('sv-header-icon')) {
-          angular.element(event.currentTarget).addClass('sv-header--with-menu');
-        }
+      function onCloseSequenceViewerMenu(event) {
+        scope.$apply(function() {
+          scope.isSequenceViewerMenuOpen = false;
+        });
+      }
+
+      $document.on('mousedown', onClosePoseMenus);
+      $document.on('mousedown', onCloseSequenceViewerMenu);
+      scope.$on('$destroy', function() {
+        $document.off('mousedown', onClosePoseMenus);
+        $document.off('mousedown', onCloseSequenceViewerMenu);
+      });
+
+      scope.openPoseMenu = function(event, poseId) {
+        event.preventDefault();
+        //close all other pose menus
+        scope.poseMenus = {};
+        scope.poseMenus[poseId] = true;
       };
 
-      /**
-       * Search for a specified className on an element and its ancestors.
-       * Once found, return the element. If not found, return null.
-       *
-       * @param {Element} element The element from which to start searching
-       * @param {String} className The class name for which to search
-       * @return {Element | null} The element with the className
-       */
-      function findElementWithClassName(element, className) {
-        while (element) {
-          if ( element.classList && element.classList.contains(className) ) {
-            return element;
-          }
-          element = element.parentNode;
-        }
-        return null;
-      }
+      scope.hidePoseMenu = function(poseId) {
+        delete scope.poseMenus[poseId];
+      };
 
       function transformIndexes(poseIndex, chainIndex, residueIndex) {
         //calculate row and column indexes from pose, chain, and residue indexes
@@ -227,11 +187,9 @@ angular.module('CyDirectives')
       };
       scope.showPoseRuler = function(poseId) {
         rulers[poseId] = true;
-        hideMenus();
       };
       scope.hidePoseRuler = function(poseId) {
         delete rulers[poseId];
-        hideMenus();
       };
       scope.showAllPoseRulers = function() {
         rulers = {};
@@ -375,7 +333,6 @@ angular.module('CyDirectives')
           event: event,
           poseIndex: poseIndex
         });
-        hideMenus();
       };
 
       scope.invertPosePicks = function(poseIndex) {
@@ -383,7 +340,6 @@ angular.module('CyDirectives')
           event: event,
           poseIndex: poseIndex
         });
-        hideMenus();
       };
 
       scope.invertPicks = function() {
