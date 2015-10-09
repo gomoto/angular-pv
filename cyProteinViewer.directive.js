@@ -24,6 +24,7 @@ var residueCodeMap = {
 angular.module('CyDirectives')
 .directive('cyProteinViewer', function() {
   return {
+    restrict: 'E',
     scope: {
       pdbData: '=',
       colors: '=',
