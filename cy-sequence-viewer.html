@@ -1,4 +1,4 @@
-<div class="sv" ng-class="[palette.class]">
+<div class="sv">
   <div class="sv-header"
        ng-class="{'sv-header--with-menu': isSequenceViewerMenuOpen}">
     <img class="sv-header-icon" src="cyrus-icon.svg" alt="Sequence Viewer"
@@ -7,17 +7,6 @@
         ng-show="poses.length > 0"
         ng-click="isSequenceViewerMenuOpen=false"
         ng-mousedown="$event.stopPropagation()">
-      <li>
-        <span>Color scheme</span>
-        <span class="sv-arrow-right"></span>
-        <ul class="sv-palettes">
-          <li ng-repeat="p in palettes track by $index"
-              ng-click="setPalette($index)">
-            <span ng-style="{'visibility': p == palette ? 'visible' : 'hidden'}">&#x2713;</span>
-            <span>{{p.name}}</span>
-          </li>
-        </ul>
-      </li>
       <li ng-click="invertPicks()">
         Invert all
       </li>
@@ -49,66 +38,81 @@
       </span>
     </div>
     <div class="sv-pose"
-         ng-class="{'sv-pose--with-menu': poseMenus[pose.id]}"
-         ng-repeat="pose in poses track by $index"
+         ng-class="{'sv-pose--with-menu': poseMenus[poseId]}"
+         ng-repeat="poseId in poses track by $index"
          ng-init="poseIndex=$index">
       <div class="sv-pose-header"
-           ng-class="{'sv-with-ruler': isPoseRulerShowing(pose.id)}">
+           ng-class="{'sv-with-ruler': isPoseRulerShowing(poseId)}">
         <div class="sv-pose-name"
-             ng-class="{'picked': isPosePicked(pose.id)}"
+             ng-class="{'picked': isPosePicked(poseId)}"
              ng-mousedown="onPoseMousedown($event, poseIndex)"
-             cy-contextmenu="openPoseMenu($event, pose.id)">
-          {{displayNames[pose.id]}}
+             cy-contextmenu="openPoseMenu($event, poseId)">
+          {{displayNames[poseId]}}
         </div>
         <ul class="sv-pose-menu"
-            ng-click="hidePoseMenu(pose.id)"
+            ng-click="hidePoseMenu(poseId)"
             ng-mousedown="$event.stopPropagation()">
-          <li ng-click="showPoseRuler(pose.id)"
-              ng-hide="isPoseRulerShowing(pose.id)">
+          <li>
+            <span>Color scheme</span>
+            <span class="sv-arrow-right"></span>
+            <ul class="sv-palettes">
+              <li ng-click="colorSchemes[poseId]='pose'">
+                <span ng-style="{'visibility': colorSchemes[poseId] === 'pose' ? 'visible' : 'hidden'}">&#x2713;</span>
+                <span>Pose color</span>
+              </li>
+              <li ng-repeat="(paletteName, palette) in palettes"
+                  ng-click="colorSchemes[poseId]=paletteName">
+                <span ng-style="{'visibility': colorSchemes[poseId] === paletteName ? 'visible' : 'hidden'}">&#x2713;</span>
+                <span>{{paletteName}}</span>
+              </li>
+            </ul>
+          </li>
+          <li ng-click="showPoseRuler(poseId)"
+              ng-hide="isPoseRulerShowing(poseId)">
             Show ruler
           </li>
-          <li ng-click="hidePoseRuler(pose.id)"
-              ng-show="isPoseRulerShowing(pose.id)">
+          <li ng-click="hidePoseRuler(poseId)"
+              ng-show="isPoseRulerShowing(poseId)">
             Hide ruler
           </li>
           <li ng-click="invertPosePicks(poseIndex)">
-            Invert {{displayNames[pose.id]}}
+            Invert {{displayNames[poseId]}}
           </li>
           <li ng-click="erasePosePicks(poseIndex)">
-            Clear {{displayNames[pose.id]}}
+            Clear {{displayNames[poseId]}}
           </li>
-          <li ng-click="onRemovePose({poseId: pose.id})">
-            Remove {{displayNames[pose.id]}}
+          <li ng-click="onRemovePose({poseId: poseId})">
+            Remove {{displayNames[poseId]}}
           </li>
         </ul>
       </div>
-      <div class="sv-chain" ng-repeat="chain in pose.chains track by $index" ng-init="chainIndex=$index">
+      <div class="sv-chain" ng-repeat="chain in sequences[poseId].chains track by $index" ng-init="chainIndex=$index">
         <div class="sv-chain-name"
-             ng-class="{'picked': isChainPicked(pose.id, chain.name), 'sv-with-ruler': isPoseRulerShowing(pose.id)}"
+             ng-class="{'picked': isChainPicked(poseId, chain.name), 'sv-with-ruler': isPoseRulerShowing(poseId)}"
              ng-mousedown="onChainMousedown($event, poseIndex, chainIndex)">
           {{chain.name}}
         </div><!--
           ngRepeated elements seem not to put spaces between tags, which helps
      --><div class="sv-residue" ng-repeat="residue in chain.residues track by $index" ng-init="residueIndex=$index"
              ng-class="{
-               'picked': isResiduePicked(pose.id, chain.name, residue.position),
+               'picked': isResiduePicked(poseId, chain.name, residue.position),
                'anchor': isResidueAnchor({
                  poseIndex: poseIndex,
                  chainIndex: chainIndex,
                  residueIndex: residueIndex
                }),
-               'sv-hover': isResidueHover(pose.id, chain.name, residue.position)
+               'sv-hover': isResidueHover(poseId, chain.name, residue.position)
              }"
              ng-mousedown="onResidueMousedown($event, poseIndex, chainIndex, residueIndex)"
              ng-mouseenter="onResidueMouseenter($event, poseIndex, chainIndex, residueIndex)"
              ng-mouseleave="onResidueMouseleave($event)">
           <div class="sv-residue-position"
-               ng-show="isPoseRulerShowing(pose.id)">
+               ng-show="isPoseRulerShowing(poseId)">
             {{residue.position}}
           </div>
           <div class="sv-residue-code"
                ng-class="[residue.code]"
-               ng-style="{'background': colors[pose.id]}">
+               ng-style="{'background': getResidueColor(poseId, residue.code)}">
             {{residue.code}}
           </div>
         </div>

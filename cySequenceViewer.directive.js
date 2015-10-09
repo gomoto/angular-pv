@@ -10,8 +10,11 @@ angular.module('CyDirectives')
       onRemovePose: '&',
       displayNames: '=',
       colors: '=',
+      colorSchemes: '=',
+      palettes: '=',
       picks: '=',//make this read-only? passed &-methods not working as expected
-      poses: '=sequences',
+      poses: '=',
+      sequences: '=',
       hover: '=',
       isResidueAnchor: '&',
       onSelectResidue: '&',
@@ -63,10 +66,11 @@ angular.module('CyDirectives')
         //calculate row and column indexes from pose, chain, and residue indexes
         //count columns; one per residue plus one or more per chain label
         var columns = 0;
-        var chains = scope.poses[poseIndex].chains;
+        var poseId = scope.poses[poseIndex];
+        var sequence = scope.sequences[poseId];
         //stop before the chain at chainIndex
         for (var chainCursor = 0; chainCursor < chainIndex; chainCursor++) {
-          chain = chains[chainCursor];
+          chain = sequence.chains[chainCursor];
           columns += chainLabelWidth;
           columns += chain.residues.length;
         }
@@ -90,22 +94,23 @@ angular.module('CyDirectives')
         var columnIndexMin = Math.min(transforedAnchor.columnIndex, transformedTarget.columnIndex);
         var columnIndexMax = Math.max(transforedAnchor.columnIndex, transformedTarget.columnIndex);
         for (var rowIndex = rowIndexMin; rowIndex <= rowIndexMax; rowIndex++) {
-          var pose = scope.poses[rowIndex];
+          var poseId = scope.poses[rowIndex];
+          var sequence = scope.sequences[poseId];
           var columnCursor = 0;
-          for (var chainCursor = 0; chainCursor < pose.chains.length && columnCursor <= columnIndexMax; chainCursor++) {
-            var chain = pose.chains[chainCursor];
+          for (var chainCursor = 0; chainCursor < sequence.chains.length && columnCursor <= columnIndexMax; chainCursor++) {
+            var chain = sequence.chains[chainCursor];
             columnCursor += chainLabelWidth;
             for (var residueCursor = 0; residueCursor < chain.residues.length && columnCursor <= columnIndexMax; residueCursor++) {
               if (columnCursor >= columnIndexMin) {
                 //add residue to selection
                 var residue = chain.residues[residueCursor];
-                if (typeof selection[pose.id] === 'undefined') {
-                  selection[pose.id] = {};
+                if (typeof selection[poseId] === 'undefined') {
+                  selection[poseId] = {};
                 }
-                if (typeof selection[pose.id][chain.name] === 'undefined') {
-                  selection[pose.id][chain.name] = {};
+                if (typeof selection[poseId][chain.name] === 'undefined') {
+                  selection[poseId][chain.name] = {};
                 }
-                selection[pose.id][chain.name][residue.position] = true;
+                selection[poseId][chain.name][residue.position] = true;
               }
               columnCursor += 1;
             }
@@ -117,17 +122,18 @@ angular.module('CyDirectives')
       function pickChains(anchor, target) {
         //pick all residues in the anchor chain
         var selection = {};
-        var pose = scope.poses[anchor.pose];
-        var chain = pose.chains[anchor.chain];
+        var poseId = scope.poses[anchor.pose];
+        var sequence = scope.sequences[poseId];
+        var chain = sequence.chains[anchor.chain];
         chain.residues.forEach(function(residue) {
           //add all residues to selection
-          if (typeof selection[pose.id] === 'undefined') {
-            selection[pose.id] = {};
+          if (typeof selection[poseId] === 'undefined') {
+            selection[poseId] = {};
           }
-          if (typeof selection[pose.id][chain.name] === 'undefined') {
-            selection[pose.id][chain.name] = {};
+          if (typeof selection[poseId][chain.name] === 'undefined') {
+            selection[poseId][chain.name] = {};
           }
-          selection[pose.id][chain.name][residue.position] = true;
+          selection[poseId][chain.name][residue.position] = true;
         });
         return selection;
       }
@@ -138,17 +144,18 @@ angular.module('CyDirectives')
         var poseIndexMin = Math.min(anchor.pose, target.pose);
         var poseIndexMax = Math.max(anchor.pose, target.pose);
         for (var poseCursor = poseIndexMin; poseCursor <= poseIndexMax; poseCursor++) {
-          var pose = scope.poses[poseCursor];
-          pose.chains.forEach(function(chain) {
+          var poseId = scope.poses[poseCursor];
+          var sequence = scope.sequences[poseId];
+          sequence.chains.forEach(function(chain) {
             chain.residues.forEach(function(residue) {
               //add all residues to selection
-              if (typeof selection[pose.id] === 'undefined') {
-                selection[pose.id] = {};
+              if (typeof selection[poseId] === 'undefined') {
+                selection[poseId] = {};
               }
-              if (typeof selection[pose.id][chain.name] === 'undefined') {
-                selection[pose.id][chain.name] = {};
+              if (typeof selection[poseId][chain.name] === 'undefined') {
+                selection[poseId][chain.name] = {};
               }
-              selection[pose.id][chain.name][residue.position] = true;
+              selection[poseId][chain.name][residue.position] = true;
             });
           });
         }
@@ -157,9 +164,10 @@ angular.module('CyDirectives')
 
       scope.getColumns = function(poses) {
         var maxColumns = 0;
-        poses.forEach(function(pose) {
+        poses.forEach(function(poseId) {
           var columns = 0;
-          pose.chains.forEach(function(chain) {
+          var sequence = scope.sequences[poseId];
+          sequence.chains.forEach(function(chain) {
             columns += chainLabelWidth;
             columns += chain.residues.length;
           });
@@ -169,16 +177,6 @@ angular.module('CyDirectives')
           }
         });
         return _.range(1, maxColumns + 1);
-      };
-
-      scope.palettes = [
-        {class: '', name: 'Pose color'},
-        {class: 'palette-clustal', name: 'Clustal'},
-        {class: 'palette-hydrophobicity', name: 'Hydrophobicity'}
-      ];
-      scope.palette = scope.palettes[0];//default
-      scope.setPalette = function(paletteIndex) {
-        scope.palette = scope.palettes[paletteIndex];
       };
 
       var rulers = {};
@@ -193,8 +191,8 @@ angular.module('CyDirectives')
       };
       scope.showAllPoseRulers = function() {
         rulers = {};
-        scope.poses.forEach(function(pose) {
-          rulers[pose.id] = true;
+        scope.poses.forEach(function(poseId) {
+          rulers[poseId] = true;
         });
       };
       scope.hideAllPoseRulers = function() {
@@ -237,6 +235,18 @@ angular.module('CyDirectives')
         );
       };
 
+      scope.getResidueColor = function(poseId, residueCode) {
+        var residueColor;
+        if (scope.colorSchemes[poseId] === 'pose') {
+          //color by default pose color
+          residueColor = scope.colors[poseId];
+        } else {
+          //color by palette
+          residueColor = scope.palettes[scope.colorSchemes[poseId]][residueCode];
+        }
+        return residueColor;
+      };
+
       scope.onResidueMousedown = function(event, poseIndex, chainIndex, residueIndex) {
         scope.onSelectResidue({
           event: event,
@@ -259,11 +269,12 @@ angular.module('CyDirectives')
         } else {
           //set hover residue
           angular.element(event.currentTarget).addClass('sv-hover');
-          var pose = scope.poses[poseIndex];
-          var chain = pose.chains[chainIndex];
+          var poseId = scope.poses[poseIndex];
+          var sequence = scope.sequences[poseId];
+          var chain = sequence.chains[chainIndex];
           var residue = chain.residues[residueIndex];
           scope.hover = {
-            pose: pose.id,
+            pose: poseId,
             chain: chain.name,
             residue: residue.position
           };
@@ -286,47 +297,18 @@ angular.module('CyDirectives')
       };
 
       scope.onPoseMousedown = function(event, poseIndex) {
+        //do nothing if trying to open context menu
+        var rightClick = event.buttons === 2 || event.which === 3;
+        var ctrlClick = event.ctrlKey || event.metaKey;
+        if (rightClick || ctrlClick) {
+          return;
+        }
         scope.onSelectPose({
           event: event,
           poseIndex: poseIndex,
           pickPoses: pickPoses
         });
       };
-
-      /* scope.poses[0] may not have a residue at columnIndex
-      scope.onColumnMousedown = function(event, columnIndex) {
-        var target = {
-          rowIndex: scope.poses.length - 1,
-          columnIndex: columnIndex + chainLabelWidth
-        };
-        if (event.shiftKey) {
-          if (scope.anchor === null) {
-            //can't make a selection without an anchor
-            return;
-          }
-          if (!event.ctrlKey) {
-            scope.frozenPicks = {};//replace all
-          } //else replace last
-          setTarget(target);
-          scope.fluidPicks = pickResidues();
-        } else {
-          if (event.ctrlKey) {
-            scope.frozenPicks = freezePicks();
-          } else {
-            scope.frozenPicks = {};//replace all
-          }
-          //set anchor to first residue in column
-          //new 1xN selection
-          setAnchor({
-            rowIndex: 0,
-            columnIndex: columnIndex + chainLabelWidth
-          });
-          setTarget(target);
-          scope.fluidPicks = pickResidues();
-        }
-        scope.picks = freezePicks();
-      };
-      */
 
       scope.erasePosePicks = function(poseIndex) {
         scope.onUnselectPose({

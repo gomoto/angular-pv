@@ -1,11 +1,37 @@
+var residueCodeMap = {
+  ALA: 'A',
+  CYS: 'C',
+  ASP: 'D',
+  GLU: 'E',
+  PHE: 'F',
+  GLY: 'G',
+  HIS: 'H',
+  ILE: 'I',
+  LYS: 'K',
+  LEU: 'L',
+  MET: 'M',
+  ASN: 'N',
+  PRO: 'P',
+  GLN: 'Q',
+  ARG: 'R',
+  SER: 'S',
+  THR: 'T',
+  VAL: 'V',
+  TRP: 'W',
+  TYR: 'Y'
+};
+
 angular.module('CyDirectives')
 .directive('cyProteinViewer', function() {
   return {
     scope: {
       pdbData: '=',
       colors: '=',
+      colorSchemes: '=',
+      palettes: '=',
       renderModes: '=',
       picks: '=',
+      poses: '=',
       sequences: '=',
       hover: '=',
       onSelectResidue: '&',
@@ -56,7 +82,7 @@ angular.module('CyDirectives')
           var structure = pv.io.pdb( scope.pdbData[poseId] );
 
           //extract sequence information and share with parent scope
-          var chains = structure.chains().map(function(chain) {
+          scope.sequences[poseId].chains = structure.chains().map(function(chain) {
             var residues = [];
             chain.residues().forEach(function(residue) {
               if (residue.isAminoacid()) {
@@ -71,10 +97,6 @@ angular.module('CyDirectives')
               residues: residues
             };
           });
-          scope.sequences = scope.sequences.concat([{
-            id: poseId,
-            chains: chains
-          }]);
 
           viewer.renderAs(
             poseId,
@@ -91,14 +113,15 @@ angular.module('CyDirectives')
 
       //When a pose changes its render mode, re-render
       scope.$watch('renderModes', function(newRenderModes, oldRenderModes) {
-        //Loop over oldRenderModes so that during first load of a pose,
-        //viewer doesn't try to get a nonexistent rendering.
-        //Otherwise old and new should have the same keys (pose IDs).
+        //Most of the time, old and new should have the same keys (pose IDs).
+        //When a pose is removed, the pose ID will be in old but not in new;
+        //when a pose is added, the pose ID will be in new but not in old;
+        //in both cases, viewer will not have a rendering for that pose ID.
         _.forEach(oldRenderModes, function(renderMode, poseId) {
           if (renderMode === newRenderModes[poseId]) return;//render mode didn't change
           //Reuse structure
           var rendering = viewer.get(poseId);
-          if (rendering === null) return;//pose with poseId was removed
+          if (rendering === null) return;//nonexistent rendering
           var structure = rendering.structure();
           viewer.rm(poseId);
           viewer.renderAs(
@@ -111,16 +134,44 @@ angular.module('CyDirectives')
         });
       }, true);
 
-      //When a pose changes its color, recolor rendering
-      scope.$watch('colors', function(newColors, oldColors) {
-        //Loop over oldColors so that during first load of a pose,
-        //viewer doesn't try to get a nonexistent rendering.
-        //Otherwise old and new should have the same keys (pose IDs).
-        _.forEach(oldColors, function(color, poseId) {
-          if (color === newColors[poseId]) return;//color didn't change
+      //When a pose changes its color scheme, recolor rendering
+      scope.$watch('colorSchemes', function(newColorSchemes, oldColorSchemes) {
+        //Most of the time, old and new should have the same keys (pose IDs).
+        //When a pose is removed, the pose ID will be in old but not in new;
+        //when a pose is added, the pose ID will be in new but not in old;
+        //in both cases, viewer will not have a rendering for that pose ID.
+        _.forEach(oldColorSchemes, function(colorScheme, poseId) {
+          if (colorScheme === newColorSchemes[poseId]) return;//color scheme didn't change
           var rendering = viewer.get(poseId);
-          if (rendering === null) return;//pose with poseId was removed
-          rendering.colorBy( pv.color.uniform(color) );
+          if (rendering === null) return;//nonexistent rendering
+
+          var newColorScheme = newColorSchemes[poseId];
+
+          if (newColorScheme === 'pose') {
+            //color by default pose color
+            var poseColor = scope.colors[poseId];
+            rendering.colorBy( pv.color.uniform(poseColor) );
+          } else {
+            //color by palette
+            var newPalette = scope.palettes[newColorScheme];
+            var colorByAA = new pv.color.ColorOp(
+              function(atom, out, index) {
+                var residue = atom.residue();
+                if (!residue.isAminoacid()) return;
+                var hexColor = newPalette[residueCodeMap[residue.name()]];
+                var color = pv.color.hex2rgb(hexColor);
+                if (color === undefined) {
+                  color = [0.5, 0.5, 0.5, 1.0];
+                }
+                out[index + 0] = color[0];
+                out[index + 1] = color[1];
+                out[index + 2] = color[2];
+                out[index + 3] = color[3];
+              }
+            );
+            rendering.colorBy( colorByAA );
+          }
+
           viewer.requestRedraw();
         });
       }, true);
@@ -185,25 +236,26 @@ angular.module('CyDirectives')
           //selection between poses does not make sense here
           return selection;
         }
-        var pose = scope.sequences[target.pose];
+        var poseId = scope.poses[target.pose];
+        var sequence = scope.sequences[poseId];
         var chainIndexMin = Math.min(anchor.chain, target.chain);
         var chainIndexMax = Math.max(anchor.chain, target.chain);
         var residueIndexMin = Math.min(anchor.residue, target.residue);
         var residueIndexMax = Math.max(anchor.residue, target.residue);
         for (var chainCursor = chainIndexMin; chainCursor <= chainIndexMax; chainCursor++) {
-          var chain = pose.chains[chainCursor];
+          var chain = sequence.chains[chainCursor];
           var residueCursorMin = chainCursor === chainIndexMin ? residueIndexMin : 0;
           var residueCursorMax = chainCursor === chainIndexMax ? residueIndexMax : chain.residues.length - 1;
           for (var residueCursor = residueCursorMin; residueCursor <= residueCursorMax; residueCursor++) {
             var residue = chain.residues[residueCursor];
             //add residue to selection
-            if (typeof selection[pose.id] === 'undefined') {
-              selection[pose.id] = {};
+            if (typeof selection[poseId] === 'undefined') {
+              selection[poseId] = {};
             }
-            if (typeof selection[pose.id][chain.name] === 'undefined') {
-              selection[pose.id][chain.name] = {};
+            if (typeof selection[poseId][chain.name] === 'undefined') {
+              selection[poseId][chain.name] = {};
             }
-            selection[pose.id][chain.name][residue.position] = true;
+            selection[poseId][chain.name][residue.position] = true;
           }
         }
         return selection;
@@ -230,9 +282,9 @@ angular.module('CyDirectives')
           var poseId = rendering.name();
 
           //find indexes
-          var poseIndex = _.findIndex(scope.sequences, {id: poseId});
-          var chainIndex = _.findIndex(scope.sequences[poseIndex].chains, {name: chainName});
-          var residueIndex = _.findIndex(scope.sequences[poseIndex].chains[chainIndex].residues, {position: residuePosition});
+          var poseIndex = _.indexOf(scope.poses, poseId);
+          var chainIndex = _.findIndex(scope.sequences[poseId].chains, {name: chainName});
+          var residueIndex = _.findIndex(scope.sequences[poseId].chains[chainIndex].residues, {position: residuePosition});
 
           scope.onSelectResidue({
             event: event,
@@ -298,10 +350,16 @@ angular.module('CyDirectives')
         }
         var structure = rendering.structure();
         var selection = structure.createEmptyView();
-        var atom = structure
+        var residue = structure
         .chain(residue.chain)
-        .residueByRnum(residue.residue)
-        .atom('CA');//pv.mol.Atom instance
+        .residueByRnum(residue.residue);
+        var atom;
+        if (residue.isAminoacid()) {
+          atom = residue.atom('CA');//pv.mol.Atom instance
+        } else {
+          atom = residue.atom('P');
+          if (!atom) return; //not amino acid or nucleotide
+        }
         selection.addAtom(atom);
         if (saveOldColor) {
           rendering.getColorForAtom(atom, oldColor);
