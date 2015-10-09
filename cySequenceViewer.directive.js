@@ -299,41 +299,6 @@ angular.module('CyDirectives')
         });
       };
 
-      /* scope.poses[0] may not have a residue at columnIndex
-      scope.onColumnMousedown = function(event, columnIndex) {
-        var target = {
-          rowIndex: scope.poses.length - 1,
-          columnIndex: columnIndex + chainLabelWidth
-        };
-        if (event.shiftKey) {
-          if (scope.anchor === null) {
-            //can't make a selection without an anchor
-            return;
-          }
-          if (!event.ctrlKey) {
-            scope.frozenPicks = {};//replace all
-          } //else replace last
-          setTarget(target);
-          scope.fluidPicks = pickResidues();
-        } else {
-          if (event.ctrlKey) {
-            scope.frozenPicks = freezePicks();
-          } else {
-            scope.frozenPicks = {};//replace all
-          }
-          //set anchor to first residue in column
-          //new 1xN selection
-          setAnchor({
-            rowIndex: 0,
-            columnIndex: columnIndex + chainLabelWidth
-          });
-          setTarget(target);
-          scope.fluidPicks = pickResidues();
-        }
-        scope.picks = freezePicks();
-      };
-      */
-
       scope.erasePosePicks = function(poseIndex) {
         scope.onUnselectPose({
           event: event,
