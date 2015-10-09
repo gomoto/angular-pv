@@ -1,9 +1,34 @@
+var residueCodeMap = {
+  ALA: 'A',
+  CYS: 'C',
+  ASP: 'D',
+  GLU: 'E',
+  PHE: 'F',
+  GLY: 'G',
+  HIS: 'H',
+  ILE: 'I',
+  LYS: 'K',
+  LEU: 'L',
+  MET: 'M',
+  ASN: 'N',
+  PRO: 'P',
+  GLN: 'Q',
+  ARG: 'R',
+  SER: 'S',
+  THR: 'T',
+  VAL: 'V',
+  TRP: 'W',
+  TYR: 'Y'
+};
+
 angular.module('CyDirectives')
 .directive('cyProteinViewer', function() {
   return {
     scope: {
       pdbData: '=',
       colors: '=',
+      colorSchemes: '=',
+      palettes: '=',
       renderModes: '=',
       picks: '=',
       poses: '=',
@@ -88,14 +113,15 @@ angular.module('CyDirectives')
 
       //When a pose changes its render mode, re-render
       scope.$watch('renderModes', function(newRenderModes, oldRenderModes) {
-        //Loop over oldRenderModes so that during first load of a pose,
-        //viewer doesn't try to get a nonexistent rendering.
-        //Otherwise old and new should have the same keys (pose IDs).
+        //Most of the time, old and new should have the same keys (pose IDs).
+        //When a pose is removed, the pose ID will be in old but not in new;
+        //when a pose is added, the pose ID will be in new but not in old;
+        //in both cases, viewer will not have a rendering for that pose ID.
         _.forEach(oldRenderModes, function(renderMode, poseId) {
           if (renderMode === newRenderModes[poseId]) return;//render mode didn't change
           //Reuse structure
           var rendering = viewer.get(poseId);
-          if (rendering === null) return;//pose with poseId was removed
+          if (rendering === null) return;//nonexistent rendering
           var structure = rendering.structure();
           viewer.rm(poseId);
           viewer.renderAs(
@@ -108,16 +134,44 @@ angular.module('CyDirectives')
         });
       }, true);
 
-      //When a pose changes its color, recolor rendering
-      scope.$watch('colors', function(newColors, oldColors) {
-        //Loop over oldColors so that during first load of a pose,
-        //viewer doesn't try to get a nonexistent rendering.
-        //Otherwise old and new should have the same keys (pose IDs).
-        _.forEach(oldColors, function(color, poseId) {
-          if (color === newColors[poseId]) return;//color didn't change
+      //When a pose changes its color scheme, recolor rendering
+      scope.$watch('colorSchemes', function(newColorSchemes, oldColorSchemes) {
+        //Most of the time, old and new should have the same keys (pose IDs).
+        //When a pose is removed, the pose ID will be in old but not in new;
+        //when a pose is added, the pose ID will be in new but not in old;
+        //in both cases, viewer will not have a rendering for that pose ID.
+        _.forEach(oldColorSchemes, function(colorScheme, poseId) {
+          if (colorScheme === newColorSchemes[poseId]) return;//color scheme didn't change
           var rendering = viewer.get(poseId);
-          if (rendering === null) return;//pose with poseId was removed
-          rendering.colorBy( pv.color.uniform(color) );
+          if (rendering === null) return;//nonexistent rendering
+
+          var newColorScheme = newColorSchemes[poseId];
+
+          if (newColorScheme === 'pose') {
+            //color by default pose color
+            var poseColor = scope.colors[poseId];
+            rendering.colorBy( pv.color.uniform(poseColor) );
+          } else {
+            //color by palette
+            var newPalette = scope.palettes[newColorScheme];
+            var colorByAA = new pv.color.ColorOp(
+              function(atom, out, index) {
+                var residue = atom.residue();
+                if (!residue.isAminoacid()) return;
+                var hexColor = newPalette[residueCodeMap[residue.name()]];
+                var color = pv.color.hex2rgb(hexColor);
+                if (color === undefined) {
+                  color = [0.5, 0.5, 0.5, 1.0];
+                }
+                out[index + 0] = color[0];
+                out[index + 1] = color[1];
+                out[index + 2] = color[2];
+                out[index + 3] = color[3];
+              }
+            );
+            rendering.colorBy( colorByAA );
+          }
+
           viewer.requestRedraw();
         });
       }, true);

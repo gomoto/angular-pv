@@ -93,12 +93,6 @@ $sv-pose-ruler-space-bottom: 1px;
     display: block;
   }
 }
-.sv-palettes {
-  @extend %sv-menu;
-  .sv-header-menu > li:hover & {
-    display: block;
-  }
-}
 .sv-info {
   @extend %sv-menu;
   .sv-header-menu > li:hover & {
@@ -161,6 +155,12 @@ $sv-pose-ruler-space-bottom: 1px;
 .sv-pose-menu {
   @extend %sv-menu;
   .sv-pose--with-menu & {
+    display: block;
+  }
+}
+.sv-palettes {
+  @extend %sv-menu;
+  .sv-pose-menu > li:hover & {
     display: block;
   }
 }

@@ -10,6 +10,8 @@ angular.module('CyDirectives')
       onRemovePose: '&',
       displayNames: '=',
       colors: '=',
+      colorSchemes: '=',
+      palettes: '=',
       picks: '=',//make this read-only? passed &-methods not working as expected
       poses: '=',
       sequences: '=',
@@ -177,16 +179,6 @@ angular.module('CyDirectives')
         return _.range(1, maxColumns + 1);
       };
 
-      scope.palettes = [
-        {class: '', name: 'Pose color'},
-        {class: 'palette-clustal', name: 'Clustal'},
-        {class: 'palette-hydrophobicity', name: 'Hydrophobicity'}
-      ];
-      scope.palette = scope.palettes[0];//default
-      scope.setPalette = function(paletteIndex) {
-        scope.palette = scope.palettes[paletteIndex];
-      };
-
       var rulers = {};
       scope.isPoseRulerShowing = function(poseId) {
         return !!rulers[poseId];
@@ -241,6 +233,18 @@ angular.module('CyDirectives')
           scope.hover.chain === chainId &&
           scope.hover.residue === residueId
         );
+      };
+
+      scope.getResidueColor = function(poseId, residueCode) {
+        var residueColor;
+        if (scope.colorSchemes[poseId] === 'pose') {
+          //color by default pose color
+          residueColor = scope.colors[poseId];
+        } else {
+          //color by palette
+          residueColor = scope.palettes[scope.colorSchemes[poseId]][residueCode];
+        }
+        return residueColor;
       };
 
       scope.onResidueMousedown = function(event, poseIndex, chainIndex, residueIndex) {

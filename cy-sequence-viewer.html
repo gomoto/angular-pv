@@ -1,4 +1,4 @@
-<div class="sv" ng-class="[palette.class]">
+<div class="sv">
   <div class="sv-header"
        ng-class="{'sv-header--with-menu': isSequenceViewerMenuOpen}">
     <img class="sv-header-icon" src="cyrus-icon.svg" alt="Sequence Viewer"
@@ -7,17 +7,6 @@
         ng-show="poses.length > 0"
         ng-click="isSequenceViewerMenuOpen=false"
         ng-mousedown="$event.stopPropagation()">
-      <li>
-        <span>Color scheme</span>
-        <span class="sv-arrow-right"></span>
-        <ul class="sv-palettes">
-          <li ng-repeat="p in palettes track by $index"
-              ng-click="setPalette($index)">
-            <span ng-style="{'visibility': p == palette ? 'visible' : 'hidden'}">&#x2713;</span>
-            <span>{{p.name}}</span>
-          </li>
-        </ul>
-      </li>
       <li ng-click="invertPicks()">
         Invert all
       </li>
@@ -63,6 +52,21 @@
         <ul class="sv-pose-menu"
             ng-click="hidePoseMenu(poseId)"
             ng-mousedown="$event.stopPropagation()">
+          <li>
+            <span>Color scheme</span>
+            <span class="sv-arrow-right"></span>
+            <ul class="sv-palettes">
+              <li ng-click="colorSchemes[poseId]='pose'">
+                <span ng-style="{'visibility': colorSchemes[poseId] === 'pose' ? 'visible' : 'hidden'}">&#x2713;</span>
+                <span>Pose color</span>
+              </li>
+              <li ng-repeat="(paletteName, palette) in palettes"
+                  ng-click="colorSchemes[poseId]=paletteName">
+                <span ng-style="{'visibility': colorSchemes[poseId] === paletteName ? 'visible' : 'hidden'}">&#x2713;</span>
+                <span>{{paletteName}}</span>
+              </li>
+            </ul>
+          </li>
           <li ng-click="showPoseRuler(poseId)"
               ng-hide="isPoseRulerShowing(poseId)">
             Show ruler
@@ -108,7 +112,7 @@
           </div>
           <div class="sv-residue-code"
                ng-class="[residue.code]"
-               ng-style="{'background': colors[poseId]}">
+               ng-style="{'background': getResidueColor(poseId, residue.code)}">
             {{residue.code}}
           </div>
         </div>
