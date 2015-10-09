@@ -6,7 +6,8 @@ angular.module('CyDirectives')
       colors: '=',
       renderModes: '=',
       picks: '=',
-      sequences: '=',
+      poses: '=',
+      chains: '=',
       hover: '=',
       onSelectResidue: '&',
       onUnselectAll: '&'
@@ -56,7 +57,7 @@ angular.module('CyDirectives')
           var structure = pv.io.pdb( scope.pdbData[poseId] );
 
           //extract sequence information and share with parent scope
-          var chains = structure.chains().map(function(chain) {
+          scope.chains[poseId] = structure.chains().map(function(chain) {
             var residues = [];
             chain.residues().forEach(function(residue) {
               if (residue.isAminoacid()) {
@@ -71,10 +72,6 @@ angular.module('CyDirectives')
               residues: residues
             };
           });
-          scope.sequences = scope.sequences.concat([{
-            id: poseId,
-            chains: chains
-          }]);
 
           viewer.renderAs(
             poseId,
@@ -185,25 +182,26 @@ angular.module('CyDirectives')
           //selection between poses does not make sense here
           return selection;
         }
-        var pose = scope.sequences[target.pose];
+        var poseId = scope.poses[target.pose];
+        var chains = scope.chains[poseId];
         var chainIndexMin = Math.min(anchor.chain, target.chain);
         var chainIndexMax = Math.max(anchor.chain, target.chain);
         var residueIndexMin = Math.min(anchor.residue, target.residue);
         var residueIndexMax = Math.max(anchor.residue, target.residue);
         for (var chainCursor = chainIndexMin; chainCursor <= chainIndexMax; chainCursor++) {
-          var chain = pose.chains[chainCursor];
+          var chain = chains[chainCursor];
           var residueCursorMin = chainCursor === chainIndexMin ? residueIndexMin : 0;
           var residueCursorMax = chainCursor === chainIndexMax ? residueIndexMax : chain.residues.length - 1;
           for (var residueCursor = residueCursorMin; residueCursor <= residueCursorMax; residueCursor++) {
             var residue = chain.residues[residueCursor];
             //add residue to selection
-            if (typeof selection[pose.id] === 'undefined') {
-              selection[pose.id] = {};
+            if (typeof selection[poseId] === 'undefined') {
+              selection[poseId] = {};
             }
-            if (typeof selection[pose.id][chain.name] === 'undefined') {
-              selection[pose.id][chain.name] = {};
+            if (typeof selection[poseId][chain.name] === 'undefined') {
+              selection[poseId][chain.name] = {};
             }
-            selection[pose.id][chain.name][residue.position] = true;
+            selection[poseId][chain.name][residue.position] = true;
           }
         }
         return selection;
@@ -230,9 +228,9 @@ angular.module('CyDirectives')
           var poseId = rendering.name();
 
           //find indexes
-          var poseIndex = _.findIndex(scope.sequences, {id: poseId});
-          var chainIndex = _.findIndex(scope.sequences[poseIndex].chains, {name: chainName});
-          var residueIndex = _.findIndex(scope.sequences[poseIndex].chains[chainIndex].residues, {position: residuePosition});
+          var poseIndex = _.indexOf(scope.poses, poseId);
+          var chainIndex = _.findIndex(scope.chains[poseId], {name: chainName});
+          var residueIndex = _.findIndex(scope.chains[poseId][chainIndex].residues, {position: residuePosition});
 
           scope.onSelectResidue({
             event: event,

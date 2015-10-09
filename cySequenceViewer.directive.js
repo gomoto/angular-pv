@@ -11,7 +11,8 @@ angular.module('CyDirectives')
       displayNames: '=',
       colors: '=',
       picks: '=',//make this read-only? passed &-methods not working as expected
-      poses: '=sequences',
+      poses: '=',
+      chains: '=',
       hover: '=',
       isResidueAnchor: '&',
       onSelectResidue: '&',
@@ -63,7 +64,8 @@ angular.module('CyDirectives')
         //calculate row and column indexes from pose, chain, and residue indexes
         //count columns; one per residue plus one or more per chain label
         var columns = 0;
-        var chains = scope.poses[poseIndex].chains;
+        var poseId = scope.poses[poseIndex];
+        var chains = scope.chains[poseId];
         //stop before the chain at chainIndex
         for (var chainCursor = 0; chainCursor < chainIndex; chainCursor++) {
           chain = chains[chainCursor];
@@ -90,22 +92,23 @@ angular.module('CyDirectives')
         var columnIndexMin = Math.min(transforedAnchor.columnIndex, transformedTarget.columnIndex);
         var columnIndexMax = Math.max(transforedAnchor.columnIndex, transformedTarget.columnIndex);
         for (var rowIndex = rowIndexMin; rowIndex <= rowIndexMax; rowIndex++) {
-          var pose = scope.poses[rowIndex];
+          var poseId = scope.poses[rowIndex];
           var columnCursor = 0;
-          for (var chainCursor = 0; chainCursor < pose.chains.length && columnCursor <= columnIndexMax; chainCursor++) {
-            var chain = pose.chains[chainCursor];
+          var chains = scope.chains[poseId];
+          for (var chainCursor = 0; chainCursor < chains.length && columnCursor <= columnIndexMax; chainCursor++) {
+            var chain = chains[chainCursor];
             columnCursor += chainLabelWidth;
             for (var residueCursor = 0; residueCursor < chain.residues.length && columnCursor <= columnIndexMax; residueCursor++) {
               if (columnCursor >= columnIndexMin) {
                 //add residue to selection
                 var residue = chain.residues[residueCursor];
-                if (typeof selection[pose.id] === 'undefined') {
-                  selection[pose.id] = {};
+                if (typeof selection[poseId] === 'undefined') {
+                  selection[poseId] = {};
                 }
-                if (typeof selection[pose.id][chain.name] === 'undefined') {
-                  selection[pose.id][chain.name] = {};
+                if (typeof selection[poseId][chain.name] === 'undefined') {
+                  selection[poseId][chain.name] = {};
                 }
-                selection[pose.id][chain.name][residue.position] = true;
+                selection[poseId][chain.name][residue.position] = true;
               }
               columnCursor += 1;
             }
@@ -117,17 +120,17 @@ angular.module('CyDirectives')
       function pickChains(anchor, target) {
         //pick all residues in the anchor chain
         var selection = {};
-        var pose = scope.poses[anchor.pose];
-        var chain = pose.chains[anchor.chain];
+        var poseId = scope.poses[anchor.pose];
+        var chain = scope.chains[poseId][anchor.chain];
         chain.residues.forEach(function(residue) {
           //add all residues to selection
-          if (typeof selection[pose.id] === 'undefined') {
-            selection[pose.id] = {};
+          if (typeof selection[poseId] === 'undefined') {
+            selection[poseId] = {};
           }
-          if (typeof selection[pose.id][chain.name] === 'undefined') {
-            selection[pose.id][chain.name] = {};
+          if (typeof selection[poseId][chain.name] === 'undefined') {
+            selection[poseId][chain.name] = {};
           }
-          selection[pose.id][chain.name][residue.position] = true;
+          selection[poseId][chain.name][residue.position] = true;
         });
         return selection;
       }
@@ -138,17 +141,18 @@ angular.module('CyDirectives')
         var poseIndexMin = Math.min(anchor.pose, target.pose);
         var poseIndexMax = Math.max(anchor.pose, target.pose);
         for (var poseCursor = poseIndexMin; poseCursor <= poseIndexMax; poseCursor++) {
-          var pose = scope.poses[poseCursor];
-          pose.chains.forEach(function(chain) {
+          var poseId = scope.poses[poseCursor];
+          var chains = scope.chains[poseId];
+          chains.forEach(function(chain) {
             chain.residues.forEach(function(residue) {
               //add all residues to selection
-              if (typeof selection[pose.id] === 'undefined') {
-                selection[pose.id] = {};
+              if (typeof selection[poseId] === 'undefined') {
+                selection[poseId] = {};
               }
-              if (typeof selection[pose.id][chain.name] === 'undefined') {
-                selection[pose.id][chain.name] = {};
+              if (typeof selection[poseId][chain.name] === 'undefined') {
+                selection[poseId][chain.name] = {};
               }
-              selection[pose.id][chain.name][residue.position] = true;
+              selection[poseId][chain.name][residue.position] = true;
             });
           });
         }
@@ -157,9 +161,10 @@ angular.module('CyDirectives')
 
       scope.getColumns = function(poses) {
         var maxColumns = 0;
-        poses.forEach(function(pose) {
+        poses.forEach(function(poseId) {
           var columns = 0;
-          pose.chains.forEach(function(chain) {
+          var chains = scope.chains[poseId];
+          chains.forEach(function(chain) {
             columns += chainLabelWidth;
             columns += chain.residues.length;
           });
@@ -193,8 +198,8 @@ angular.module('CyDirectives')
       };
       scope.showAllPoseRulers = function() {
         rulers = {};
-        scope.poses.forEach(function(pose) {
-          rulers[pose.id] = true;
+        scope.poses.forEach(function(poseId) {
+          rulers[poseId] = true;
         });
       };
       scope.hideAllPoseRulers = function() {
@@ -259,11 +264,12 @@ angular.module('CyDirectives')
         } else {
           //set hover residue
           angular.element(event.currentTarget).addClass('sv-hover');
-          var pose = scope.poses[poseIndex];
-          var chain = pose.chains[chainIndex];
+          var poseId = scope.poses[poseIndex];
+          var chains = scope.chains[poseId];
+          var chain = chains[chainIndex];
           var residue = chain.residues[residueIndex];
           scope.hover = {
-            pose: pose.id,
+            pose: poseId,
             chain: chain.name,
             residue: residue.position
           };
