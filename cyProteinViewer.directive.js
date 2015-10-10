@@ -22,7 +22,7 @@ var residueCodeMap = {
 };
 
 angular.module('CyDirectives')
-.directive('cyProteinViewer', function() {
+.directive('cyProteinViewer', ['pv', function(pv) {
   return {
     restrict: 'E',
     scope: {
@@ -377,4 +377,4 @@ angular.module('CyDirectives')
 
     }
   };
-});
+}]);

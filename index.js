@@ -9,7 +9,7 @@ function normalizedCtrlKey(event) {
 angular.module('CyDirectives', []);
 
 angular.module('cyViewer', ['CyDirectives'])
-
+.constant('pv', pv)
 .controller('cyViewerCtrl', ['$scope', '$http', function($scope, $http) {
   //simulate session scope
 
