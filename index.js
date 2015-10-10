@@ -2,29 +2,6 @@
 var poseColors = ['#42A5F5', '#EF5350', '#AEEA00'];
 var renderModes = ['sline', 'lines', 'trace', 'lineTrace', 'cartoon', 'tube', 'spheres', 'ballsAndSticks'];//viewer.RENDER_MODES
 
-var residueCodeMap = {
-  ALA: 'A',
-  CYS: 'C',
-  ASP: 'D',
-  GLU: 'E',
-  PHE: 'F',
-  GLY: 'G',
-  HIS: 'H',
-  ILE: 'I',
-  LYS: 'K',
-  LEU: 'L',
-  MET: 'M',
-  ASN: 'N',
-  PRO: 'P',
-  GLN: 'Q',
-  ARG: 'R',
-  SER: 'S',
-  THR: 'T',
-  VAL: 'V',
-  TRP: 'W',
-  TYR: 'Y'
-};
-
 function normalizedCtrlKey(event) {
   return event.ctrlKey || event.metaKey;
 }
@@ -206,10 +183,10 @@ angular.module('cyViewer', ['CyDirectives'])
     unsetAnchor();
     //invert picks
     var inversion = {};
-    $scope.poses.forEach(function(poseId, poseIndex) {
+    $scope.poses.forEach(function(poseId) {
       var sequence = $scope.sequences[poseId];
-      sequence.chains.forEach(function(chain, chainIndex) {
-        chain.residues.forEach(function(residue, residueIndex) {
+      sequence.chains.forEach(function(chain) {
+        chain.residues.forEach(function(residue) {
           if (
             $scope.picks[poseId] &&
             $scope.picks[poseId][chain.name] &&
@@ -299,12 +276,12 @@ angular.module('cyViewer', ['CyDirectives'])
     .then(
       function resolve(response) {
         $scope.poses.push(poseId);
+        $scope.sequences[poseId] = {};
         $scope.pdbData[poseId] = response.data;
         $scope.displayNames[poseId] = name || 'Pose ' + ( _.size($scope.displayNames) + 1 );
         $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
         $scope.colorSchemes[poseId] = 'pose';
         $scope.renderModes[poseId] = renderMode || renderModes[4];
-        $scope.sequences[poseId] = {};
       },
       function reject() {
         console.log(pdbUrl + ' not found');
@@ -315,15 +292,16 @@ angular.module('cyViewer', ['CyDirectives'])
   };
   $scope.onRemovePose = function(poseId) {
     $scope.poses = _.reject( $scope.poses, function(id) {return id === poseId;} );
+    delete $scope.sequences[poseId];
     delete $scope.pdbData[poseId];
     delete $scope.displayNames[poseId];
     delete $scope.colors[poseId];
+    delete $scope.colorSchemes[poseId];
     delete $scope.renderModes[poseId];
     delete $scope.picks[poseId];
     delete $scope.frozenPicks[poseId];
     delete $scope.fluidPicks[poseId];
     unsetAnchor();
-    delete $scope.sequences[poseId];
   };
 
   $scope.palettes = {
