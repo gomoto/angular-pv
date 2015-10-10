@@ -13,6 +13,19 @@ angular.module('cyViewer', ['CyDirectives'])
 .controller('cyViewerCtrl', ['$scope', '$http', function($scope, $http) {
   //simulate session scope
 
+  //list of pose IDs
+  //defines pose existence
+  $scope.poses = [];
+
+  //these are keyed by pose ID
+  $scope.sequences = {};
+  $scope.pdbData = {};
+  $scope.displayNames = {};
+  $scope.colors = {};
+  $scope.colorSchemes = {};
+  $scope.renderModes = {};
+  $scope.picks = {};
+
   //viewer(pv, sequence)-agnostic representation of residues:
   //properties: residue, chain, pose
   $scope.hover = null;
@@ -45,6 +58,53 @@ angular.module('cyViewer', ['CyDirectives'])
   function unsetAnchor() {
     anchor = null;
   }
+
+
+
+  //scope for the pose creator
+  $scope.newPose = {};
+  $scope.isPoseCreatorOpen = false;
+
+  //define how to add and remove poses:
+  $scope.onAddPose = function (pdbId, name, color, renderMode) {
+    //Create unique pose ID
+    //stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+    var poseId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+    var pdbUrl = '//www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb';
+    $http.get(pdbUrl) //note: $http callbacks are wrapped in $apply
+    .then(
+      function resolve(response) {
+        $scope.poses.push(poseId);
+        $scope.sequences[poseId] = {};
+        $scope.pdbData[poseId] = response.data;
+        $scope.displayNames[poseId] = name || 'Pose ' + ( _.size($scope.displayNames) + 1 );
+        $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
+        $scope.colorSchemes[poseId] = 'pose';
+        $scope.renderModes[poseId] = renderMode || renderModes[4];
+      },
+      function reject() {
+        console.log(pdbUrl + ' not found');
+      }
+    );
+    //clear newPose model
+    $scope.newPose = {};
+  };
+  $scope.onRemovePose = function(poseId) {
+    $scope.poses = _.reject( $scope.poses, function(id) {return id === poseId;} );
+    delete $scope.sequences[poseId];
+    delete $scope.pdbData[poseId];
+    delete $scope.displayNames[poseId];
+    delete $scope.colors[poseId];
+    delete $scope.colorSchemes[poseId];
+    delete $scope.renderModes[poseId];
+    delete $scope.picks[poseId];
+    delete frozenPicks[poseId];
+    delete fluidPicks[poseId];
+    unsetAnchor();
+  };
+
+
+
   $scope.isResidueAnchor = function(poseIndex, chainIndex, residueIndex) {
     //Returns true if residue is the anchor residue
     if (anchor === null) {
@@ -248,61 +308,6 @@ angular.module('cyViewer', ['CyDirectives'])
     frozenPicks = inversion;
     fluidPicks = {};
     $scope.picks = freezePicks();
-  };
-
-  //list of pose IDs
-  //defines pose existence
-  $scope.poses = [];
-
-  //these are keyed by pose ID
-  $scope.pdbData = {};
-  $scope.displayNames = {};
-  $scope.colors = {};
-  $scope.colorSchemes = {};
-  $scope.renderModes = {};
-  $scope.picks = {};
-  $scope.sequences = {};
-
-  //scope for the pose creator
-  $scope.newPose = {};
-  $scope.isPoseCreatorOpen = false;
-
-  //define how to add and remove poses:
-  $scope.onAddPose = function (pdbId, name, color, renderMode) {
-    //Create unique pose ID
-    //stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-    var poseId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
-    var pdbUrl = '//www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb';
-    $http.get(pdbUrl) //note: $http callbacks are wrapped in $apply
-    .then(
-      function resolve(response) {
-        $scope.poses.push(poseId);
-        $scope.sequences[poseId] = {};
-        $scope.pdbData[poseId] = response.data;
-        $scope.displayNames[poseId] = name || 'Pose ' + ( _.size($scope.displayNames) + 1 );
-        $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
-        $scope.colorSchemes[poseId] = 'pose';
-        $scope.renderModes[poseId] = renderMode || renderModes[4];
-      },
-      function reject() {
-        console.log(pdbUrl + ' not found');
-      }
-    );
-    //clear newPose model
-    $scope.newPose = {};
-  };
-  $scope.onRemovePose = function(poseId) {
-    $scope.poses = _.reject( $scope.poses, function(id) {return id === poseId;} );
-    delete $scope.sequences[poseId];
-    delete $scope.pdbData[poseId];
-    delete $scope.displayNames[poseId];
-    delete $scope.colors[poseId];
-    delete $scope.colorSchemes[poseId];
-    delete $scope.renderModes[poseId];
-    delete $scope.picks[poseId];
-    delete frozenPicks[poseId];
-    delete fluidPicks[poseId];
-    unsetAnchor();
   };
 
   $scope.palettes = {
