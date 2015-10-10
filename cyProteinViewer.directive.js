@@ -67,10 +67,10 @@ angular.module('CyDirectives')
         viewer.fitParent();//eventually calls requestRedraw()
       });
 
-      //When poses change (pdbData changes), sync viewer renderings
-      scope.$watch('pdbData', function(newPdbData, oldPdbData) {
+      //When poses change, sync viewer renderings
+      scope.$watch('poses', function(newPoses, oldPoses) {
         //remove old poses from viewer
-        var exiting = _.difference( _.keys(oldPdbData), _.keys(newPdbData) );
+        var exiting = _.difference( oldPoses, newPoses );
         _.forEach(exiting, function(poseId) {
           viewer.rm(poseId);
           //viewer.autoZoom doesn't redraw if viewer has no renderings
@@ -78,7 +78,7 @@ angular.module('CyDirectives')
         });
 
         //render new poses in viewer
-        var entering = _.difference( _.keys(newPdbData), _.keys(oldPdbData) );
+        var entering = _.difference( newPoses, oldPoses );
         _.forEach(entering, function(poseId) {
           var structure = pv.io.pdb( scope.pdbData[poseId] );
 
