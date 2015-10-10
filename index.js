@@ -13,46 +13,47 @@ angular.module('cyViewer', ['CyDirectives'])
 .controller('cyViewerCtrl', ['$scope', '$http', function($scope, $http) {
   //simulate session scope
 
-  //intermediate representation of $scope.picks
-  //frozen picks do not change with each shift+click
-  //fluid picks change with each shift+click
-  $scope.frozenPicks = {};
-  $scope.fluidPicks = {};
-  function freezePicks() {
-    return _.merge({}, $scope.frozenPicks, $scope.fluidPicks);
-  }
-
   //viewer(pv, sequence)-agnostic representation of residues:
   //properties: residue, chain, pose
   $scope.hover = null;
-  $scope.anchor = null;
-  $scope.target = null;
+
+  //intermediate representation of $scope.picks
+  //frozen picks do not change with each shift+click
+  //fluid picks change with each shift+click
+  var frozenPicks = {};
+  var fluidPicks = {};
+  function freezePicks() {
+    return _.merge({}, frozenPicks, fluidPicks);
+  }
+  //anchor and target define the beginning and end of a square selection
+  var anchor = null;
+  var target = null;
   function setAnchor(poseIndex, chainIndex, residueIndex) {
-    $scope.anchor = {
+    anchor = {
       pose: poseIndex,
       chain: chainIndex,
       residue: residueIndex
     };
   }
   function setTarget(poseIndex, chainIndex, residueIndex) {
-    $scope.target = {
+    target = {
       pose: poseIndex,
       chain: chainIndex,
       residue: residueIndex
     };
   }
   function unsetAnchor() {
-    $scope.anchor = null;
+    anchor = null;
   }
   $scope.isResidueAnchor = function(poseIndex, chainIndex, residueIndex) {
     //Returns true if residue is the anchor residue
-    if ($scope.anchor === null) {
+    if (anchor === null) {
       return false;
     }
     return (
-      $scope.anchor.pose === poseIndex &&
-      $scope.anchor.chain === chainIndex &&
-      $scope.anchor.residue === residueIndex
+      anchor.pose === poseIndex &&
+      anchor.chain === chainIndex &&
+      anchor.residue === residueIndex
     );
   };
   $scope.onSelectResidue = function(event, poseIndex, chainIndex, residueIndex, pickResidues) {
@@ -61,63 +62,63 @@ angular.module('cyViewer', ['CyDirectives'])
     //make selections like in sequence viewer onResidueMousedown
     //only difference: cannot select across multiple poses here
     if (event.shiftKey) {
-      if ($scope.anchor === null) {
+      if (anchor === null) {
         //can't make a selection without an anchor
         return;
       }
-      if ($scope.anchor.pose !== $scope.target.pose) {
+      if (anchor.pose !== target.pose) {
         //can't extend a selection across poses
         return;
       }
       if (!normalizedCtrlKey(event)) {
-        $scope.frozenPicks = {};//replace all
+        frozenPicks = {};//replace all
       }
       //replace last
-      $scope.fluidPicks = pickResidues($scope.anchor, $scope.target);
+      fluidPicks = pickResidues(anchor, target);
     } else {
       if (normalizedCtrlKey(event)) {
         //if target is already picked, unpick it
-        var poseId = $scope.poses[$scope.target.pose];
+        var poseId = $scope.poses[target.pose];
         var sequence = $scope.sequences[poseId];
-        var chain = sequence.chains[$scope.target.chain];
-        var residue = chain.residues[$scope.target.residue];
+        var chain = sequence.chains[target.chain];
+        var residue = chain.residues[target.residue];
         if (
           $scope.picks[poseId] &&
           $scope.picks[poseId][chain.name] &&
           $scope.picks[poseId][chain.name][residue.position]
         ) {
           unsetAnchor();
-          $scope.frozenPicks = freezePicks();
-          delete $scope.frozenPicks[poseId][chain.name][residue.position];
+          frozenPicks = freezePicks();
+          delete frozenPicks[poseId][chain.name][residue.position];
           //also delete empty objects
-          if (_.isEqual($scope.frozenPicks[poseId][chain.name], {})) {
-            delete $scope.frozenPicks[poseId][chain.name];
+          if (_.isEqual(frozenPicks[poseId][chain.name], {})) {
+            delete frozenPicks[poseId][chain.name];
           }
-          if (_.isEqual($scope.frozenPicks[poseId], {})) {
-            delete $scope.frozenPicks[poseId];
+          if (_.isEqual(frozenPicks[poseId], {})) {
+            delete frozenPicks[poseId];
           }
-          $scope.fluidPicks = {};
+          fluidPicks = {};
         } else {
           setAnchor(poseIndex, chainIndex, residueIndex); //set target as anchor
-          $scope.frozenPicks = freezePicks();
-          $scope.fluidPicks = pickResidues($scope.anchor, $scope.target); //new 1x1 selection
+          frozenPicks = freezePicks();
+          fluidPicks = pickResidues(anchor, target); //new 1x1 selection
         }
       } else {
         setAnchor(poseIndex, chainIndex, residueIndex); //set target as anchor
-        $scope.frozenPicks = {};//replace all
-        $scope.fluidPicks = pickResidues($scope.anchor, $scope.target); //new 1x1 selection
+        frozenPicks = {};//replace all
+        fluidPicks = pickResidues(anchor, target); //new 1x1 selection
       }
     }
     $scope.picks = freezePicks();
   };
   $scope.onExtendSelection = function(event, poseIndex, chainIndex, residueIndex, pickResidues) {
-    if ($scope.anchor === null) {
+    if (anchor === null) {
       //can't extend selection without an anchor
       return;
     }
     //update last selection, based on anchor residue
     setTarget(poseIndex, chainIndex, residueIndex);
-    $scope.fluidPicks = pickResidues($scope.anchor, $scope.target);
+    fluidPicks = pickResidues(anchor, target);
     $scope.picks = freezePicks();
   };
   $scope.onSelectChain = function(event, poseIndex, chainIndex, pickChains) {
@@ -125,40 +126,40 @@ angular.module('cyViewer', ['CyDirectives'])
       return;
     }
     if (normalizedCtrlKey(event)) {
-      $scope.frozenPicks = freezePicks();
+      frozenPicks = freezePicks();
     } else {
-      $scope.frozenPicks = {};//replace all
+      frozenPicks = {};//replace all
     }
     //set anchor to first residue in this chain
     //new 1xN selection
     setAnchor(poseIndex, chainIndex, 0);
     setTarget(poseIndex, chainIndex, 0);
-    $scope.fluidPicks = pickChains($scope.anchor, $scope.target);
+    fluidPicks = pickChains(anchor, target);
     $scope.picks = freezePicks();
   };
   $scope.onSelectPose = function(event, poseIndex, pickPoses) {
     if (event.shiftKey) {
-      if ($scope.anchor === null) {
+      if (anchor === null) {
         //can't make a selection without an anchor
         return;
       }
       if (!normalizedCtrlKey(event)) {
-        $scope.frozenPicks = {};//replace all
+        frozenPicks = {};//replace all
       }
       //replace last
       setTarget(poseIndex, 0, 0);
-      $scope.fluidPicks = pickPoses($scope.anchor, $scope.target);
+      fluidPicks = pickPoses(anchor, target);
     } else {
       if (normalizedCtrlKey(event)) {
-        $scope.frozenPicks = freezePicks();
+        frozenPicks = freezePicks();
       } else {
-        $scope.frozenPicks = {};//replace all
+        frozenPicks = {};//replace all
       }
       //set anchor to first residue in first chain of this pose
       //new 1xN selection
       setAnchor(poseIndex, 0, 0);
       setTarget(poseIndex, 0, 0);
-      $scope.fluidPicks = pickPoses($scope.anchor, $scope.target);
+      fluidPicks = pickPoses(anchor, target);
     }
     $scope.picks = freezePicks();
   };
@@ -167,16 +168,16 @@ angular.module('cyViewer', ['CyDirectives'])
     unsetAnchor();
     //erase picks for the pose
     var poseId = $scope.poses[poseIndex];
-    $scope.frozenPicks = freezePicks();
-    $scope.fluidPicks = {};
-    delete $scope.frozenPicks[poseId];
+    frozenPicks = freezePicks();
+    fluidPicks = {};
+    delete frozenPicks[poseId];
     $scope.picks = freezePicks();
   };
   $scope.onUnselectAll = function(event) {
-    $scope.frozenPicks = {};
-    $scope.fluidPicks = {};
+    frozenPicks = {};
+    fluidPicks = {};
     $scope.picks = {};
-    $scope.anchor = null;
+    anchor = null;
   };
   $scope.onInvertAll = function(event) {
     //remove anchor
@@ -205,8 +206,8 @@ angular.module('cyViewer', ['CyDirectives'])
         });
       });
     });
-    $scope.frozenPicks = inversion;
-    $scope.fluidPicks = {};
+    frozenPicks = inversion;
+    fluidPicks = {};
     $scope.picks = freezePicks();
   };
   $scope.onInvertPose = function(event, poseIndex) {
@@ -244,8 +245,8 @@ angular.module('cyViewer', ['CyDirectives'])
         });
       });
     });
-    $scope.frozenPicks = inversion;
-    $scope.fluidPicks = {};
+    frozenPicks = inversion;
+    fluidPicks = {};
     $scope.picks = freezePicks();
   };
 
@@ -299,8 +300,8 @@ angular.module('cyViewer', ['CyDirectives'])
     delete $scope.colorSchemes[poseId];
     delete $scope.renderModes[poseId];
     delete $scope.picks[poseId];
-    delete $scope.frozenPicks[poseId];
-    delete $scope.fluidPicks[poseId];
+    delete frozenPicks[poseId];
+    delete fluidPicks[poseId];
     unsetAnchor();
   };
 
