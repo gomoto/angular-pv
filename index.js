@@ -33,7 +33,7 @@ angular.module('CyDirectives', []);
 
 angular.module('cyViewer', ['CyDirectives'])
 
-.controller('cyViewerCtrl', ['$scope', '$timeout', '$http', function($scope, $timeout, $http) {
+.controller('cyViewerCtrl', ['$scope', '$http', function($scope, $http) {
   //simulate session scope
 
   //intermediate representation of $scope.picks
