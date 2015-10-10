@@ -26,17 +26,17 @@ angular.module('CyDirectives')
   return {
     restrict: 'E',
     scope: {
+      poses: '=',
+      picks: '=',
+      sequences: '=',
       pdbData: '=',
       colors: '=',
       colorSchemes: '=',
-      palettes: '=',
       renderModes: '=',
-      picks: '=',
-      poses: '=',
-      sequences: '=',
       hover: '=',
       onSelectResidue: '&',
-      onUnselectAll: '&'
+      onUnselectAll: '&',
+      palettes: '='
     },
     link: function(scope, element) {
 

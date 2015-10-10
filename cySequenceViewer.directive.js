@@ -7,14 +7,13 @@ angular.module('CyDirectives')
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
     scope: {
+      poses: '=',
       onRemovePose: '&',
+      picks: '=',//make this read-only? passed &-methods not working as expected
+      sequences: '=',
       displayNames: '=',
       colors: '=',
       colorSchemes: '=',
-      palettes: '=',
-      picks: '=',//make this read-only? passed &-methods not working as expected
-      poses: '=',
-      sequences: '=',
       hover: '=',
       isResidueAnchor: '&',
       onSelectResidue: '&',
@@ -23,7 +22,8 @@ angular.module('CyDirectives')
       onSelectPose: '&',
       onUnselectPose: '&',
       onInvertPose: '&',
-      onInvertAll: '&'
+      onInvertAll: '&',
+      palettes: '='
     },
     link: function(scope) {
       var chainLabelWidth = 2;
