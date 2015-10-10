@@ -30,28 +30,27 @@
   </form>
 
   <cy-protein-viewer
+    poses="poses"
+    picks="picks"
+    sequences="sequences"
     pdb-data="pdbData"
     colors="colors"
     color-schemes="colorSchemes"
-    palettes="palettes"
     render-modes="renderModes"
-    picks="picks"
-    poses="poses"
-    sequences="sequences"
     hover="hover"
     on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
-    on-unselect-all="onUnselectAll(event)">
+    on-unselect-all="onUnselectAll(event)"
+    palettes="palettes">
   </cy-protein-viewer>
 
   <cy-sequence-viewer
+    poses="poses"
     on-remove-pose="onRemovePose(poseId)"
+    picks="picks"
+    sequences="sequences"
     display-names="displayNames"
     colors="colors"
     color-schemes="colorSchemes"
-    palettes="palettes"
-    picks="picks"
-    poses="poses"
-    sequences="sequences"
     hover="hover"
     is-residue-anchor="isResidueAnchor(poseIndex, chainIndex, residueIndex)"
     on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
@@ -60,7 +59,8 @@
     on-select-pose="onSelectPose(event, poseIndex, pickPoses)"
     on-unselect-pose="onUnselectPose(event, poseIndex)"
     on-invert-pose="onInvertPose(event, poseIndex)"
-    on-invert-all="onInvertAll(event)">
+    on-invert-all="onInvertAll(event)"
+    palettes="palettes">
   </cy-sequence-viewer>
 
 </body>
