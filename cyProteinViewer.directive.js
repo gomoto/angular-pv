@@ -53,7 +53,8 @@ angular.module('CyDirectives')
         fov: 30,
         outline: true,//default true
         outlineColor: '#222',
-        outlineWidth: 2
+        outlineWidth: 2,
+        animateTime: 500
       });
 
       //shouldn't need to wait for viewerReady event because
