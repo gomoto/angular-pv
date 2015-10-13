@@ -63,7 +63,7 @@ $sv-pose-ruler-space-bottom: 1px;
 
 
 .sv {
-  z-index: 3;//create stacking context for sequence viewer
+  z-index: 1;//create stacking context for sequence viewer
   position: relative;
   background: rgba($white, 0.8);
   padding: $sv-padding;
