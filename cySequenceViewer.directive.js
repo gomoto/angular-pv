@@ -70,7 +70,7 @@ angular.module('CyDirectives')
         var sequence = scope.sequences[poseId];
         //stop before the chain at chainIndex
         for (var chainCursor = 0; chainCursor < chainIndex; chainCursor++) {
-          chain = sequence.chains[chainCursor];
+          var chain = sequence.chains[chainCursor];
           columns += chainLabelWidth;
           columns += chain.residues.length;
         }
