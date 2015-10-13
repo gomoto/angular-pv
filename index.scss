@@ -15,6 +15,35 @@ body {
   color: $black;
 }
 
+.dimmable {
+  opacity: 1;
+  @include filter(blur(0));
+  @include transition(all .27s ease);
+}
+.dimmable--dimmed {
+  opacity: 0.1;
+  @include filter(blur(2px));
+}
+
+.protein-viewer {
+  z-index: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.sequence-viewer {
+  z-index: 2;
+  position: relative;
+}
+.pose-creator-container {
+  z-index: 2;
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+}
+
 @import '-webkit-scrollbar';
 @import 'protein-viewer';
 @import 'sequence-viewer';
@@ -29,12 +58,8 @@ $pose-creator-padding-bottom: 16px;
 $pose-creator-input-height: 24px;
 $pose-creator-input-border-width: 2px;
 $pose-creator-input-margin-bottom: 16px;
-
 .pose-creator {
-  z-index: 2;
-  position: absolute;
-  left: 16px;
-  bottom: 16px;
+  position: relative;
   background: rgba($white, 0.8);
   overflow: hidden;
 
@@ -123,6 +148,6 @@ $pose-creator-input-margin-bottom: 16px;
 .pose-creator-submit {
   //hide submit button without using 'display: none' or 'visibility: hidden'
   position: absolute;
-  top: 100%;
-  right: 100%;
+  top: 1000%;
+  right: 1000%;
 }
