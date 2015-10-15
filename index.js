@@ -77,7 +77,7 @@ angular.module('cyViewer', ['CyDirectives'])
         $scope.poses.push(poseId);
         $scope.sequences[poseId] = {};
         $scope.pdbData[poseId] = response.data;
-        $scope.displayNames[poseId] = name || 'Pose ' + ( _.size($scope.displayNames) + 1 );
+        $scope.displayNames[poseId] = name || pdbId;
         $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
         $scope.colorSchemes[poseId] = 'pose';
         $scope.renderModes[poseId] = renderMode || renderModes[4];
