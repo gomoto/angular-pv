@@ -32,6 +32,11 @@
     </form>
   </div>
 
+  <div class="mode-selector dimmable" ng-class="{'dimmable--dimmed': pvIsMoving}" ng-show="poses.length > 0">
+    Selection mode
+    <select ng-model="selectionMode" ng-options="mode for mode in selectionModes"></select>
+  </div>
+
   <div class="protein-viewer" cy-mousedrag="pvIsMoving">
     <cy-protein-viewer
       poses="poses"

@@ -363,4 +363,7 @@ angular.module('cyViewer', ['CyDirectives'])
     }
   };
 
+  $scope.selectionModes = ['Residue', 'Chain', 'Molecule'];
+  $scope.selectionMode = $scope.selectionModes[0];
+
 }]);

@@ -43,6 +43,17 @@ body {
   left: 16px;
   bottom: 16px;
 }
+.mode-selector {
+  z-index: 2;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+
+  color: $white;
+  select {
+    margin-left: 4px;
+  }
+}
 
 @import '-webkit-scrollbar';
 @import 'protein-viewer';
