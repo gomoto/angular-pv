@@ -10,7 +10,8 @@ angular.module('CyDirectives', []);
 
 angular.module('cyViewer', ['CyDirectives'])
 .constant('pv', pv)
-.controller('cyViewerCtrl', ['$scope', '$http', function($scope, $http) {
+.constant('pvSelectionModes', { residue: 'Residue', chain: 'Chain', molecule: 'Molecule' })
+.controller('cyViewerCtrl', ['$scope', '$http', 'pvSelectionModes', function($scope, $http, pvSelectionModes) {
   //simulate session scope
 
   //list of pose IDs
@@ -363,7 +364,7 @@ angular.module('cyViewer', ['CyDirectives'])
     }
   };
 
-  $scope.selectionModes = ['Residue', 'Chain', 'Molecule'];
-  $scope.selectionMode = $scope.selectionModes[0];
+  $scope.selectionModes = _.values(pvSelectionModes);
+  $scope.selectionMode = pvSelectionModes.residue;
 
 }]);
