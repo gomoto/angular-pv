@@ -47,7 +47,9 @@
       color-schemes="colorSchemes"
       render-modes="renderModes"
       hover="hover"
+      selection-mode="{{selectionMode}}"
       on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+      on-select-pose="onSelectPose(event, poseIndex, pickPoses)"
       on-unselect-all="onUnselectAll(event)"
       palettes="palettes">
     </cy-protein-viewer>

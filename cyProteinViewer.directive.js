@@ -22,7 +22,7 @@ var residueCodeMap = {
 };
 
 angular.module('CyDirectives')
-.directive('cyProteinViewer', ['pv', function(pv) {
+.directive('cyProteinViewer', ['pv', 'pvSelectionModes', function(pv, pvSelectionModes) {
   return {
     restrict: 'E',
     scope: {
@@ -34,7 +34,9 @@ angular.module('CyDirectives')
       colorSchemes: '=',
       renderModes: '=',
       hover: '=',
+      selectionMode: '@',
       onSelectResidue: '&',
+      onSelectPose: '&',
       onUnselectAll: '&',
       palettes: '='
     },
@@ -235,7 +237,7 @@ angular.module('CyDirectives')
         //pick all residues between the anchor and target
         var selection = {};
         if (anchor.pose !== target.pose) {
-          //selection between poses does not make sense here
+          //continuting a selection between poses does not make sense here
           return selection;
         }
         var poseId = scope.poses[target.pose];
@@ -259,6 +261,34 @@ angular.module('CyDirectives')
             }
             selection[poseId][chain.name][residue.position] = true;
           }
+        }
+        return selection;
+      }
+
+      function pickPoses(anchor, target) {
+        //pick all residues in all chains in poses between anchor and target
+        var selection = {};
+        if (anchor.pose !== target.pose) {
+          //continuting a selection between poses does not make sense here
+          return selection;
+        }
+        var poseIndexMin = Math.min(anchor.pose, target.pose);
+        var poseIndexMax = Math.max(anchor.pose, target.pose);
+        for (var poseCursor = poseIndexMin; poseCursor <= poseIndexMax; poseCursor++) {
+          var poseId = scope.poses[poseCursor];
+          var sequence = scope.sequences[poseId];
+          sequence.chains.forEach(function(chain) {
+            chain.residues.forEach(function(residue) {
+              //add all residues to selection
+              if (typeof selection[poseId] === 'undefined') {
+                selection[poseId] = {};
+              }
+              if (typeof selection[poseId][chain.name] === 'undefined') {
+                selection[poseId][chain.name] = {};
+              }
+              selection[poseId][chain.name][residue.position] = true;
+            });
+          });
         }
         return selection;
       }
@@ -288,13 +318,22 @@ angular.module('CyDirectives')
           var chainIndex = _.findIndex(scope.sequences[poseId].chains, {name: chainName});
           var residueIndex = _.findIndex(scope.sequences[poseId].chains[chainIndex].residues, {position: residuePosition});
 
-          scope.onSelectResidue({
-            event: event,
-            poseIndex: poseIndex,
-            chainIndex: chainIndex,
-            residueIndex: residueIndex,
-            pickResidues: pickResidues
-          });
+          if (scope.selectionMode === pvSelectionModes.molecule) {
+            scope.onSelectPose({
+              event: event,
+              poseIndex: poseIndex,
+              pickPoses: pickPoses
+            });
+          } else {
+            scope.onSelectResidue({
+              event: event,
+              poseIndex: poseIndex,
+              chainIndex: chainIndex,
+              residueIndex: residueIndex,
+              pickResidues: pickResidues
+            });
+          }
+
         });
       });
 
