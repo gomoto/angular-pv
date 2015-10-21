@@ -196,6 +196,7 @@ angular.module('cyViewer', ['CyDirectives'])
     setAnchor(poseIndex, chainIndex, 0);
     setTarget(poseIndex, chainIndex, 0);
     fluidPicks = pickChains(anchor, target);
+    unsetAnchor();
     $scope.picks = freezePicks();
   };
   $scope.onSelectPose = function(event, poseIndex, pickPoses) {

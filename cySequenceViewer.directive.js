@@ -255,6 +255,13 @@ angular.module('CyDirectives')
             poseIndex: poseIndex,
             pickPoses: pickPoses
           });
+        } else if (scope.selectionMode === pvSelectionModes.chain) {
+          scope.onSelectChain({
+            event: event,
+            poseIndex: poseIndex,
+            chainIndex: chainIndex,
+            pickChains: pickChains
+          });
         } else {
           scope.onSelectResidue({
             event: event,
