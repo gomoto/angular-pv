@@ -226,7 +226,7 @@ angular.module('CyDirectives')
               residues.push(residue);
             });
           });
-          selection.addResidues(residues);
+          selection.addResidues(residues, true);
           rendering.setSelection(selection);
         });
 
