@@ -81,7 +81,7 @@ angular.module('cyViewer', ['CyDirectives'])
         $scope.displayNames[poseId] = name || pdbId;
         $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
         $scope.colorSchemes[poseId] = 'pose';
-        $scope.renderModes[poseId] = renderMode || renderModes[4];
+        $scope.renderModes[poseId] = renderMode || renderModes[7];
       },
       function reject() {
         console.log(pdbUrl + ' not found');

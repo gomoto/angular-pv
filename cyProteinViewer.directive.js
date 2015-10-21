@@ -385,12 +385,14 @@ angular.module('CyDirectives')
           var rendering = picked.object().geom;
           var atom = picked.object().atom;
 
+          var atomName = atom.name();
           var residuePosition = atom.residue().num();
           var chainName = atom.residue().chain().name();
           var poseId = rendering.name();
 
           if (
             scope.hover !== null &&
+            scope.hover.atom === atomName &&
             scope.hover.residue === residuePosition &&
             scope.hover.chain === chainName &&
             scope.hover.pose === poseId
@@ -400,6 +402,7 @@ angular.module('CyDirectives')
           }
           scope.$apply(function() {
             scope.hover = {
+              atom: atomName,
               residue: residuePosition,
               chain: chainName,
               pose: poseId
@@ -410,34 +413,27 @@ angular.module('CyDirectives')
 
       var hoverColor = '#222';//make this customizable?
       var oldColor = [0,0,0,0];//pv needs to save color in an array
-      function colorResidue(residue, color, saveOldColor) {
-        var rendering = viewer.get(residue.pose);
+      function colorAtom(atom, color, saveOldColor) {
+        var rendering = viewer.get(atom.pose);
         if (rendering === null) {
           //don't need to recolor rendering if rendering was removed
           return;
         }
         var structure = rendering.structure();
         var selection = structure.createEmptyView();
-        var coloredResidue = structure.chain(residue.chain).residueByRnum(residue.residue);
-        var atom;
-        if (coloredResidue.isAminoacid()) {
-          atom = coloredResidue.atom('CA');//pv.mol.Atom instance
-        } else {
-          atom = coloredResidue.atom('P');
-          if (!atom) return; //not amino acid or nucleotide
-        }
-        selection.addAtom(atom);
+        var coloredAtom = structure.chain(atom.chain).residueByRnum(atom.residue).atom(atom.atom || 'CA');
+        selection.addAtom(coloredAtom);
         if (saveOldColor) {
-          rendering.getColorForAtom(atom, oldColor);
+          rendering.getColorForAtom(coloredAtom, oldColor);
         }
         rendering.colorBy(pv.color.uniform(color), selection);
       }
       scope.$watch('hover', function(newHover, oldHover) {
         if (oldHover !== null) {
-          colorResidue(oldHover, oldColor);
+          colorAtom(oldHover, oldColor);
         }
         if (newHover !== null) {
-          colorResidue(newHover, hoverColor, true);
+          colorAtom(newHover, hoverColor, true);
         }
         viewer.requestRedraw();
       }, true);
