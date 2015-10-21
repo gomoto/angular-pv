@@ -60,7 +60,7 @@
                 <span ng-style="{'visibility': colorSchemes[poseId] === 'pose' ? 'visible' : 'hidden'}">&#x2713;</span>
                 <span>Pose color</span>
               </li>
-              <li ng-repeat="(paletteName, palette) in palettes"
+              <li ng-repeat="(paletteName, palette) in PALETTES"
                   ng-click="colorSchemes[poseId]=paletteName">
                 <span ng-style="{'visibility': colorSchemes[poseId] === paletteName ? 'visible' : 'hidden'}">&#x2713;</span>
                 <span>{{paletteName}}</span>

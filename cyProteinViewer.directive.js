@@ -22,7 +22,7 @@ var residueCodeMap = {
 };
 
 angular.module('CyDirectives')
-.directive('cyProteinViewer', ['pv', 'SELECTION_MODES', function(pv, SELECTION_MODES) {
+.directive('cyProteinViewer', ['pv', 'SELECTION_MODES', 'PALETTES', function(pv, SELECTION_MODES, PALETTES) {
   return {
     restrict: 'E',
     scope: {
@@ -38,8 +38,7 @@ angular.module('CyDirectives')
       onSelectResidue: '&',
       onSelectChain: '&',
       onSelectPose: '&',
-      onUnselectAll: '&',
-      palettes: '='
+      onUnselectAll: '&'
     },
     link: function(scope, element) {
 
@@ -159,7 +158,7 @@ angular.module('CyDirectives')
             rendering.colorBy( pv.color.uniform(poseColor) );
           } else {
             //color by palette
-            var newPalette = scope.palettes[newColorScheme];
+            var newPalette = PALETTES[newColorScheme];
             var colorByAA = new pv.color.ColorOp(
               function(atom, out, index) {
                 var residue = atom.residue();

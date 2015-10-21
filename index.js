@@ -20,6 +20,58 @@ angular.module('cyViewer', ['CyDirectives'])
   'lineTrace': 'Line Trace',
   'sline': 'Smooth Line'
 })
+.constant('PALETTES', {
+  'Clustal': {
+    'A': '#ccff00',
+    'R': '#1571f9',//#0061ef,//#0000ff,
+    'N': '#cc00ff',
+    'D': '#ff0000',
+    'C': '#ffff00',
+    'Q': '#ff00cc',
+    'E': '#ff0066',
+    'G': '#ff9900',
+    'H': '#5298ff',//#0066ff,
+    'I': '#66ff00',
+    'L': '#33ff00',
+    'K': '#a269f5',//#8433fb,//#761cfb,//#6600ff,
+    'M': '#00ff00',
+    'F': '#00ff66',
+    'P': '#ffcc00',
+    'S': '#ff3300',
+    'T': '#ff6600',
+    'W': '#00ccff',
+    'Y': '#00ffcc',
+    'V': '#99ff00',
+    'B': '#ffffff',
+    'X': '#ffffff',
+    'Z': '#ffffff'
+  },
+  'Hydrophobicity': {
+    'A': '#EF5350',//red
+    'B': '#2196F3',//blue
+    'C': '#BA68C8',//purple
+    'D': '#2196F3',
+    'E': '#2196F3',
+    'F': '#EF5350',
+    'G': '#BA68C8',
+    'H': '#2196F3',
+    'I': '#EF5350',
+    'K': '#2196F3',
+    'L': '#EF5350',
+    'M': '#EF5350',
+    'N': '#2196F3',
+    'P': '#BA68C8',
+    'Q': '#2196F3',
+    'R': '#2196F3',
+    'S': '#BA68C8',
+    'T': '#BA68C8',
+    'V': '#EF5350',
+    'W': '#BA68C8',
+    'X': '#BA68C8',
+    'Y': '#BA68C8',
+    'Z': '#2196F3'
+  }
+})
 .controller('cyViewerCtrl', ['$scope', '$http', 'SELECTION_MODES', function($scope, $http, SELECTION_MODES) {
   //simulate session scope
 
@@ -320,59 +372,6 @@ angular.module('cyViewer', ['CyDirectives'])
     frozenPicks = inversion;
     fluidPicks = {};
     $scope.picks = freezePicks();
-  };
-
-  $scope.palettes = {
-    'Clustal': {
-      'A': '#ccff00',
-      'R': '#1571f9',//#0061ef,//#0000ff,
-      'N': '#cc00ff',
-      'D': '#ff0000',
-      'C': '#ffff00',
-      'Q': '#ff00cc',
-      'E': '#ff0066',
-      'G': '#ff9900',
-      'H': '#5298ff',//#0066ff,
-      'I': '#66ff00',
-      'L': '#33ff00',
-      'K': '#a269f5',//#8433fb,//#761cfb,//#6600ff,
-      'M': '#00ff00',
-      'F': '#00ff66',
-      'P': '#ffcc00',
-      'S': '#ff3300',
-      'T': '#ff6600',
-      'W': '#00ccff',
-      'Y': '#00ffcc',
-      'V': '#99ff00',
-      'B': '#ffffff',
-      'X': '#ffffff',
-      'Z': '#ffffff'
-    },
-    'Hydrophobicity': {
-      'A': '#EF5350',//red
-      'B': '#2196F3',//blue
-      'C': '#BA68C8',//purple
-      'D': '#2196F3',
-      'E': '#2196F3',
-      'F': '#EF5350',
-      'G': '#BA68C8',
-      'H': '#2196F3',
-      'I': '#EF5350',
-      'K': '#2196F3',
-      'L': '#EF5350',
-      'M': '#EF5350',
-      'N': '#2196F3',
-      'P': '#BA68C8',
-      'Q': '#2196F3',
-      'R': '#2196F3',
-      'S': '#BA68C8',
-      'T': '#BA68C8',
-      'V': '#EF5350',
-      'W': '#BA68C8',
-      'X': '#BA68C8',
-      'Y': '#BA68C8',
-      'Z': '#2196F3'
-    }
   };
 
   $scope.selectionModes = _.values(SELECTION_MODES);
