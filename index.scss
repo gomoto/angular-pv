@@ -15,14 +15,26 @@ body {
   color: $black;
 }
 
-.dimmable {
-  opacity: 1;
-  @include filter(blur(0));
-  @include transition(all .27s ease);
+/**
+ * Using animation instead of transition because
+ * filter(blur(0)) on an element was creating
+ * unsightly black boxes when a `select` dropdown
+ * inside the blurred element was opened. This way
+ * the styles only stay on the element during the
+ * animation, and should prevent the black boxes.
+ */
+.dimmed {
+  @include animation(dim .27s ease 1 forwards);
 }
-.dimmable--dimmed {
-  opacity: 0.1;
-  @include filter(blur(2px));
+@include keyframes(dim) {
+  from {
+    opacity: 1;
+    @include filter(blur(0));
+  }
+  to {
+    opacity: 0.1;
+    @include filter(blur(2px));
+  }
 }
 
 .protein-viewer {

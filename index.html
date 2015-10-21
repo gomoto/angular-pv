@@ -18,7 +18,7 @@
 </head>
 <body ng-controller="cyViewerCtrl">
 
-  <div class="pose-creator-container dimmable" ng-class="{'dimmable--dimmed': poses.length > 0 && pvIsMoving}">
+  <div class="pose-creator-container" ng-class="{'dimmed': poses.length > 0 && pvIsMoving}">
     <form
       class="pose-creator"
       ng-class="{'pose-creator--open': isPoseCreatorOpen}"
@@ -32,7 +32,7 @@
     </form>
   </div>
 
-  <div class="mode-selector dimmable" ng-class="{'dimmable--dimmed': pvIsMoving}" ng-show="poses.length > 0">
+  <div class="mode-selector" ng-class="{'dimmed': pvIsMoving}" ng-show="poses.length > 0">
     Selection mode
     <select ng-model="selectionMode" ng-options="mode for mode in selectionModes"></select>
   </div>
@@ -56,7 +56,7 @@
     </cy-protein-viewer>
   </div>
 
-  <div class="sequence-viewer dimmable" ng-class="{'dimmable--dimmed': poses.length > 0 && pvIsMoving}">
+  <div class="sequence-viewer" ng-class="{'dimmed': poses.length > 0 && pvIsMoving}">
     <cy-sequence-viewer
       poses="poses"
       on-remove-pose="onRemovePose(poseId)"
