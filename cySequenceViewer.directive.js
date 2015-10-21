@@ -2,7 +2,7 @@
 //Will there ever be two chains both without names?
 
 angular.module('CyDirectives')
-.directive('cySequenceViewer', ['$document', 'pvSelectionModes', 'RENDER_MODES', function($document, pvSelectionModes, RENDER_MODES) {
+.directive('cySequenceViewer', ['$document', 'SELECTION_MODES', 'RENDER_MODES', function($document, SELECTION_MODES, RENDER_MODES) {
   return {
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
@@ -253,13 +253,13 @@ angular.module('CyDirectives')
       };
 
       scope.onResidueMousedown = function(event, poseIndex, chainIndex, residueIndex) {
-        if (scope.selectionMode === pvSelectionModes.molecule) {
+        if (scope.selectionMode === SELECTION_MODES.molecule) {
           scope.onSelectPose({
             event: event,
             poseIndex: poseIndex,
             pickPoses: pickPoses
           });
-        } else if (scope.selectionMode === pvSelectionModes.chain) {
+        } else if (scope.selectionMode === SELECTION_MODES.chain) {
           scope.onSelectChain({
             event: event,
             poseIndex: poseIndex,

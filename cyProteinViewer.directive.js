@@ -22,7 +22,7 @@ var residueCodeMap = {
 };
 
 angular.module('CyDirectives')
-.directive('cyProteinViewer', ['pv', 'pvSelectionModes', function(pv, pvSelectionModes) {
+.directive('cyProteinViewer', ['pv', 'SELECTION_MODES', function(pv, SELECTION_MODES) {
   return {
     restrict: 'E',
     scope: {
@@ -339,13 +339,13 @@ angular.module('CyDirectives')
           var chainIndex = _.findIndex(scope.sequences[poseId].chains, {name: chainName});
           var residueIndex = _.findIndex(scope.sequences[poseId].chains[chainIndex].residues, {position: residuePosition});
 
-          if (scope.selectionMode === pvSelectionModes.molecule) {
+          if (scope.selectionMode === SELECTION_MODES.molecule) {
             scope.onSelectPose({
               event: event,
               poseIndex: poseIndex,
               pickPoses: pickPoses
             });
-          } else if (scope.selectionMode === pvSelectionModes.chain) {
+          } else if (scope.selectionMode === SELECTION_MODES.chain) {
             scope.onSelectChain({
               event: event,
               poseIndex: poseIndex,

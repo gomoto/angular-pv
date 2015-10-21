@@ -10,7 +10,7 @@ angular.module('CyDirectives', []);
 
 angular.module('cyViewer', ['CyDirectives'])
 .constant('pv', pv)
-.constant('pvSelectionModes', { residue: 'Residue', chain: 'Chain', molecule: 'Molecule' })
+.constant('SELECTION_MODES', { residue: 'Residue', chain: 'Chain', molecule: 'Molecule' })
 .constant('RENDER_MODES', {
   'cartoon': 'Cartoon',
   'tube': 'Tube',
@@ -20,7 +20,7 @@ angular.module('cyViewer', ['CyDirectives'])
   'lineTrace': 'Line Trace',
   'sline': 'Smooth Line'
 })
-.controller('cyViewerCtrl', ['$scope', '$http', 'pvSelectionModes', function($scope, $http, pvSelectionModes) {
+.controller('cyViewerCtrl', ['$scope', '$http', 'SELECTION_MODES', function($scope, $http, SELECTION_MODES) {
   //simulate session scope
 
   //list of pose IDs
@@ -375,7 +375,7 @@ angular.module('cyViewer', ['CyDirectives'])
     }
   };
 
-  $scope.selectionModes = _.values(pvSelectionModes);
-  $scope.selectionMode = pvSelectionModes.residue;
+  $scope.selectionModes = _.values(SELECTION_MODES);
+  $scope.selectionMode = SELECTION_MODES.residue;
 
 }]);
