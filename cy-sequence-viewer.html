@@ -67,6 +67,17 @@
               </li>
             </ul>
           </li>
+          <li>
+            <span>Render as ...</span>
+            <span class="sv-arrow-right"></span>
+            <ul class="sv-render-modes">
+              <li ng-repeat="(mode, prettyMode) in RENDER_MODES"
+                  ng-click="renderModes[poseId]=mode">
+                <span ng-style="{'visibility': renderModes[poseId] === mode ? 'visible' : 'hidden'}">&#x2713;</span>
+                <span>{{prettyMode}}</span>
+              </li>
+            </ul>
+          </li>
           <li ng-click="showPoseRuler(poseId)"
               ng-hide="isPoseRulerShowing(poseId)">
             Show ruler

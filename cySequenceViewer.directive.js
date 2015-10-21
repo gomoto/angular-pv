@@ -2,31 +2,36 @@
 //Will there ever be two chains both without names?
 
 angular.module('CyDirectives')
-.directive('cySequenceViewer', ['$document', function($document) {
+.directive('cySequenceViewer', ['$document', 'pvSelectionModes', 'RENDER_MODES', function($document, pvSelectionModes, RENDER_MODES) {
   return {
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
     scope: {
+      poses: '=',
       onRemovePose: '&',
+      picks: '=',//make this read-only? passed &-methods not working as expected
+      sequences: '=',
       displayNames: '=',
       colors: '=',
       colorSchemes: '=',
-      palettes: '=',
-      picks: '=',//make this read-only? passed &-methods not working as expected
-      poses: '=',
-      sequences: '=',
+      renderModes: '=',
       hover: '=',
       isResidueAnchor: '&',
+      selectionMode: '@',
       onSelectResidue: '&',
       onExtendSelection: '&',
       onSelectChain: '&',
       onSelectPose: '&',
       onUnselectPose: '&',
       onInvertPose: '&',
-      onInvertAll: '&'
+      onInvertAll: '&',
+      palettes: '='
     },
     link: function(scope) {
+      //put this as an angular constant?
       var chainLabelWidth = 2;
+
+      scope.RENDER_MODES = RENDER_MODES;
 
       //track open menus
       scope.poseMenus = {};
@@ -70,7 +75,7 @@ angular.module('CyDirectives')
         var sequence = scope.sequences[poseId];
         //stop before the chain at chainIndex
         for (var chainCursor = 0; chainCursor < chainIndex; chainCursor++) {
-          chain = sequence.chains[chainCursor];
+          var chain = sequence.chains[chainCursor];
           columns += chainLabelWidth;
           columns += chain.residues.length;
         }
@@ -248,13 +253,28 @@ angular.module('CyDirectives')
       };
 
       scope.onResidueMousedown = function(event, poseIndex, chainIndex, residueIndex) {
-        scope.onSelectResidue({
-          event: event,
-          poseIndex: poseIndex,
-          chainIndex: chainIndex,
-          residueIndex: residueIndex,
-          pickResidues: pickResidues
-        });
+        if (scope.selectionMode === pvSelectionModes.molecule) {
+          scope.onSelectPose({
+            event: event,
+            poseIndex: poseIndex,
+            pickPoses: pickPoses
+          });
+        } else if (scope.selectionMode === pvSelectionModes.chain) {
+          scope.onSelectChain({
+            event: event,
+            poseIndex: poseIndex,
+            chainIndex: chainIndex,
+            pickChains: pickChains
+          });
+        } else {
+          scope.onSelectResidue({
+            event: event,
+            poseIndex: poseIndex,
+            chainIndex: chainIndex,
+            residueIndex: residueIndex,
+            pickResidues: pickResidues
+          });
+        }
       };
 
       scope.onResidueMouseenter = function(event, poseIndex, chainIndex, residueIndex) {

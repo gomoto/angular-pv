@@ -6,6 +6,7 @@
   <script src="pv.min.js"></script>
   <script src="index.js"></script>
   <script src="cyContextmenu.directive.js"></script>
+  <script src="cyMousedrag.directive.js"></script>
   <script src="cyProteinViewer.directive.js"></script>
   <script src="cySequenceViewer.directive.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500" rel="stylesheet" type="text/css">
@@ -17,51 +18,67 @@
 </head>
 <body ng-controller="cyViewerCtrl">
 
-  <form
-    class="pose-creator"
-    ng-class="{'pose-creator--open': isPoseCreatorOpen}"
-    ng-submit="onAddPose(newPose.pdb, newPose.name); isPoseCreatorOpen=false">
-    <span class="pose-creator-close" ng-click="isPoseCreatorOpen=!isPoseCreatorOpen">&#215;</span>
-    <div class="pose-creator-content">
-      <input type="text" class="pose-creator-input" ng-model="newPose.pdb" placeholder="PDB ID" required>
-      <input type="text" class="pose-creator-input" ng-model="newPose.name" placeholder="Name">
-      <input type="submit" class="pose-creator-submit">
-    </div>
-  </form>
+  <div class="pose-creator-container" ng-class="{'dimmed': poses.length > 0 && pvIsMoving}">
+    <form
+      class="pose-creator"
+      ng-class="{'pose-creator--open': isPoseCreatorOpen}"
+      ng-submit="onAddPose(newPose.pdb, newPose.name); isPoseCreatorOpen=false">
+      <span class="pose-creator-close" ng-click="isPoseCreatorOpen=!isPoseCreatorOpen">&#215;</span>
+      <div class="pose-creator-content">
+        <input type="text" class="pose-creator-input" ng-model="newPose.pdb" placeholder="PDB ID" required>
+        <input type="text" class="pose-creator-input" ng-model="newPose.name" placeholder="{{ newPose.pdb || 'Name' }}">
+        <input type="submit" class="pose-creator-submit">
+      </div>
+    </form>
+  </div>
 
-  <cy-protein-viewer
-    pdb-data="pdbData"
-    colors="colors"
-    color-schemes="colorSchemes"
-    palettes="palettes"
-    render-modes="renderModes"
-    picks="picks"
-    poses="poses"
-    sequences="sequences"
-    hover="hover"
-    on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
-    on-unselect-all="onUnselectAll(event)">
-  </cy-protein-viewer>
+  <div class="mode-selector" ng-class="{'dimmed': pvIsMoving}" ng-show="poses.length > 0">
+    Selection mode
+    <select ng-model="selectionMode" ng-options="mode for mode in selectionModes"></select>
+  </div>
 
-  <cy-sequence-viewer
-    on-remove-pose="onRemovePose(poseId)"
-    display-names="displayNames"
-    colors="colors"
-    color-schemes="colorSchemes"
-    palettes="palettes"
-    picks="picks"
-    poses="poses"
-    sequences="sequences"
-    hover="hover"
-    is-residue-anchor="isResidueAnchor(poseIndex, chainIndex, residueIndex)"
-    on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
-    on-extend-selection="onExtendSelection(event, poseIndex, chainIndex, residueIndex, pickResidues)"
-    on-select-chain="onSelectChain(event, poseIndex, chainIndex, pickChains)"
-    on-select-pose="onSelectPose(event, poseIndex, pickPoses)"
-    on-unselect-pose="onUnselectPose(event, poseIndex)"
-    on-invert-pose="onInvertPose(event, poseIndex)"
-    on-invert-all="onInvertAll(event)">
-  </cy-sequence-viewer>
+  <div class="protein-viewer" cy-mousedrag="pvIsMoving">
+    <cy-protein-viewer
+      poses="poses"
+      picks="picks"
+      sequences="sequences"
+      pdb-data="pdbData"
+      colors="colors"
+      color-schemes="colorSchemes"
+      render-modes="renderModes"
+      hover="hover"
+      selection-mode="{{selectionMode}}"
+      on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+      on-select-chain="onSelectChain(event, poseIndex, chainIndex, pickChains)"
+      on-select-pose="onSelectPose(event, poseIndex, pickPoses)"
+      on-unselect-all="onUnselectAll(event)"
+      palettes="palettes">
+    </cy-protein-viewer>
+  </div>
+
+  <div class="sequence-viewer" ng-class="{'dimmed': poses.length > 0 && pvIsMoving}">
+    <cy-sequence-viewer
+      poses="poses"
+      on-remove-pose="onRemovePose(poseId)"
+      picks="picks"
+      sequences="sequences"
+      display-names="displayNames"
+      colors="colors"
+      color-schemes="colorSchemes"
+      render-modes="renderModes"
+      hover="hover"
+      is-residue-anchor="isResidueAnchor(poseIndex, chainIndex, residueIndex)"
+      selection-mode="{{selectionMode}}"
+      on-select-residue="onSelectResidue(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+      on-extend-selection="onExtendSelection(event, poseIndex, chainIndex, residueIndex, pickResidues)"
+      on-select-chain="onSelectChain(event, poseIndex, chainIndex, pickChains)"
+      on-select-pose="onSelectPose(event, poseIndex, pickPoses)"
+      on-unselect-pose="onUnselectPose(event, poseIndex)"
+      on-invert-pose="onInvertPose(event, poseIndex)"
+      on-invert-all="onInvertAll(event)"
+      palettes="palettes">
+    </cy-sequence-viewer>
+  </div>
 
 </body>
 </html>

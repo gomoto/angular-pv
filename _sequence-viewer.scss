@@ -63,7 +63,7 @@ $sv-pose-ruler-space-bottom: 1px;
 
 
 .sv {
-  z-index: 3;//create stacking context for sequence viewer
+  z-index: 1;//create stacking context for sequence viewer
   position: relative;
   background: rgba($white, 0.8);
   padding: $sv-padding;
@@ -164,6 +164,12 @@ $sv-pose-ruler-space-bottom: 1px;
     display: block;
   }
 }
+.sv-render-modes {
+  @extend %sv-menu;
+  .sv-pose-menu > li:hover & {
+    display: block;
+  }
+}
 
 
 
@@ -225,7 +231,7 @@ $sv-pose-ruler-space-bottom: 1px;
     border-radius $sv-residue-transition,
     z-index $sv-residue-transition
   );
-  .sv-hover:not(.picked) & {
+  .sv-hover & {
     box-shadow: 0 0 0 $sv-hover-border-width $black;
     border-radius: 1px;
     z-index: 2;//stacking context: .sv

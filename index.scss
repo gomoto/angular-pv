@@ -15,6 +15,58 @@ body {
   color: $black;
 }
 
+/**
+ * Using animation instead of transition because
+ * filter(blur(0)) on an element was creating
+ * unsightly black boxes when a `select` dropdown
+ * inside the blurred element was opened. This way
+ * the styles only stay on the element during the
+ * animation, and should prevent the black boxes.
+ */
+.dimmed {
+  @include animation(dim .27s ease 1 forwards);
+}
+@include keyframes(dim) {
+  from {
+    opacity: 1;
+    @include filter(blur(0));
+  }
+  to {
+    opacity: 0.1;
+    @include filter(blur(2px));
+  }
+}
+
+.protein-viewer {
+  z-index: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.sequence-viewer {
+  z-index: 2;
+  position: relative;
+}
+.pose-creator-container {
+  z-index: 2;
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+}
+.mode-selector {
+  z-index: 2;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+
+  color: $white;
+  select {
+    margin-left: 4px;
+  }
+}
+
 @import '-webkit-scrollbar';
 @import 'protein-viewer';
 @import 'sequence-viewer';
@@ -29,12 +81,8 @@ $pose-creator-padding-bottom: 16px;
 $pose-creator-input-height: 24px;
 $pose-creator-input-border-width: 2px;
 $pose-creator-input-margin-bottom: 16px;
-
 .pose-creator {
-  z-index: 2;
-  position: absolute;
-  left: 16px;
-  bottom: 16px;
+  position: relative;
   background: rgba($white, 0.8);
   overflow: hidden;
 
@@ -123,6 +171,6 @@ $pose-creator-input-margin-bottom: 16px;
 .pose-creator-submit {
   //hide submit button without using 'display: none' or 'visibility: hidden'
   position: absolute;
-  top: 100%;
-  right: 100%;
+  top: 1000%;
+  right: 1000%;
 }

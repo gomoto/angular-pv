@@ -22,20 +22,24 @@ var residueCodeMap = {
 };
 
 angular.module('CyDirectives')
-.directive('cyProteinViewer', function() {
+.directive('cyProteinViewer', ['pv', 'pvSelectionModes', function(pv, pvSelectionModes) {
   return {
+    restrict: 'E',
     scope: {
+      poses: '=',
+      picks: '=',
+      sequences: '=',
       pdbData: '=',
       colors: '=',
       colorSchemes: '=',
-      palettes: '=',
       renderModes: '=',
-      picks: '=',
-      poses: '=',
-      sequences: '=',
       hover: '=',
+      selectionMode: '@',
       onSelectResidue: '&',
-      onUnselectAll: '&'
+      onSelectChain: '&',
+      onSelectPose: '&',
+      onUnselectAll: '&',
+      palettes: '='
     },
     link: function(scope, element) {
 
@@ -52,7 +56,8 @@ angular.module('CyDirectives')
         fov: 30,
         outline: true,//default true
         outlineColor: '#222',
-        outlineWidth: 2
+        outlineWidth: 2,
+        animateTime: 500
       });
 
       //shouldn't need to wait for viewerReady event because
@@ -66,10 +71,10 @@ angular.module('CyDirectives')
         viewer.fitParent();//eventually calls requestRedraw()
       });
 
-      //When poses change (pdbData changes), sync viewer renderings
-      scope.$watch('pdbData', function(newPdbData, oldPdbData) {
+      //When poses change, sync viewer renderings
+      scope.$watch('poses', function(newPoses, oldPoses) {
         //remove old poses from viewer
-        var exiting = _.difference( _.keys(oldPdbData), _.keys(newPdbData) );
+        var exiting = _.difference( oldPoses, newPoses );
         _.forEach(exiting, function(poseId) {
           viewer.rm(poseId);
           //viewer.autoZoom doesn't redraw if viewer has no renderings
@@ -77,7 +82,7 @@ angular.module('CyDirectives')
         });
 
         //render new poses in viewer
-        var entering = _.difference( _.keys(newPdbData), _.keys(oldPdbData) );
+        var entering = _.difference( newPoses, oldPoses );
         _.forEach(entering, function(poseId) {
           var structure = pv.io.pdb( scope.pdbData[poseId] );
 
@@ -118,7 +123,8 @@ angular.module('CyDirectives')
         //when a pose is added, the pose ID will be in new but not in old;
         //in both cases, viewer will not have a rendering for that pose ID.
         _.forEach(oldRenderModes, function(renderMode, poseId) {
-          if (renderMode === newRenderModes[poseId]) return;//render mode didn't change
+          var newRenderMode = newRenderModes[poseId];
+          if (renderMode === newRenderMode) return;//render mode didn't change
           //Reuse structure
           var rendering = viewer.get(poseId);
           if (rendering === null) return;//nonexistent rendering
@@ -127,7 +133,7 @@ angular.module('CyDirectives')
           viewer.renderAs(
             poseId,
             structure,
-            renderMode,
+            newRenderMode,
             { color: pv.color.uniform( scope.colors[poseId] ) }
           );
           viewer.requestRedraw();
@@ -221,7 +227,7 @@ angular.module('CyDirectives')
               residues.push(residue);
             });
           });
-          selection.addResidues(residues);
+          selection.addResidues(residues, true);
           rendering.setSelection(selection);
         });
 
@@ -233,7 +239,7 @@ angular.module('CyDirectives')
         //pick all residues between the anchor and target
         var selection = {};
         if (anchor.pose !== target.pose) {
-          //selection between poses does not make sense here
+          //continuting a selection between poses does not make sense here
           return selection;
         }
         var poseId = scope.poses[target.pose];
@@ -257,6 +263,53 @@ angular.module('CyDirectives')
             }
             selection[poseId][chain.name][residue.position] = true;
           }
+        }
+        return selection;
+      }
+
+      function pickChains(anchor, target) {
+        //pick all residues in the anchor chain
+        var selection = {};
+        var poseId = scope.poses[anchor.pose];
+        var sequence = scope.sequences[poseId];
+        var chain = sequence.chains[anchor.chain];
+        chain.residues.forEach(function(residue) {
+          //add all residues to selection
+          if (typeof selection[poseId] === 'undefined') {
+            selection[poseId] = {};
+          }
+          if (typeof selection[poseId][chain.name] === 'undefined') {
+            selection[poseId][chain.name] = {};
+          }
+          selection[poseId][chain.name][residue.position] = true;
+        });
+        return selection;
+      }
+
+      function pickPoses(anchor, target) {
+        //pick all residues in all chains in poses between anchor and target
+        var selection = {};
+        if (anchor.pose !== target.pose) {
+          //continuting a selection between poses does not make sense here
+          return selection;
+        }
+        var poseIndexMin = Math.min(anchor.pose, target.pose);
+        var poseIndexMax = Math.max(anchor.pose, target.pose);
+        for (var poseCursor = poseIndexMin; poseCursor <= poseIndexMax; poseCursor++) {
+          var poseId = scope.poses[poseCursor];
+          var sequence = scope.sequences[poseId];
+          sequence.chains.forEach(function(chain) {
+            chain.residues.forEach(function(residue) {
+              //add all residues to selection
+              if (typeof selection[poseId] === 'undefined') {
+                selection[poseId] = {};
+              }
+              if (typeof selection[poseId][chain.name] === 'undefined') {
+                selection[poseId][chain.name] = {};
+              }
+              selection[poseId][chain.name][residue.position] = true;
+            });
+          });
         }
         return selection;
       }
@@ -286,13 +339,29 @@ angular.module('CyDirectives')
           var chainIndex = _.findIndex(scope.sequences[poseId].chains, {name: chainName});
           var residueIndex = _.findIndex(scope.sequences[poseId].chains[chainIndex].residues, {position: residuePosition});
 
-          scope.onSelectResidue({
-            event: event,
-            poseIndex: poseIndex,
-            chainIndex: chainIndex,
-            residueIndex: residueIndex,
-            pickResidues: pickResidues
-          });
+          if (scope.selectionMode === pvSelectionModes.molecule) {
+            scope.onSelectPose({
+              event: event,
+              poseIndex: poseIndex,
+              pickPoses: pickPoses
+            });
+          } else if (scope.selectionMode === pvSelectionModes.chain) {
+            scope.onSelectChain({
+              event: event,
+              poseIndex: poseIndex,
+              chainIndex: chainIndex,
+              pickChains: pickChains
+            });
+          } else {
+            scope.onSelectResidue({
+              event: event,
+              poseIndex: poseIndex,
+              chainIndex: chainIndex,
+              residueIndex: residueIndex,
+              pickResidues: pickResidues
+            });
+          }
+
         });
       });
 
@@ -317,12 +386,14 @@ angular.module('CyDirectives')
           var rendering = picked.object().geom;
           var atom = picked.object().atom;
 
+          var atomName = atom.name();
           var residuePosition = atom.residue().num();
           var chainName = atom.residue().chain().name();
           var poseId = rendering.name();
 
           if (
             scope.hover !== null &&
+            scope.hover.atom === atomName &&
             scope.hover.residue === residuePosition &&
             scope.hover.chain === chainName &&
             scope.hover.pose === poseId
@@ -332,6 +403,7 @@ angular.module('CyDirectives')
           }
           scope.$apply(function() {
             scope.hover = {
+              atom: atomName,
               residue: residuePosition,
               chain: chainName,
               pose: poseId
@@ -342,40 +414,31 @@ angular.module('CyDirectives')
 
       var hoverColor = '#222';//make this customizable?
       var oldColor = [0,0,0,0];//pv needs to save color in an array
-      function colorResidue(residue, color, saveOldColor) {
-        var rendering = viewer.get(residue.pose);
+      function colorAtom(atom, color, saveOldColor) {
+        var rendering = viewer.get(atom.pose);
         if (rendering === null) {
           //don't need to recolor rendering if rendering was removed
           return;
         }
         var structure = rendering.structure();
         var selection = structure.createEmptyView();
-        var residue = structure
-        .chain(residue.chain)
-        .residueByRnum(residue.residue);
-        var atom;
-        if (residue.isAminoacid()) {
-          atom = residue.atom('CA');//pv.mol.Atom instance
-        } else {
-          atom = residue.atom('P');
-          if (!atom) return; //not amino acid or nucleotide
-        }
-        selection.addAtom(atom);
+        var coloredAtom = structure.chain(atom.chain).residueByRnum(atom.residue).atom(atom.atom || 'CA');
+        selection.addAtom(coloredAtom);
         if (saveOldColor) {
-          rendering.getColorForAtom(atom, oldColor);
+          rendering.getColorForAtom(coloredAtom, oldColor);
         }
         rendering.colorBy(pv.color.uniform(color), selection);
       }
       scope.$watch('hover', function(newHover, oldHover) {
         if (oldHover !== null) {
-          colorResidue(oldHover, oldColor);
+          colorAtom(oldHover, oldColor);
         }
         if (newHover !== null) {
-          colorResidue(newHover, hoverColor, true);
+          colorAtom(newHover, hoverColor, true);
         }
         viewer.requestRedraw();
       }, true);
 
     }
   };
-});
+}]);
