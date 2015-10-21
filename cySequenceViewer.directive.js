@@ -2,7 +2,7 @@
 //Will there ever be two chains both without names?
 
 angular.module('CyDirectives')
-.directive('cySequenceViewer', ['$document', 'pvSelectionModes', 'RENDER_MODES', function($document, pvSelectionModes, RENDER_MODES) {
+.directive('cySequenceViewer', ['$document', 'SELECTION_MODES', 'RENDER_MODES', 'PALETTES', function($document, SELECTION_MODES, RENDER_MODES, PALETTES) {
   return {
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
@@ -24,14 +24,14 @@ angular.module('CyDirectives')
       onSelectPose: '&',
       onUnselectPose: '&',
       onInvertPose: '&',
-      onInvertAll: '&',
-      palettes: '='
+      onInvertAll: '&'
     },
     link: function(scope) {
       //put this as an angular constant?
       var chainLabelWidth = 2;
 
       scope.RENDER_MODES = RENDER_MODES;
+      scope.PALETTES = PALETTES;
 
       //track open menus
       scope.poseMenus = {};
@@ -247,19 +247,19 @@ angular.module('CyDirectives')
           residueColor = scope.colors[poseId];
         } else {
           //color by palette
-          residueColor = scope.palettes[scope.colorSchemes[poseId]][residueCode];
+          residueColor = scope.PALETTES[scope.colorSchemes[poseId]][residueCode];
         }
         return residueColor;
       };
 
       scope.onResidueMousedown = function(event, poseIndex, chainIndex, residueIndex) {
-        if (scope.selectionMode === pvSelectionModes.molecule) {
+        if (scope.selectionMode === SELECTION_MODES.molecule) {
           scope.onSelectPose({
             event: event,
             poseIndex: poseIndex,
             pickPoses: pickPoses
           });
-        } else if (scope.selectionMode === pvSelectionModes.chain) {
+        } else if (scope.selectionMode === SELECTION_MODES.chain) {
           scope.onSelectChain({
             event: event,
             poseIndex: poseIndex,

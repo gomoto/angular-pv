@@ -1,6 +1,5 @@
 
 var poseColors = ['#42A5F5', '#EF5350', '#AEEA00'];
-var renderModes = ['sline', 'lines', 'trace', 'lineTrace', 'cartoon', 'tube', 'spheres', 'ballsAndSticks'];//viewer.RENDER_MODES
 
 function normalizedCtrlKey(event) {
   return event.ctrlKey || event.metaKey;
@@ -10,17 +9,69 @@ angular.module('CyDirectives', []);
 
 angular.module('cyViewer', ['CyDirectives'])
 .constant('pv', pv)
-.constant('pvSelectionModes', { residue: 'Residue', chain: 'Chain', molecule: 'Molecule' })
+.constant('SELECTION_MODES', { residue: 'Residue', chain: 'Chain', molecule: 'Molecule' })
 .constant('RENDER_MODES', {
   'cartoon': 'Cartoon',
-  'tube': 'Tube',
-  'spheres': 'Sphere',
+  'tube': 'Tubes',
+  'spheres': 'Spheres',
   'ballsAndSticks': 'Ball and Stick',
   'trace': 'Tube Trace',
   'lineTrace': 'Line Trace',
   'sline': 'Smooth Line'
 })
-.controller('cyViewerCtrl', ['$scope', '$http', 'pvSelectionModes', function($scope, $http, pvSelectionModes) {
+.constant('PALETTES', {
+  'Clustal': {
+    'A': '#ccff00',
+    'R': '#1571f9',//#0061ef,//#0000ff,
+    'N': '#cc00ff',
+    'D': '#ff0000',
+    'C': '#ffff00',
+    'Q': '#ff00cc',
+    'E': '#ff0066',
+    'G': '#ff9900',
+    'H': '#5298ff',//#0066ff,
+    'I': '#66ff00',
+    'L': '#33ff00',
+    'K': '#a269f5',//#8433fb,//#761cfb,//#6600ff,
+    'M': '#00ff00',
+    'F': '#00ff66',
+    'P': '#ffcc00',
+    'S': '#ff3300',
+    'T': '#ff6600',
+    'W': '#00ccff',
+    'Y': '#00ffcc',
+    'V': '#99ff00',
+    'B': '#ffffff',
+    'X': '#ffffff',
+    'Z': '#ffffff'
+  },
+  'Hydrophobicity': {
+    'A': '#EF5350',//red
+    'B': '#2196F3',//blue
+    'C': '#BA68C8',//purple
+    'D': '#2196F3',
+    'E': '#2196F3',
+    'F': '#EF5350',
+    'G': '#BA68C8',
+    'H': '#2196F3',
+    'I': '#EF5350',
+    'K': '#2196F3',
+    'L': '#EF5350',
+    'M': '#EF5350',
+    'N': '#2196F3',
+    'P': '#BA68C8',
+    'Q': '#2196F3',
+    'R': '#2196F3',
+    'S': '#BA68C8',
+    'T': '#BA68C8',
+    'V': '#EF5350',
+    'W': '#BA68C8',
+    'X': '#BA68C8',
+    'Y': '#BA68C8',
+    'Z': '#2196F3'
+  }
+})
+.controller('cyViewerCtrl', ['$scope', '$http', 'RENDER_MODES', 'SELECTION_MODES', function($scope, $http, RENDER_MODES, SELECTION_MODES) {
   //simulate session scope
 
   //list of pose IDs
@@ -90,7 +141,7 @@ angular.module('cyViewer', ['CyDirectives'])
         $scope.displayNames[poseId] = name || pdbId;
         $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
         $scope.colorSchemes[poseId] = 'pose';
-        $scope.renderModes[poseId] = renderMode || renderModes[4];
+        $scope.renderModes[poseId] = renderMode || 'cartoon';
       },
       function reject() {
         console.log(pdbUrl + ' not found');
@@ -322,60 +373,7 @@ angular.module('cyViewer', ['CyDirectives'])
     $scope.picks = freezePicks();
   };
 
-  $scope.palettes = {
-    'Clustal': {
-      'A': '#ccff00',
-      'R': '#1571f9',//#0061ef,//#0000ff,
-      'N': '#cc00ff',
-      'D': '#ff0000',
-      'C': '#ffff00',
-      'Q': '#ff00cc',
-      'E': '#ff0066',
-      'G': '#ff9900',
-      'H': '#5298ff',//#0066ff,
-      'I': '#66ff00',
-      'L': '#33ff00',
-      'K': '#a269f5',//#8433fb,//#761cfb,//#6600ff,
-      'M': '#00ff00',
-      'F': '#00ff66',
-      'P': '#ffcc00',
-      'S': '#ff3300',
-      'T': '#ff6600',
-      'W': '#00ccff',
-      'Y': '#00ffcc',
-      'V': '#99ff00',
-      'B': '#ffffff',
-      'X': '#ffffff',
-      'Z': '#ffffff'
-    },
-    'Hydrophobicity': {
-      'A': '#EF5350',//red
-      'B': '#2196F3',//blue
-      'C': '#BA68C8',//purple
-      'D': '#2196F3',
-      'E': '#2196F3',
-      'F': '#EF5350',
-      'G': '#BA68C8',
-      'H': '#2196F3',
-      'I': '#EF5350',
-      'K': '#2196F3',
-      'L': '#EF5350',
-      'M': '#EF5350',
-      'N': '#2196F3',
-      'P': '#BA68C8',
-      'Q': '#2196F3',
-      'R': '#2196F3',
-      'S': '#BA68C8',
-      'T': '#BA68C8',
-      'V': '#EF5350',
-      'W': '#BA68C8',
-      'X': '#BA68C8',
-      'Y': '#BA68C8',
-      'Z': '#2196F3'
-    }
-  };
-
-  $scope.selectionModes = _.values(pvSelectionModes);
-  $scope.selectionMode = pvSelectionModes.residue;
+  $scope.selectionModes = _.values(SELECTION_MODES);
+  $scope.selectionMode = SELECTION_MODES.residue;
 
 }]);

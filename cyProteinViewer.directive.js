@@ -22,7 +22,7 @@ var residueCodeMap = {
 };
 
 angular.module('CyDirectives')
-.directive('cyProteinViewer', ['pv', 'pvSelectionModes', function(pv, pvSelectionModes) {
+.directive('cyProteinViewer', ['pv', 'SELECTION_MODES', 'PALETTES', function(pv, SELECTION_MODES, PALETTES) {
   return {
     restrict: 'E',
     scope: {
@@ -38,8 +38,7 @@ angular.module('CyDirectives')
       onSelectResidue: '&',
       onSelectChain: '&',
       onSelectPose: '&',
-      onUnselectAll: '&',
-      palettes: '='
+      onUnselectAll: '&'
     },
     link: function(scope, element) {
 
@@ -129,6 +128,8 @@ angular.module('CyDirectives')
           var rendering = viewer.get(poseId);
           if (rendering === null) return;//nonexistent rendering
           var structure = rendering.structure();
+          //save selection if there is one
+          var selection = rendering.selection();
           viewer.rm(poseId);
           viewer.renderAs(
             poseId,
@@ -136,6 +137,8 @@ angular.module('CyDirectives')
             newRenderMode,
             { color: pv.color.uniform( scope.colors[poseId] ) }
           );
+          //restore selection if there was one
+          viewer.get(poseId).setSelection(selection);
           viewer.requestRedraw();
         });
       }, true);
@@ -159,7 +162,7 @@ angular.module('CyDirectives')
             rendering.colorBy( pv.color.uniform(poseColor) );
           } else {
             //color by palette
-            var newPalette = scope.palettes[newColorScheme];
+            var newPalette = PALETTES[newColorScheme];
             var colorByAA = new pv.color.ColorOp(
               function(atom, out, index) {
                 var residue = atom.residue();
@@ -339,13 +342,13 @@ angular.module('CyDirectives')
           var chainIndex = _.findIndex(scope.sequences[poseId].chains, {name: chainName});
           var residueIndex = _.findIndex(scope.sequences[poseId].chains[chainIndex].residues, {position: residuePosition});
 
-          if (scope.selectionMode === pvSelectionModes.molecule) {
+          if (scope.selectionMode === SELECTION_MODES.molecule) {
             scope.onSelectPose({
               event: event,
               poseIndex: poseIndex,
               pickPoses: pickPoses
             });
-          } else if (scope.selectionMode === pvSelectionModes.chain) {
+          } else if (scope.selectionMode === SELECTION_MODES.chain) {
             scope.onSelectChain({
               event: event,
               poseIndex: poseIndex,
