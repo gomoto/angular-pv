@@ -128,6 +128,8 @@ angular.module('CyDirectives')
           var rendering = viewer.get(poseId);
           if (rendering === null) return;//nonexistent rendering
           var structure = rendering.structure();
+          //save selection if there is one
+          var selection = rendering.selection();
           viewer.rm(poseId);
           viewer.renderAs(
             poseId,
@@ -135,6 +137,8 @@ angular.module('CyDirectives')
             newRenderMode,
             { color: pv.color.uniform( scope.colors[poseId] ) }
           );
+          //restore selection if there was one
+          viewer.get(poseId).setSelection(selection);
           viewer.requestRedraw();
         });
       }, true);
