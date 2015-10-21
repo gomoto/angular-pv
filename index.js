@@ -1,6 +1,5 @@
 
 var poseColors = ['#42A5F5', '#EF5350', '#AEEA00'];
-var renderModes = ['sline', 'lines', 'trace', 'lineTrace', 'cartoon', 'tube', 'spheres', 'ballsAndSticks'];//viewer.RENDER_MODES
 
 function normalizedCtrlKey(event) {
   return event.ctrlKey || event.metaKey;
@@ -13,8 +12,8 @@ angular.module('cyViewer', ['CyDirectives'])
 .constant('SELECTION_MODES', { residue: 'Residue', chain: 'Chain', molecule: 'Molecule' })
 .constant('RENDER_MODES', {
   'cartoon': 'Cartoon',
-  'tube': 'Tube',
-  'spheres': 'Sphere',
+  'tube': 'Tubes',
+  'spheres': 'Spheres',
   'ballsAndSticks': 'Ball and Stick',
   'trace': 'Tube Trace',
   'lineTrace': 'Line Trace',
@@ -72,7 +71,7 @@ angular.module('cyViewer', ['CyDirectives'])
     'Z': '#2196F3'
   }
 })
-.controller('cyViewerCtrl', ['$scope', '$http', 'SELECTION_MODES', function($scope, $http, SELECTION_MODES) {
+.controller('cyViewerCtrl', ['$scope', '$http', 'RENDER_MODES', 'SELECTION_MODES', function($scope, $http, RENDER_MODES, SELECTION_MODES) {
   //simulate session scope
 
   //list of pose IDs
@@ -142,7 +141,7 @@ angular.module('cyViewer', ['CyDirectives'])
         $scope.displayNames[poseId] = name || pdbId;
         $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
         $scope.colorSchemes[poseId] = 'pose';
-        $scope.renderModes[poseId] = renderMode || renderModes[4];
+        $scope.renderModes[poseId] = renderMode || 'cartoon';
       },
       function reject() {
         console.log(pdbUrl + ' not found');
