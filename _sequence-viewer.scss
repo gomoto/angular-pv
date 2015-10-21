@@ -164,6 +164,12 @@ $sv-pose-ruler-space-bottom: 1px;
     display: block;
   }
 }
+.sv-render-modes {
+  @extend %sv-menu;
+  .sv-pose-menu > li:hover & {
+    display: block;
+  }
+}
 
 
 

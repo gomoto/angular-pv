@@ -2,7 +2,7 @@
 //Will there ever be two chains both without names?
 
 angular.module('CyDirectives')
-.directive('cySequenceViewer', ['$document', 'pvSelectionModes', function($document, pvSelectionModes) {
+.directive('cySequenceViewer', ['$document', 'pvSelectionModes', 'RENDER_MODES', function($document, pvSelectionModes, RENDER_MODES) {
   return {
     restrict: 'E',
     templateUrl: 'cy-sequence-viewer.html',
@@ -14,6 +14,7 @@ angular.module('CyDirectives')
       displayNames: '=',
       colors: '=',
       colorSchemes: '=',
+      renderModes: '=',
       hover: '=',
       isResidueAnchor: '&',
       selectionMode: '@',
@@ -27,7 +28,10 @@ angular.module('CyDirectives')
       palettes: '='
     },
     link: function(scope) {
+      //put this as an angular constant?
       var chainLabelWidth = 2;
+
+      scope.RENDER_MODES = RENDER_MODES;
 
       //track open menus
       scope.poseMenus = {};

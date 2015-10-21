@@ -11,6 +11,15 @@ angular.module('CyDirectives', []);
 angular.module('cyViewer', ['CyDirectives'])
 .constant('pv', pv)
 .constant('pvSelectionModes', { residue: 'Residue', chain: 'Chain', molecule: 'Molecule' })
+.constant('RENDER_MODES', {
+  'cartoon': 'Cartoon',
+  'tube': 'Tube',
+  'spheres': 'Sphere',
+  'ballsAndSticks': 'Ball and Stick',
+  'trace': 'Tube Trace',
+  'lineTrace': 'Line Trace',
+  'sline': 'Smooth Line'
+})
 .controller('cyViewerCtrl', ['$scope', '$http', 'pvSelectionModes', function($scope, $http, pvSelectionModes) {
   //simulate session scope
 
@@ -81,7 +90,7 @@ angular.module('cyViewer', ['CyDirectives'])
         $scope.displayNames[poseId] = name || pdbId;
         $scope.colors[poseId] = color || poseColors[ _.size($scope.colors) % poseColors.length ];
         $scope.colorSchemes[poseId] = 'pose';
-        $scope.renderModes[poseId] = renderMode || renderModes[7];
+        $scope.renderModes[poseId] = renderMode || renderModes[4];
       },
       function reject() {
         console.log(pdbUrl + ' not found');

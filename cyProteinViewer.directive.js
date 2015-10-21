@@ -123,7 +123,8 @@ angular.module('CyDirectives')
         //when a pose is added, the pose ID will be in new but not in old;
         //in both cases, viewer will not have a rendering for that pose ID.
         _.forEach(oldRenderModes, function(renderMode, poseId) {
-          if (renderMode === newRenderModes[poseId]) return;//render mode didn't change
+          var newRenderMode = newRenderModes[poseId];
+          if (renderMode === newRenderMode) return;//render mode didn't change
           //Reuse structure
           var rendering = viewer.get(poseId);
           if (rendering === null) return;//nonexistent rendering
@@ -132,7 +133,7 @@ angular.module('CyDirectives')
           viewer.renderAs(
             poseId,
             structure,
-            renderMode,
+            newRenderMode,
             { color: pv.color.uniform( scope.colors[poseId] ) }
           );
           viewer.requestRedraw();
