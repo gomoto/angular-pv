@@ -75,6 +75,92 @@ body {
   color: #222;
 }
 
+/**
+ * Using animation instead of transition because
+ * filter(blur(0)) on an element was creating
+ * unsightly black boxes when a `select` dropdown
+ * inside the blurred element was opened. This way
+ * the styles only stay on the element during the
+ * animation, and should prevent the black boxes.
+ */
+/* line 26, index.scss */
+.dimmed {
+  -moz-animation: dim 0.27s ease 1 forwards;
+  -webkit-animation: dim 0.27s ease 1 forwards;
+  animation: dim 0.27s ease 1 forwards;
+}
+
+@-moz-keyframes dim {
+  from {
+    opacity: 1;
+    filter: blur(0);
+  }
+  to {
+    opacity: 0.1;
+    filter: blur(2px);
+  }
+}
+@-webkit-keyframes dim {
+  from {
+    opacity: 1;
+    -webkit-filter: blur(0);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0.1;
+    -webkit-filter: blur(2px);
+    filter: blur(2px);
+  }
+}
+@keyframes dim {
+  from {
+    opacity: 1;
+    -webkit-filter: blur(0);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0.1;
+    -webkit-filter: blur(2px);
+    filter: blur(2px);
+  }
+}
+/* line 40, index.scss */
+.protein-viewer {
+  z-index: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* line 48, index.scss */
+.sequence-viewer {
+  z-index: 2;
+  position: relative;
+}
+
+/* line 52, index.scss */
+.pose-creator-container {
+  z-index: 2;
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+}
+
+/* line 58, index.scss */
+.mode-selector {
+  z-index: 2;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  color: #fdfdfd;
+}
+/* line 65, index.scss */
+.mode-selector select {
+  margin-left: 4px;
+}
+
 /* line 2, _-webkit-scrollbar.scss */
 ::-webkit-scrollbar-track, ::-webkit-scrollbar-thumb {
   border-radius: 5px;
@@ -99,8 +185,7 @@ body {
 
 /* line 1, _protein-viewer.scss */
 cy-protein-viewer {
-  z-index: 1;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -128,7 +213,7 @@ cy-protein-viewer {
 }
 
 /* line 31, _sequence-viewer.scss */
-.sv-header-menu, .sv-info, .sv-pose-menu, .sv-palettes {
+.sv-header-menu, .sv-info, .sv-pose-menu, .sv-palettes, .sv-render-modes {
   display: none;
   position: absolute;
   top: 0;
@@ -138,7 +223,7 @@ cy-protein-viewer {
   padding: 4px 0;
 }
 /* line 40, _sequence-viewer.scss */
-.sv-header-menu > li, .sv-info > li, .sv-pose-menu > li, .sv-palettes > li {
+.sv-header-menu > li, .sv-info > li, .sv-pose-menu > li, .sv-palettes > li, .sv-render-modes > li {
   display: block;
   height: 28px;
   line-height: 28px;
@@ -152,7 +237,7 @@ cy-protein-viewer {
   position: relative;
 }
 /* line 53, _sequence-viewer.scss */
-.sv-header-menu > li:hover, .sv-info > li:hover, .sv-pose-menu > li:hover, .sv-palettes > li:hover {
+.sv-header-menu > li:hover, .sv-info > li:hover, .sv-pose-menu > li:hover, .sv-palettes > li:hover, .sv-render-modes > li:hover {
   background: #dfdfdf;
 }
 
@@ -163,7 +248,7 @@ cy-protein-viewer {
 
 /* line 65, _sequence-viewer.scss */
 .sv {
-  z-index: 3;
+  z-index: 1;
   position: relative;
   background: rgba(253, 253, 253, 0.8);
   padding: 16px;
@@ -272,20 +357,25 @@ cy-protein-viewer {
   display: block;
 }
 
-/* line 170, _sequence-viewer.scss */
+/* line 169, _sequence-viewer.scss */
+.sv-pose-menu > li:hover .sv-render-modes {
+  display: block;
+}
+
+/* line 176, _sequence-viewer.scss */
 .sv-chain {
   display: inline-block;
 }
-/* line 173, _sequence-viewer.scss */
+/* line 179, _sequence-viewer.scss */
 .sv-pose:last-child .sv-chain {
   border-bottom: 2px solid transparent;
 }
-/* line 176, _sequence-viewer.scss */
+/* line 182, _sequence-viewer.scss */
 .sv-chain:last-child {
   border-right: 2px solid transparent;
 }
 
-/* line 180, _sequence-viewer.scss */
+/* line 186, _sequence-viewer.scss */
 .sv-chain-name {
   display: inline-block;
   height: 20px;
@@ -298,7 +388,7 @@ cy-protein-viewer {
   color: #fdfdfd;
   position: relative;
 }
-/* line 191, _sequence-viewer.scss */
+/* line 197, _sequence-viewer.scss */
 .sv-chain-name:before {
   content: "";
   z-index: -1;
@@ -310,16 +400,16 @@ cy-protein-viewer {
   border-radius: 50%;
   background: #9f9f9f;
 }
-/* line 202, _sequence-viewer.scss */
+/* line 208, _sequence-viewer.scss */
 .sv-chain-name.picked {
   font-weight: 500;
 }
-/* line 204, _sequence-viewer.scss */
+/* line 210, _sequence-viewer.scss */
 .sv-chain-name.picked:before {
   background: #505050;
 }
 
-/* line 215, _sequence-viewer.scss */
+/* line 221, _sequence-viewer.scss */
 .sv-residue-code {
   height: 20px;
   line-height: 20px;
@@ -333,41 +423,38 @@ cy-protein-viewer {
   -webkit-transition: box-shadow 0.2s linear, border-radius 0.2s linear, z-index 0.2s linear;
   transition: box-shadow 0.2s linear, border-radius 0.2s linear, z-index 0.2s linear;
 }
-/* line 228, _sequence-viewer.scss */
-.sv-hover:not(.picked) .sv-residue-code {
+/* line 234, _sequence-viewer.scss */
+.sv-hover .sv-residue-code {
   box-shadow: 0 0 0 2px #222;
   border-radius: 1px;
   z-index: 2;
 }
-/* line 233, _sequence-viewer.scss */
+/* line 239, _sequence-viewer.scss */
 .sv-residue.picked .sv-residue-code {
   color: #fdfdfd;
   background: #505050 !important;
 }
-/* line 237, _sequence-viewer.scss */
+/* line 243, _sequence-viewer.scss */
 .sv-residue.anchor .sv-residue-code {
   font-weight: 500;
   color: #fdfdfd;
   background: #222 !important;
 }
 
-/* line 243, _sequence-viewer.scss */
+/* line 249, _sequence-viewer.scss */
 .sv-residue-position {
   padding-top: 8px;
   padding-bottom: 1px;
 }
-/* line 247, _sequence-viewer.scss */
+/* line 253, _sequence-viewer.scss */
 .sv-residue.picked .sv-residue-position {
   color: #222;
   font-weight: 500;
 }
 
-/* line 33, index.scss */
+/* line 84, index.scss */
 .pose-creator {
-  z-index: 2;
-  position: absolute;
-  left: 16px;
-  bottom: 16px;
+  position: relative;
   background: rgba(253, 253, 253, 0.8);
   overflow: hidden;
   width: 40px;
@@ -378,14 +465,14 @@ cy-protein-viewer {
   -webkit-transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
   transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
 }
-/* line 44, index.scss */
+/* line 92, index.scss */
 .pose-creator.pose-creator--open {
   width: 180px;
   height: 132px;
   border-radius: 2px;
 }
 
-/* line 60, index.scss */
+/* line 108, index.scss */
 .pose-creator-close {
   z-index: 2;
   position: absolute;
@@ -407,7 +494,7 @@ cy-protein-viewer {
   -webkit-transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, -webkit-transform 0.4s ease;
   transition: width 0.2s ease, height 0.2s ease, line-height 0.2s ease, font-size 0.4s ease, transform 0.4s ease;
 }
-/* line 74, index.scss */
+/* line 122, index.scss */
 .pose-creator--open .pose-creator-close {
   width: 32px;
   height: 32px;
@@ -419,7 +506,7 @@ cy-protein-viewer {
   transform: rotate(0deg);
 }
 
-/* line 89, index.scss */
+/* line 137, index.scss */
 .pose-creator-input {
   background: transparent;
   color: #505050;
@@ -453,13 +540,13 @@ cy-protein-viewer {
   color: #9f9f9f;
   font-style: italic;
 }
-/* line 105, index.scss */
+/* line 153, index.scss */
 .pose-creator-input:focus {
   outline: 0;
   border-bottom-color: #505050;
 }
 
-/* line 110, index.scss */
+/* line 158, index.scss */
 .pose-creator-content {
   display: none;
   padding: 32px 24px 16px;
@@ -470,7 +557,7 @@ cy-protein-viewer {
   -webkit-transition-delay: 0.1s;
   transition: opacity 0.1s ease 0.1s;
 }
-/* line 116, index.scss */
+/* line 164, index.scss */
 .pose-creator--open .pose-creator-content {
   display: block;
   opacity: 1;
@@ -480,9 +567,9 @@ cy-protein-viewer {
   transition: opacity 0.05s ease;
 }
 
-/* line 123, index.scss */
+/* line 171, index.scss */
 .pose-creator-submit {
   position: absolute;
-  top: 100%;
-  right: 100%;
+  top: 1000%;
+  right: 1000%;
 }
