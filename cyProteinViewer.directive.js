@@ -36,6 +36,7 @@ angular.module('CyDirectives')
       hover: '=',
       selectionMode: '@',
       onSelectResidue: '&',
+      onSelectChain: '&',
       onSelectPose: '&',
       onUnselectAll: '&',
       palettes: '='
@@ -265,6 +266,25 @@ angular.module('CyDirectives')
         return selection;
       }
 
+      function pickChains(anchor, target) {
+        //pick all residues in the anchor chain
+        var selection = {};
+        var poseId = scope.poses[anchor.pose];
+        var sequence = scope.sequences[poseId];
+        var chain = sequence.chains[anchor.chain];
+        chain.residues.forEach(function(residue) {
+          //add all residues to selection
+          if (typeof selection[poseId] === 'undefined') {
+            selection[poseId] = {};
+          }
+          if (typeof selection[poseId][chain.name] === 'undefined') {
+            selection[poseId][chain.name] = {};
+          }
+          selection[poseId][chain.name][residue.position] = true;
+        });
+        return selection;
+      }
+
       function pickPoses(anchor, target) {
         //pick all residues in all chains in poses between anchor and target
         var selection = {};
@@ -323,6 +343,13 @@ angular.module('CyDirectives')
               event: event,
               poseIndex: poseIndex,
               pickPoses: pickPoses
+            });
+          } else if (scope.selectionMode === pvSelectionModes.chain) {
+            scope.onSelectChain({
+              event: event,
+              poseIndex: poseIndex,
+              chainIndex: chainIndex,
+              pickChains: pickChains
             });
           } else {
             scope.onSelectResidue({
