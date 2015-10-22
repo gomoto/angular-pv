@@ -15,7 +15,7 @@ angular.module('cyViewer', ['CyDirectives'])
   'tube': 'Tubes',
   'spheres': 'Spheres',
   'ballsAndSticks': 'Ball and Stick',
-  'trace': 'Tube Trace',
+  //'trace': 'Tube Trace',
   'lineTrace': 'Line Trace',
   'sline': 'Smooth Line'
 })
