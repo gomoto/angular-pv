@@ -143,7 +143,7 @@ angular.module('cyViewer', ['CyDirectives'])
     //Create unique pose ID
     //stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     var poseId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
-    var pdbUrl = '//www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb';
+    var pdbUrl = 'http://www.rcsb.org/pdb/files/' + pdbId.toUpperCase() + '.pdb';
     $http.get(pdbUrl) //note: $http callbacks are wrapped in $apply
     .then(
       function resolve(response) {
