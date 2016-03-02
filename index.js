@@ -126,6 +126,14 @@ angular.module('cyViewer', ['CyDirectives'])
   $scope.newPose = {};
   $scope.isPoseCreatorOpen = false;
 
+  $scope.onAddMultiplePoses = function(pdbIds, names) {
+    pdbIds = pdbIds.split(',');
+    names = names.split(',');
+    pdbIds.forEach(function(pdbId, index) {
+      $scope.onAddPose(pdbId, names[index] || pdbId);
+    });
+  }
+
   //define how to add and remove poses:
   $scope.onAddPose = function (pdbId, name, color, renderMode) {
     //Create unique pose ID
