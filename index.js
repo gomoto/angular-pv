@@ -128,7 +128,11 @@ angular.module('cyViewer', ['CyDirectives'])
 
   $scope.onAddMultiplePoses = function(pdbIds, names) {
     pdbIds = pdbIds.split(',');
-    names = names.split(',');
+    if (names) {
+      names = names.split(',');
+    } else {
+      names =[];
+    }
     pdbIds.forEach(function(pdbId, index) {
       $scope.onAddPose(pdbId, names[index] || pdbId);
     });
